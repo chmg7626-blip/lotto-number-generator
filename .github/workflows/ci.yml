@@ -1,0 +1,23 @@
+# CI 게이트: 깨끗한 환경에서 lint → test → build 를 재현한다.
+# 로컬에서만 통과하는 코드를 거르는 것이 목적이다.
+# (React + Vite / JavaScript — typecheck 단계는 없음)
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build

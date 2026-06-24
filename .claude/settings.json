@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": []
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}\\.claude\\hooks\\format-file.ps1\" -Executable \"npx\" prettier --write"
+          }
+        ]
+      }
+    ]
+  }
+}
