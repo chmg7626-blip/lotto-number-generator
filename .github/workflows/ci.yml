@@ -1,6 +1,6 @@
-# CI 게이트: 깨끗한 환경에서 lint → test → build 를 재현한다.
+# CI 게이트: 깨끗한 환경에서 lint → typecheck → test → build 를 재현한다.
 # 로컬에서만 통과하는 코드를 거르는 것이 목적이다.
-# (React + Vite / JavaScript — typecheck 단계는 없음)
+# (React + Vite + TypeScript)
 name: CI
 
 on:
@@ -19,5 +19,6 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run lint
+      - run: npm run typecheck
       - run: npm test
       - run: npm run build
