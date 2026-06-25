@@ -33,13 +33,13 @@
 WP 하나는 따로 완료·검증할 수 있는 크기로 잡는다. 끝나면 체크박스와 상태를 함께 갱신한다.
 순서: 먼저 동작하는 최소 버전(스캐폴딩 → 순수 로직 → UI) → 살을 붙이는 순.
 
-- [ ] WP-001: React + Vite + TypeScript + Vitest 스캐폴딩
+- [x] WP-001: React + Vite + TypeScript + Vitest 스캐폴딩
   - 목적: 빌드·테스트·lint·typecheck가 도는 빈 프로젝트 골격을 만든다. CI가 동작하게 한다.
   - 변경 파일: package.json, package-lock.json, tsconfig\*.json, vite.config.ts, eslint 설정, .prettierrc, src/main.tsx, src/App.tsx(자리만), index.html
   - 완료 조건: `npm install` 후 dev/build/test/lint/typecheck 스크립트가 정의되고 실행된다. CI에서 쓰는 스크립트명(lint·typecheck·test·build)이 package.json과 일치한다. **Vitest 환경을 jsdom으로 설정**해 이후 localStorage(WP-005)·컴포넌트 테스트가 환경 재설정 없이 돈다.
   - 검증: `npm run lint && npm run typecheck && npm test && npm run build` 모두 성공(빈 테스트라도 통과). dev 서버 기동 확인.
   - 위험: Vitest watch 기본값 → `test` 스크립트를 `vitest run`으로 둬 CI에서 멈추지 않게. typecheck는 `tsc --noEmit`. jsdom 미설정 시 WP-005에서 환경을 다시 건드리게 됨 → WP-001에서 미리 설정.
-  - 상태: pending
+  - 상태: done (2026-06-25). lint·typecheck·test(스모크 1개)·build 통과, dev 서버 HTTP 200. 임시 src/smoke.test.ts는 WP-002에서 대체. 취약점 해결: vitest 2→4.1.9로 올려 esbuild advisory 제거(npm audit 0건).
 
 - [ ] WP-002: 도메인 순수 로직 — 순수 랜덤 생성 + 불변식
   - 목적: 1~45 본번호 6개(중복 없음) + 보너스 1개 생성 함수와 불변식 검증.
@@ -82,6 +82,7 @@ WP 하나는 따로 완료·검증할 수 있는 크기로 잡는다. 끝나면 
   - 상태: pending
 
 - [ ] WP-007: UI 컴포넌트 — 면책 배너 + 생성 패널
+  - 🔔 스킬 시도: 이 지점에서 `frontend-design` 또는 `baseline-ui` 중 1개를 설치해 실사용 → X 후기 (메모리 lotto-frontend-skill-trial). design 확정 범위 안에서만, 새 UI 결정이 나오면 design/spec 먼저 갱신.
   - 목적: 상단 상시 면책 배너, 모드 선택(순수/자주/드물게) + 뽑기 + 결과 카드. 가중 옵션 근처 재미 요소 안내.
   - 변경 파일: src/components/DisclaimerBanner.tsx, src/components/GeneratorPanel.tsx, src/App.tsx
   - 완료 조건: spec "면책·표현" + 생성 UI. 빈 데이터 시 "데이터 없음, 랜덤 동작" 표시.
@@ -98,6 +99,7 @@ WP 하나는 따로 완료·검증할 수 있는 크기로 잡는다. 끝나면 
   - 상태: pending
 
 - [ ] WP-009: 표현 검토 + 최종 로컬 검사
+  - 🔔 스킬 시도: 마무리 단계에서 `responsive-mobile-check`(모바일 점검) + 실화면 확인(`Playwright` 스킬 vs `claude-in-chrome` MCP 비교)을 실사용 → X 후기 (메모리 lotto-frontend-skill-trial).
   - 목적: 금지 표현 부재 확인, 전체 완료 조건 점검, 로컬 게이트 통과.
   - 변경 파일: (수정 발생 시 해당 파일)
   - 완료 조건: spec 완료 조건 전체 충족, 표현 금지 확인.
