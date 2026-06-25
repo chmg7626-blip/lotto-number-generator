@@ -41,37 +41,37 @@ WP 하나는 따로 완료·검증할 수 있는 크기로 잡는다. 끝나면 
   - 위험: Vitest watch 기본값 → `test` 스크립트를 `vitest run`으로 둬 CI에서 멈추지 않게. typecheck는 `tsc --noEmit`. jsdom 미설정 시 WP-005에서 환경을 다시 건드리게 됨 → WP-001에서 미리 설정.
   - 상태: done (2026-06-25). lint·typecheck·test(스모크 1개)·build 통과, dev 서버 HTTP 200. 임시 src/smoke.test.ts는 WP-002에서 대체. 취약점 해결: vitest 2→4.1.9로 올려 esbuild advisory 제거(npm audit 0건).
 
-- [ ] WP-002: 도메인 순수 로직 — 순수 랜덤 생성 + 불변식
+- [x] WP-002: 도메인 순수 로직 — 순수 랜덤 생성 + 불변식
   - 목적: 1~45 본번호 6개(중복 없음) + 보너스 1개 생성 함수와 불변식 검증.
   - 변경 파일: src/domain/lotto.ts, src/domain/lotto.test.ts, src/domain/types.ts(Draw·SavedResult·GenerateMode 타입)
   - 완료 조건: spec "번호 생성" 완료 조건 3개. RNG 주입 시그니처(`rng = Math.random`).
   - 검증: `npm test` — 본번호 6개/1~45 범위/중복 없음, 보너스 1개·본번호와 중복 없음 (반복 실행 테스트).
   - 위험: 비복원 추출 구현 버그(중복) → 불변식 테스트로 방어.
-  - 상태: pending
+  - 상태: done (2026-06-25). generateRandom(rng=Math.random), 비복원 추출. 테스트 3개(1000회 불변식·정렬·결정적 RNG) 통과. 임시 smoke.test.ts 제거.
 
-- [ ] WP-003: 도메인 순수 로직 — 빈도 계산
+- [x] WP-003: 도메인 순수 로직 — 빈도 계산
   - 목적: 당첨 데이터에서 1~45 각 번호의 누적 출현 횟수 계산.
   - 변경 파일: src/domain/lotto.ts(calculateFrequencies), src/domain/lotto.test.ts
   - 완료 조건: spec "빈도 통계" 완료 조건 중 계산 정확성 + 빈 데이터(0건)에서 1~45 count 0.
   - 검증: `npm test` — 알려진 데이터로 횟수 정확, 빈 배열에서 모든 count 0.
   - 위험: 낮음.
-  - 상태: pending
+  - 상태: done (2026-06-25). calculateFrequencies — 본번호만 집계(보너스 제외, 코드 주석 명시), 항상 1~45 길이 45, 범위 밖 값 무시. 테스트 3개(전체 렌더·빈 데이터 0·정확성) 통과.
 
-- [ ] WP-004: 도메인 순수 로직 — 빈도가중 생성
+- [x] WP-004: 도메인 순수 로직 — 빈도가중 생성
   - 목적: 자주(count+1)·드물게(maxCount-count+1) 가중, 비복원 가중 추출. 빈 데이터 시 랜덤 폴백.
   - 변경 파일: src/domain/lotto.ts(generateWeighted), src/domain/lotto.test.ts
   - 완료 조건: spec "빈도가중 생성" 완료 조건 전체(불변식 동일 만족, 폴백, 가중 방향).
   - 검증: `npm test` — 고정 RNG 주입 시 자주/드물게 방향이 의도대로, 가중 결과도 6개 불변식 만족, 빈 데이터면 랜덤 폴백.
   - 위험: 가중 테스트 무작위성 불안정 → RNG 주입으로 결정적 검증.
-  - 상태: pending
+  - 상태: done (2026-06-25). generateWeighted(mode, freq, rng), 비복원 가중 추출(weight≥1로 불변식 보장), 빈 데이터 랜덤 폴백. 테스트 3개(불변식 각 500회·폴백 결정적·가중 방향 통계) 통과.
 
-- [ ] WP-005: localStorage 저장 모듈
+- [x] WP-005: localStorage 저장 모듈
   - 목적: 저장/목록조회/개별삭제/전체삭제 캡슐화, 파싱 실패 시 빈 목록 복구.
   - 변경 파일: src/storage/savedResults.ts, src/storage/savedResults.test.ts
   - 완료 조건: spec "저장" 완료 조건 전체. id는 crypto.randomUUID() + timestamp fallback.
   - 검증: `npm test` — 저장 후 조회, 개별 삭제, 전체 비우기, 손상 데이터에서 빈 목록 복구(localStorage mock).
   - 위험: 테스트 환경 localStorage → WP-001에서 jsdom 설정 완료 전제(추가 mock 최소화).
-  - 상태: pending
+  - 상태: done (2026-06-25). list/save/delete/clear, crypto.randomUUID+fallback, 파싱 실패 시 빈 목록 복구. 테스트 5개(빈 목록·저장 유지·개별삭제·전체비우기·손상 복구) jsdom에서 통과.
 
 - [ ] WP-006: 샘플 데이터 + App 데이터 연결
   - 목적: 고정 스키마 샘플 JSON 추가(UI 확인용 수십 회차 규모), App에서 로드해 빈도 계산 결과를 상태로.
