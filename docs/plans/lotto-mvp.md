@@ -82,7 +82,7 @@ WP 하나는 따로 완료·검증할 수 있는 크기로 잡는다. 끝나면 
   - 상태: done (2026-06-25). draws.sample.json 30회차(가짜, 불변식 만족) + src/data/README.md 경고. App에서 JSON 로드→calculateFrequencies 연결, "샘플 데이터 N회차(실제 아님)" 표시. typecheck·lint·build 통과, dev 200. 본격 UI/육안 확인은 WP-007/008.
 
 - [ ] WP-007: UI 컴포넌트 — 면책 배너 + 생성 패널
-  - 🔔 스킬 시도: 이 지점에서 `frontend-design` 또는 `baseline-ui` 중 1개를 설치해 실사용 → X 후기 (메모리 lotto-frontend-skill-trial). design 확정 범위 안에서만, 새 UI 결정이 나오면 design/spec 먼저 갱신.
+  - 🔔 스킬 시도: `frontend-design`만 실재(2026-06-25 확인, baseline-ui 등은 부재). 정식 설치해 사용. **미사용 vs frontend-design 2안 브랜치 격리 비교**(feature/lotto-mvp-ui-a / -ui-b) 후 X 후기 (메모리 lotto-frontend-skill-trial). design 확정 범위 안에서만, 새 UI 결정 나오면 design/spec 먼저 갱신.
   - 목적: 상단 상시 면책 배너, 모드 선택(순수/자주/드물게) + 뽑기 + 결과 카드. 가중 옵션 근처 재미 요소 안내.
   - 변경 파일: src/components/DisclaimerBanner.tsx, src/components/GeneratorPanel.tsx, src/App.tsx
   - 완료 조건: spec "면책·표현" + 생성 UI. 빈 데이터 시 "데이터 없음, 랜덤 동작" 표시.
@@ -99,7 +99,7 @@ WP 하나는 따로 완료·검증할 수 있는 크기로 잡는다. 끝나면 
   - 상태: pending
 
 - [ ] WP-009: 표현 검토 + 최종 로컬 검사
-  - 🔔 스킬 시도: 마무리 단계에서 `responsive-mobile-check`(모바일 점검) + 실화면 확인(`Playwright` 스킬 vs `claude-in-chrome` MCP 비교)을 실사용 → X 후기 (메모리 lotto-frontend-skill-trial).
+  - 🔔 실화면·모바일 점검: 이미 보유한 `claude-in-chrome` MCP(화면 리사이즈 포함)로. responsive-mobile-check·Playwright 스킬은 부재/미확인이라 도입 안 함 (메모리 lotto-frontend-skill-trial).
   - 목적: 금지 표현 부재 확인, 전체 완료 조건 점검, 로컬 게이트 통과.
   - 변경 파일: (수정 발생 시 해당 파일)
   - 완료 조건: spec 완료 조건 전체 충족, 표현 금지 확인.
