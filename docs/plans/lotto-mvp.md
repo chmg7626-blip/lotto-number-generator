@@ -73,13 +73,13 @@ WP 하나는 따로 완료·검증할 수 있는 크기로 잡는다. 끝나면 
   - 위험: 테스트 환경 localStorage → WP-001에서 jsdom 설정 완료 전제(추가 mock 최소화).
   - 상태: done (2026-06-25). list/save/delete/clear, crypto.randomUUID+fallback, 파싱 실패 시 빈 목록 복구. 테스트 5개(빈 목록·저장 유지·개별삭제·전체비우기·손상 복구) jsdom에서 통과.
 
-- [ ] WP-006: 샘플 데이터 + App 데이터 연결
+- [x] WP-006: 샘플 데이터 + App 데이터 연결
   - 목적: 고정 스키마 샘플 JSON 추가(UI 확인용 수십 회차 규모), App에서 로드해 빈도 계산 결과를 상태로.
   - 변경 파일: src/data/draws.sample.json, src/App.tsx
   - 완료 조건: 앱이 샘플 데이터를 로드해 빈도를 계산하고, 빈 데이터 경로도 안전.
   - 검증: dev 서버에서 데이터 로드 확인. typecheck 통과.
   - 위험: **샘플 데이터는 실데이터가 아니다 — 코드 로직 검증용이며 공개 배포 전 외부 조사로 확인한 실데이터(docs/research)로 교체해야 한다.** 파일 상단 주석(또는 \_README)과 UI에 "샘플 데이터" 표시를 둔다.
-  - 상태: pending
+  - 상태: done (2026-06-25). draws.sample.json 30회차(가짜, 불변식 만족) + src/data/README.md 경고. App에서 JSON 로드→calculateFrequencies 연결, "샘플 데이터 N회차(실제 아님)" 표시. typecheck·lint·build 통과, dev 200. 본격 UI/육안 확인은 WP-007/008.
 
 - [ ] WP-007: UI 컴포넌트 — 면책 배너 + 생성 패널
   - 🔔 스킬 시도: 이 지점에서 `frontend-design` 또는 `baseline-ui` 중 1개를 설치해 실사용 → X 후기 (메모리 lotto-frontend-skill-trial). design 확정 범위 안에서만, 새 UI 결정이 나오면 design/spec 먼저 갱신.
