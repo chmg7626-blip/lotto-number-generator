@@ -1,0 +1,384 @@
+:root {
+  /* 무대 */
+  --stage-ink: #0f1a2e;
+  --stage-panel: #16233d;
+  --stage-line: #243352;
+  --chalk: #eef2f8;
+  --muted: #93a1bd;
+  --amber: #f4b740;
+
+  /* 한국 로또 번호 구간 색 */
+  --zone-yellow: #f2b705;
+  --zone-blue: #2d7dd2;
+  --zone-red: #e15554;
+  --zone-gray: #5b6577;
+  --zone-green: #2bb673;
+
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+  color: var(--chalk);
+  font-variant-numeric: tabular-nums;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(1200px 480px at 50% -10%, #1c2c4d 0%, transparent 70%),
+    var(--stage-ink);
+  min-height: 100vh;
+}
+
+.app {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 16px 16px 48px;
+}
+
+/* 면책 — 무대 상단 띠 */
+.disclaimer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(244, 183, 64, 0.08);
+  border: 1px solid rgba(244, 183, 64, 0.3);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: #f3e2c0;
+}
+
+.disclaimer-tag {
+  flex-shrink: 0;
+  background: var(--amber);
+  color: #2a1d00;
+  font-weight: 700;
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.app-header {
+  padding: 22px 4px 14px;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.data-note {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* 카드 공통 */
+.stage,
+.card {
+  background: var(--stage-panel);
+  border: 1px solid var(--stage-line);
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+
+.card h2 {
+  margin: 0 0 14px;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+/* 무대(생성 패널) */
+.stage-result {
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 0 18px;
+}
+
+.stage-empty {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.balls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* 공 — 시그니처 */
+.ball {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  font-weight: 700;
+  box-shadow:
+    inset 0 -3px 6px rgba(0, 0, 0, 0.25),
+    inset 0 3px 5px rgba(255, 255, 255, 0.35),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.balls-hero .ball {
+  width: 52px;
+  height: 52px;
+  font-size: 1.25rem;
+  animation: pop 0.28s ease-out both;
+}
+
+.ball-sm {
+  width: 28px;
+  height: 28px;
+  font-size: 0.78rem;
+}
+
+/* 구간 색: 배경 + 가독성 있는 글자색 */
+.zone-yellow {
+  background: var(--zone-yellow);
+  color: #2a2100;
+}
+.zone-blue {
+  background: var(--zone-blue);
+  color: #fff;
+}
+.zone-red {
+  background: var(--zone-red);
+  color: #fff;
+}
+.zone-gray {
+  background: var(--zone-gray);
+  color: #fff;
+}
+.zone-green {
+  background: var(--zone-green);
+  color: #04301f;
+}
+
+.plus {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+/* 모드 칩 */
+.chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.chip {
+  font: inherit;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--stage-line);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.chip-on {
+  background: var(--chalk);
+  border-color: var(--chalk);
+  color: var(--stage-ink);
+  font-weight: 700;
+}
+
+.hint {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.55;
+  margin: 8px 0;
+}
+
+.stage-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.draw {
+  flex: 1;
+  padding: 11px 16px;
+  border: none;
+  border-radius: 12px;
+  background: var(--amber);
+  color: #2a1d00;
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+.draw:hover {
+  filter: brightness(1.06);
+}
+
+.save {
+  padding: 11px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--stage-line);
+  background: transparent;
+  color: var(--chalk);
+}
+
+.save:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ghost {
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--stage-line);
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.ghost:hover {
+  color: var(--chalk);
+}
+
+/* 빈도 표 */
+.freq-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.freq-row {
+  display: grid;
+  grid-template-columns: 28px 1fr 30px;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8rem;
+}
+
+.freq-number {
+  text-align: right;
+  font-weight: 700;
+}
+
+.freq-bar-track {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 5px;
+  height: 12px;
+  overflow: hidden;
+}
+
+.freq-bar {
+  display: block;
+  height: 100%;
+  border-radius: 5px;
+  min-width: 2px;
+}
+
+.freq-count {
+  text-align: right;
+  color: var(--muted);
+}
+
+/* 저장 목록 */
+.saved-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.saved-header h2 {
+  margin: 0;
+}
+
+.saved-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.saved-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px;
+  border: 1px solid var(--stage-line);
+  border-radius: 10px;
+}
+
+.saved-mode {
+  font-size: 0.72rem;
+  color: var(--muted);
+  min-width: 56px;
+}
+
+.app-footer {
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.6;
+  text-align: center;
+  padding: 8px 4px 0;
+}
+
+/* 접근성 기본기 */
+:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .balls-hero .ball {
+    animation: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .app-header h1 {
+    font-size: 1.6rem;
+  }
+  .ball {
+    width: 34px;
+    height: 34px;
+  }
+  .balls-hero .ball {
+    width: 46px;
+    height: 46px;
+    font-size: 1.1rem;
+  }
+}
