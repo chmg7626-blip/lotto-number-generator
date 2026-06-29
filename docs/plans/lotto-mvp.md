@@ -26,7 +26,7 @@
 - 사용자 승인: spec Approved 확인됨
 - CI 상태: 아직 없음 (WP-001에서 스캐폴딩·lock 생성 후 동작)
 - 미결정 사항: 없음
-- 커밋 단위: **의미 단위로 묶는다** — ① 스캐폴딩(WP-001) ② 도메인 로직+저장(WP-002~005) ③ 데이터+App 연결(WP-006) ④ UI(WP-007~008) ⑤ 마무리(WP-009). WP마다 잘게 쪼개지 않는다. 구현 커밋은 설계 확정 커밋과 분리(이미 분리됨).
+- 커밋 단위: **의미 단위로 묶는다** — ① 스캐폴딩(WP-001) ② 도메인 로직+저장(WP-002~005) ③ 데이터+App 연결(WP-006) ④ UI(WP-007~009) ⑤ 마무리(WP-010). WP마다 잘게 쪼개지 않는다. 구현 커밋은 설계 확정 커밋과 분리(이미 분리됨). 저장 모듈은 2026-06-29 삭제(복사로 대체).
 
 ## Work Packages
 
@@ -81,29 +81,42 @@ WP 하나는 따로 완료·검증할 수 있는 크기로 잡는다. 끝나면 
   - 위험: **샘플 데이터는 실데이터가 아니다 — 코드 로직 검증용이며 공개 배포 전 외부 조사로 확인한 실데이터(docs/research)로 교체해야 한다.** 파일 상단 주석(또는 \_README)과 UI에 "샘플 데이터" 표시를 둔다.
   - 상태: done (2026-06-25). draws.sample.json 30회차(가짜, 불변식 만족) + src/data/README.md 경고. App에서 JSON 로드→calculateFrequencies 연결, "샘플 데이터 N회차(실제 아님)" 표시. typecheck·lint·build 통과, dev 200. 본격 UI/육안 확인은 WP-007/008.
 
-- [ ] WP-007: UI 컴포넌트 — 면책 배너 + 생성 패널
-  - 🔔 UI 기준: 확정 홈페이지 목업(docs/mockups/mockup-a-bright.html, 메모리 lotto-ui-redesign)을 React로 이식한다. frontend-design 미사용/사용 2안 worktree 비교는 **종료**(2026-06-25 완료·폐기, 더 진행 안 함). 실화면 점검은 claude-in-chrome. design 확정 범위 안에서만, 새 UI 결정 나오면 design/spec 먼저 갱신.
-  - 목적: 상단 상시 면책 배너, 모드 선택(순수/자주/드물게) + 뽑기 + 결과 카드. 가중 옵션 근처 재미 요소 안내.
-  - 변경 파일: src/components/DisclaimerBanner.tsx, src/components/GeneratorPanel.tsx, src/App.tsx
-  - 완료 조건: spec "면책·표현" + 생성 UI. 빈 데이터 시 "데이터 없음, 랜덤 동작" 표시.
-  - 검증: dev 서버에서 각 모드 생성 동작, 면책 배너 상시 노출, 금지 표현 부재 육안 확인.
-  - 위험: 사행성 표현 혼입 → 문구 검토(WP-009)에서 재확인.
+> UI(WP-007~010)는 확정 홈페이지 목업(docs/mockups/mockup-a-bright.html, 메모리 lotto-ui-redesign)을
+> React로 이식하는 작업이다. 기준은 갱신된 design 문서(docs/design/lotto-mvp.md "시각 디자인"·"모션" 절).
+> frontend-design 2안 worktree 비교는 종료(2026-06-25 완료·폐기). 실화면 점검은 claude-in-chrome.
+> design 확정 범위 안에서만 작업하고, 새 UI 결정이 나오면 코드보다 design/spec을 먼저 갱신한다.
+> 추첨 연출 애니메이션은 이번 범위 밖(별도 spec — lotto-draw-animation).
+
+- [ ] WP-007: 공통 Ball + 면책 띠 + 회차 당첨번호 띠
+  - 목적: 번호 공 컴포넌트(구간색 z1~z5 + 광택, 크기 변형)와 상단 두 띠(면책 상시 + 회차 당첨번호 샘플).
+  - 변경 파일: src/components/Ball.tsx, src/components/DisclaimerBanner.tsx, src/components/WinningBar.tsx, src/App.tsx, 스타일(CSS)
+  - 완료 조건: 공이 번호 구간에 맞는 색으로 표시되고 숫자가 광택에 묻히지 않는다(z-index 규칙). 면책 띠 상시 노출. 회차 당첨번호 띠가 본번호 6+보너스로 표시되고 "샘플" 명시.
+  - 검증: dev 서버 + claude-in-chrome 육안. 구간색·가독성·면책/샘플 표시 확인.
+  - 위험: 공 광택이 숫자를 가리는 회귀 → 광택을 z-index:-1로 두는 목업 방식을 지킨다.
   - 상태: pending
 
-- [ ] WP-008: UI 컴포넌트 — 빈도 표 + 저장 목록
-  - 목적: 번호별 출현 횟수 + CSS 막대, 저장 목록 + 개별삭제 + 전체비우기 UI.
-  - 변경 파일: src/components/FrequencyTable.tsx, src/components/SavedResults.tsx, src/App.tsx, 스타일(CSS)
-  - 완료 조건: spec "빈도 통계" 표시 + "저장" UI 완료 조건. 빈 데이터/빈 목록 상태 표시.
-  - 검증: dev 서버에서 막대 표시, 저장→목록→개별삭제→전체비우기, 새로고침 후 유지.
-  - 위험: 낮음.
+- [ ] WP-008: 생성 패널 + 추첨기 + 5게임 용지(복사)
+  - 목적: 모드칩(순수/자주/기념번호) + 뽑기 버튼 + ×1~5 연속뽑기 + 추첨기 비주얼 + 선택 모드·게임수로 생성한 A~E 5게임 용지 + 게임별/전체 복사.
+  - 변경 파일: src/components/GeneratorPanel.tsx, src/components/LottoMachine.tsx, src/components/Ticket.tsx, src/App.tsx, 스타일(CSS)
+  - 완료 조건: spec "번호 생성·연속뽑기"·"생성 모드"·"복사". ×1/×5 경계 동작, 각 게임 본번호 6개(보너스 없음), 가중 옵션 근처 "재미 요소" 안내, 빈 데이터 시 "데이터 없음, 랜덤 동작" 표시, 개별·전체 복사 동작+피드백.
+  - 검증: dev 서버 + claude-in-chrome에서 각 모드·게임수 생성, 복사 클립보드 확인, 면책/안내 노출.
+  - 위험: clipboard API는 보안 컨텍스트 한정 → 실패 피드백, 필요 시 폴백(design 위험 절).
   - 상태: pending
 
-- [ ] WP-009: 표현 검토 + 최종 로컬 검사
+- [ ] WP-009: 1~45 출현 통계 그리드 + 당첨금액(샘플) + 조립
+  - 목적: 1~45 공 그리드(9열) + 출현 횟수, 당첨금액(1등 강조 + 2~5등, 샘플), App 전체 레이아웃 조립.
+  - 변경 파일: src/components/FrequencyGrid.tsx, src/components/PrizeTable.tsx, src/data/prize.sample.ts, src/App.tsx, 스타일(CSS)
+  - 완료 조건: spec "빈도 통계"·"회차 당첨번호·당첨금액(샘플)". 그리드가 빈도 높낮이를 보여주고, 빈 데이터(0건) 안전, 당첨금액에 "샘플" 명시.
+  - 검증: dev 서버 + claude-in-chrome에서 그리드·당첨금액 표시, 빈 데이터 경로 확인.
+  - 위험: 당첨금액 샘플이 실데이터로 오해되지 않게 "샘플" 표시 필수.
+  - 상태: pending
+
+- [ ] WP-010: 표현 검토 + 반응형 + 최종 로컬 검사
   - 🔔 실화면·모바일 점검: 이미 보유한 `claude-in-chrome` MCP(화면 리사이즈 포함)로. responsive-mobile-check·Playwright 스킬은 부재/미확인이라 도입 안 함 (메모리 lotto-frontend-skill-trial).
-  - 목적: 금지 표현 부재 확인, 전체 완료 조건 점검, 로컬 게이트 통과.
+  - 목적: 금지 표현 부재 확인, 모바일 폭 점검, 전체 완료 조건 점검, 로컬 게이트 통과.
   - 변경 파일: (수정 발생 시 해당 파일)
-  - 완료 조건: spec 완료 조건 전체 충족, 표현 금지 확인.
-  - 검증: 코드·UI에서 "당첨 확률을 높인다/당첨 보장/예측" 표현 grep 부재. `npm run lint && npm run typecheck && npm test && npm run build` 통과.
+  - 완료 조건: spec 완료 조건 전체 충족, 표현 금지 확인, 모바일 폭에서 레이아웃 깨짐 없음.
+  - 검증: 코드·UI에서 "당첨 확률을 높인다/당첨 보장/예측" 표현 grep 부재. claude-in-chrome 모바일 폭 확인. `npm run lint && npm run typecheck && npm test && npm run build` 통과.
   - 위험: 낮음.
   - 상태: pending
 
@@ -133,3 +146,6 @@ WP 하나는 따로 완료·검증할 수 있는 크기로 잡는다. 끝나면 
 
 - 2026-06-24: 확정 설계(docs/design/lotto-mvp.md) 기준으로 WP-001~009 작성.
 - 2026-06-24: plan 검토 후 보강 — 커밋 단위(의미 단위) 명시, WP-001에 jsdom 환경 설정 추가, WP-006 샘플 데이터의 "실데이터 아님·배포 전 교체" 강화.
+- 2026-06-29: 확정 목업 반영(spec 재승인·design 갱신)으로 UI WP 재작성. WP-007~009를 새 범위로 재정의
+  (Ball·면책/회차 띠 / 생성패널·추첨기·5게임 용지·복사 / 통계 그리드·당첨금액 샘플·조립), 표현검토를 WP-010으로.
+  저장(savedResults) 삭제·보너스 제거 반영. WP-001~006(도메인·데이터)은 done 유지.

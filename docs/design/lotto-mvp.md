@@ -1,91 +1,123 @@
 # 로또번호생성기 1차 MVP 설계 (확정)
 
 - 작성일: 2026-06-24
-- 기준 spec: docs/specs/lotto-mvp.md
+- 갱신일: 2026-06-29 (확정 홈페이지 목업 반영 — 시각 디자인 섹션 추가, 저장→복사, 보너스 제거 등)
+- 기준 spec: docs/specs/lotto-mvp.md (재Approved 2026-06-29)
 - 출처: docs/design/lotto-mvp-proposals.md 의 사용자 결정 (Codex, TypeScript 기반)
+  - 확정 목업 docs/mockups/mockup-a-bright.html (frontend-design 인터뷰, 메모리 lotto-ui-redesign)
 
-독립 설계안 비교에서 사용자가 결정한 확정 설계다. plan·구현은 이 문서를 기준으로 한다.
-언어는 **TypeScript**로 확정했다(학습 목적 + 데이터 스키마 타입 명시).
+독립 설계안 비교에서 사용자가 결정한 확정 설계 + 인터뷰로 확정한 홈페이지 목업을 반영한 문서다.
+plan·구현은 이 문서를 기준으로 한다. 언어는 **TypeScript**다(학습 목적 + 데이터 스키마 타입 명시).
+
+> 2026-06-29 범위 변경 요지(spec 변경 이력과 동일): 저장(localStorage)→복사 대체(savedResults 삭제),
+> 생성 모드 3종(순수/자주/기념번호), ×1~5 연속뽑기(A~E 5게임 용지), 회차 당첨번호 띠·당첨금액(샘플),
+> 빈도 통계를 CSS 막대→공 그리드로, **생성에서 보너스 제거**(본번호 6개만). 추첨 연출 애니메이션은 범위 밖(별도 spec).
 
 ## 구조
 
-React + Vite + **TypeScript** 정적 웹앱. 순수 로직을 UI에서 분리한다.
+React + Vite + **TypeScript** 정적 웹앱(홈페이지형/히어로). 순수 로직을 UI에서 분리한다.
 
 ```
 src/
   domain/
-    lotto.ts          순수 랜덤 생성, 빈도가중 생성, 불변식 검증, 빈도 계산 (UI·localStorage 무관)
+    lotto.ts          순수 랜덤 생성(본번호 6개), 빈도가중 생성, 빈도 계산 (UI 무관)
     lotto.test.ts     생성·빈도·가중·빈 데이터 경계값 단위 테스트 (Vitest)
-  storage/
-    savedResults.ts   localStorage 읽기/저장/개별삭제/전체삭제 캡슐화. 파싱 실패 시 빈 목록 복구.
+    types.ts          데이터 스키마 타입 (Draw, GenerateMode, GeneratedNumbers, FrequencyEntry)
   data/
     draws.sample.json 고정 스키마의 정적 당첨 데이터 (샘플 → 실데이터 교체)
+    prize.sample.ts   당첨금액 샘플(정적 — 실데이터 아님, 회차 당첨번호 띠/당첨금액 표시용)
   components/
-    DisclaimerBanner.tsx
-    GeneratorPanel.tsx   모드 선택(순수/자주/드물게) + 뽑기 + 결과 카드
-    FrequencyTable.tsx   번호별 출현 횟수 + CSS 막대
-    SavedResults.tsx     저장 목록 + 개별 삭제 + 전체 비우기
-  App.tsx              JSON 로드 · 빈도 계산 · 생성 결과 · 저장 목록 상태 조합
+    Ball.tsx            번호 공 1개 (구간색 z1~z5 + 광택). size 변형(머신/용지/작은공)
+    DisclaimerBanner.tsx 상단 상시 면책 띠
+    WinningBar.tsx       회차 당첨번호 띠(본번호 6 + 보너스, "샘플" 표시)
+    GeneratorPanel.tsx   로고·타이틀·모드칩(순수/자주/기념번호)·뽑기 버튼·×1~5 연속뽑기
+    LottoMachine.tsx     추첨기 비주얼(출구 캡 + 투명 구 + 공 wander + 받침대)
+    Ticket.tsx           로또 용지: A~E 5게임 + 게임별 복사 + 전체 복사
+    FrequencyGrid.tsx    1~45 공 그리드 + 출현 횟수
+    PrizeTable.tsx       당첨금액(1등 강조 + 2~5등, "샘플" 표시)
+  App.tsx              JSON 로드 · 빈도 계산 · 생성 상태(모드·게임수·결과) 조합
   main.tsx
 ```
 
-**데이터 흐름**: `draws.sample.json → calculateFrequencies → 통계 UI 표시 + 가중 생성 입력`.
-생성 결과는 사용자가 저장할 때만 localStorage에 들어간다.
+**데이터 흐름**: `draws.sample.json → calculateFrequencies → 통계 그리드 + 가중 생성 입력`.
+`번호 뽑기` 시 선택 모드로 선택 게임 수(×1~×5)만큼 생성해 용지에 A~E로 렌더링한다.
+**저장은 없다 — 복사로만 내보낸다**(localStorage 미사용).
 
-**타입 (데이터 스키마 명시 — spec의 "데이터 형식 고정" 요구사항 충족)**:
+**타입 (데이터 스키마 명시 — spec "데이터 형식 고정" 충족)**:
 
 ```ts
-type Draw = { round: number; date?: string; numbers: number[]; bonus: number };
-type DrawsFile = { draws: Draw[] };
-type GenerateMode = "random" | "frequent" | "rare";
-type SavedResult = {
-  id: string;
-  createdAt: number;
-  mode: GenerateMode;
-  numbers: number[];
-  bonus: number;
-};
+type Draw = { round: number; date?: string; numbers: number[]; bonus: number }
+type DrawsFile = { draws: Draw[] }
+type GenerateMode = 'random' | 'frequent' | 'rare' // rare = UI "기념번호 조합"
+type GeneratedNumbers = { numbers: number[] } // 보너스 없음(본번호 6개만)
+type FrequencyEntry = { number: number; count: number }
 ```
 
-## 핵심 결정
+> 회차 당첨번호 띠는 과거 당첨 데이터(`Draw`)를 쓰므로 `bonus`가 남아 있다(실제 회차엔 보너스가 있음).
+> 생성 결과(`GeneratedNumbers`)에는 보너스가 없다. 둘을 혼동하지 않는다.
 
-1. **생성·통계 로직을 UI에서 완전히 분리** (`src/domain/lotto.ts`). 완료 조건의 핵심이 불변식과
-   계산 정확도라 React 렌더링과 분리한 순수 함수 단위 테스트가 검증에 적합하다.
-2. **빈도가중 생성에 RNG(난수 함수)를 주입 가능하게** 설계한다. 예: `generate(mode, freq, rng = Math.random)`.
-   테스트에서 고정 난수를 주입해 "자주/드물게" 가중이 의도대로 동작하는지 결정적으로 검증한다.
-3. **비복원 가중 추출**: 본번호 6개를 뽑을 때 뽑힌 번호는 후보에서 제거 → 중복 방지를 별도 보정 없이 보장.
-4. **가중치 공식**: "자주" = `count + 1`(0회 번호도 배제 안 함), "드물게" = `maxCount - count + 1`(최다 번호도 0 안 됨).
-5. **빈 데이터(0건) 시 가중 생성은 순수 랜덤으로 폴백**하고, UI에 "데이터 없음, 랜덤으로 동작" 상태를 표시한다.
-6. **빈도 통계는 1~45 전체를 항상 렌더링**한다. 데이터가 없어도 각 count는 0으로 계산하고 "데이터 없음" 메시지를 함께 보여준다.
-7. **저장 데이터 최소 필드** `{ id, createdAt, mode, numbers, bonus }`. id는 `crypto.randomUUID()` 우선, 미지원 환경은 timestamp 기반 fallback.
-8. **보너스**: 본번호 6개를 뽑은 뒤 남은 39개에서 1개.
-9. **상태관리는 useState만** (Redux 등 미도입, YAGNI). **차트 라이브러리 미사용**(CSS 막대).
-10. **면책 배너와 가중 옵션 안내 문구는 별도 컴포넌트/고정 위치**로 두어 사행성 표현 누락을 막는다.
+## 핵심 결정 (도메인 — 유지)
+
+1. **생성·통계 로직을 UI에서 완전히 분리** (`src/domain/lotto.ts`). 불변식·계산 정확도가 완료 조건의
+   핵심이라 순수 함수 단위 테스트가 검증에 적합하다.
+2. **RNG 주입 가능** 설계: `generateRandom(rng = Math.random)`, `generateWeighted(mode, freq, rng = Math.random)`.
+   고정 난수를 주입해 가중 방향을 결정적으로 검증한다.
+3. **비복원 (가중) 추출**: 본번호 6개를 뽑을 때 뽑힌 번호를 후보에서 제거 → 중복 방지를 별도 보정 없이 보장.
+4. **가중치 공식**: "자주"(frequent) = `count + 1`, "기념번호 조합"(rare) = `maxCount - count + 1`(최다 번호도 0 안 됨).
+5. **빈 데이터(0건) 시 가중 생성은 순수 랜덤 폴백** + UI에 "데이터 없음, 랜덤 동작" 표시.
+6. **빈도 통계는 1~45 전체를 항상 계산**(데이터 없어도 count 0). 빈도 계산은 본번호만 집계(보너스 제외).
+7. **보너스 미생성**: 생성은 본번호 6개만. (2026-06-29 결정 — 5게임 용지에 보너스가 없으므로 도메인에서도 제거)
+8. **연속뽑기(×1~×5)는 UI 책임**: 도메인 생성 함수를 게임 수만큼 반복 호출한다(도메인에 게임수 개념 없음).
+9. **상태관리는 useState만**(Redux 미도입, YAGNI). **차트 라이브러리 미사용**(공 그리드).
+10. **면책 배너·가중 옵션 안내는 고정 위치 컴포넌트**로 둬 사행성 표현 누락을 막는다.
+
+## 시각 디자인 (확정 목업 기준 — mockup-a-bright.html)
+
+**컨셉**: "추첨 무대 + 복고". 다크하지만 밝은 톤. 목적은 앱이 아니라 **홈페이지(히어로형)**.
+
+- **색 토큰**(`:root` CSS 변수):
+  - 배경: `--bg0 #1c2748` `--bg1 #2a3a6b` `--bg2 #34488a`, 카드 `--card #26345c` `--card2 #2e3e6e`, 라인 `--line #43568c`
+  - 글자: `--txt #f3f6ff`, 흐림 `--dim #b9c5e6`
+  - 포인트(금색): `--gold #ffd45e` `--gold2 #f7bc44`
+  - **번호 공 5구간색**(실제 로또): 1–10 노랑 `--z1 #ffcd3c` / 11–20 파랑 `--z2 #5fb7f0` / 21–30 빨강 `--z3 #ff6e6e` / 31–40 회색 `--z4 #c2ccde` / 41–45 초록 `--z5 #a8d84a`
+- **폰트**: 제목·번호·버튼 = **Jua**(구글폰트), 본문 = **Pretendard**(CDN). (배포 시 웹폰트 로딩 방식은 구현에서 정함)
+- **공(Ball)**: 입체 광택(`::before` 큰 하이라이트 + `::after` 점 하이라이트)을 **z-index:-1로 숫자 뒤**에 둬 글씨가 묻히지 않게. `.ball`에 `isolation:isolate`. 구간색은 `n`으로 z1~z5 매핑. 크기 변형: 기본 56px / 용지 `.tk` 40px / 띠·그리드 `.sm` 38px / 머신 `.mball` 48px.
+- **레이아웃 순서(위→아래)**: ① 면책 띠 → ② 회차 당첨번호 띠(샘플) → ③ 히어로(로고 좌상단 · 키커 · 타이틀 "로또 6/45" · 모드칩 · 뽑기+연속뽑기 · **추첨기** · **5게임 용지** · 전체 복사) → ④ 당첨금액(샘플) → ⑤ 1~45 출현 통계(공 그리드 9열).
+- **추첨기(LottoMachine)**: 상단 출구 캡 → 투명 구(`overflow:hidden`로 공이 구 밖으로 안 나감) → 바닥 송풍구(clip-path) → 금색 받침대(다리). 구 안에 공 6개.
+- **용지(Ticket)**: 크림색 종이(`#fffdf4→#fdf3da`), 점선 구분, 게임 라벨 A~E, 게임별 `📋 복사`, 하단 `📋 전체 복사`. **보너스 없음 — 본번호 6개만**.
+- **통계 그리드**: `repeat(9, 1fr)` 9열 × 5행으로 1~45. 각 셀 = 공 + 출현 횟수.
+- **무대 배경**: 고정 `.pagebg`(컬러 글로우 + 타일 별가루 + 보케 광원). 히어로 안 조명 광선·워터마크. **산만한 떠다니는 번호 공은 쓰지 않는다**(목업에서 제거됨).
+
+## 모션 (이번 범위)
+
+- **장식용 ambient 애니메이션은 포함**: 구 안 공의 `wander`(천천히 떠다님), 별가루 `twinkle`, 보케 `drift`. CSS 키프레임.
+- **접근성**: `@media (prefers-reduced-motion: reduce)`에서 애니메이션을 끈다(목업에 이미 있음 — 유지).
+- **범위 밖(별도 spec)**: `번호 뽑기` 클릭 시 **화면 전환 + 추첨 연출(공이 하나씩 뽑혀 공개)**. 이번엔 클릭 시
+  결과가 용지에 바로 채워지는 것까지만. (메모리 lotto-draw-animation)
 
 ## 위험과 대응
 
-- **실데이터 출처·이용약관 미검증**: 구현 초기엔 샘플 또는 사용자가 확인한 정적 JSON만 사용한다.
-  공개 배포 전 `docs/research/`에 출처·이용 가능 여부가 기록돼야 한다. (배포 게이트)
-- **"빈도가중"의 확률 향상 오해**: 버튼·결과 영역 근처에 "확률적 근거 없는 재미 요소", "통계는 예측 아님" 문구를 반복 노출한다.
-- **가중 테스트의 무작위성 불안정**: 난수 함수를 주입해 고정 난수로 경계값을 검증한다. 분포 성향 테스트가 필요하면 반복 횟수·허용 오차를 보수적으로 둔다.
-- **localStorage 손상 데이터로 UI 붕괴**: 저장소 경계(savedResults.ts)에서만 파싱 실패를 처리해 빈 목록으로 복구한다.
-- **TypeScript 빌드 타입체크**: Vite build는 타입체크를 하지 않으므로 CI에 `tsc --noEmit`(typecheck) 단계를 별도로 둔다.
-- **GitHub Pages base 경로**: 배포 시 vite `base` 설정이 필요하다(배포 단계에서 처리, 1차 코드 범위 밖).
+- **실데이터 출처·이용약관 미검증**: 1차는 샘플만. 회차 당첨번호·당첨금액은 화면에 "샘플" 명시.
+  공개 배포 전 `docs/research/`에 출처·이용 가능 여부 기록(배포 게이트).
+- **"빈도가중"의 확률 향상 오해**: 모드칩·결과·통계 근처에 "확률적 근거 없는 재미 요소", "예측 아님" 반복 노출.
+  "기념번호 조합" 명칭이 행운/예측을 암시하지 않게 안내 문구를 함께 둔다.
+- **복사 호환성**: `navigator.clipboard`는 보안 컨텍스트(https/localhost)에서만 동작 → 실패 시 사용자에게
+  보이는 피드백을 두고, 필요하면 폴백(textarea+execCommand)을 구현에서 판단.
+- **공 글씨 가독성**: 광택을 z-index:-1로 숫자 뒤에 두는 규칙을 컴포넌트에서 지킨다(목업 검증된 방식).
+- **TypeScript 빌드 타입체크**: Vite build는 타입체크 안 함 → CI에 `tsc --noEmit`(typecheck) 별도.
+- **GitHub Pages base 경로**: 배포 시 vite `base` 설정 필요(배포 단계, 1차 코드 범위 밖).
 
 ## 구현 및 검증 순서
 
-1. React + Vite + TypeScript + Vitest + ESLint/Prettier 스캐폴딩 (package-lock 생성 → CI 동작).
-2. `src/domain/lotto.ts`: 순수 랜덤 생성, 빈도 계산, 가중 생성 함수 구현 (RNG 주입 시그니처).
-3. 단위 테스트(`lotto.test.ts`):
-   - 본번호 6개 / 1~45 범위 / 중복 없음
-   - 보너스 1개 / 본번호와 중복 없음
-   - 빈도 계산 정확성
-   - 빈 데이터에서 1~45 count 0 처리
-   - 가중 생성도 동일 불변식 만족
-   - 빈 데이터 가중 생성은 랜덤 폴백
-   - 고정 난수 주입 시 가중 방향(자주/드물게)이 의도대로 반영
-4. `draws.sample.json` 추가 + `App`에서 빈도 계산 연결.
-5. UI 구현: 면책 배너 → 순수 랜덤 생성 → 자주/드물게 가중 생성 → 빈도 숫자+CSS 막대 → 데이터 없음 상태 → 저장 목록/개별삭제/전체비우기.
-6. `savedResults.ts` localStorage 모듈 + 저장 UI 연결.
-7. 표현 검토: "당첨 확률을 높인다"·"당첨 보장"·예측처럼 보이는 문구가 코드·UI에 없는지 확인.
-8. 완료 전 검증: `npm run lint` → `npm run typecheck` → `npm test` → `npm run build` (verify).
+도메인(1~6)은 이미 구현·테스트 완료(WP-001~006). UI(7~)부터 이번 라운드.
+
+1. ~~스캐폴딩~~ (완료 WP-001)
+2. ~~`lotto.ts` 순수 함수~~ (완료 WP-002~004, 보너스 제거 반영)
+3. ~~단위 테스트~~ (완료, 보너스 단언 제거)
+4. ~~`draws.sample.json` + App 빈도 연결~~ (완료 WP-006)
+5. **공통 `Ball` + 구간색 매핑** → 면책 띠 → 회차 당첨번호 띠(샘플).
+6. **GeneratorPanel**: 모드칩(순수/자주/기념번호) + 뽑기 버튼 + ×1~5 연속뽑기 + 추첨기 비주얼.
+7. **Ticket**: 선택 모드·게임수로 생성한 A~E 5게임 렌더 + 게임별/전체 복사. 빈 데이터 시 "데이터 없음, 랜덤 동작".
+8. **FrequencyGrid**(1~45 공 그리드) + **PrizeTable**(당첨금액 샘플). 둘 다 "샘플" 명시.
+9. 표현 검토: "당첨 확률을 높인다"·"당첨 보장"·예측처럼 보이는 문구가 코드·UI에 없는지 확인.
+10. 완료 전 검증: `npm run lint` → `npm run typecheck` → `npm test` → `npm run build` (verify).
