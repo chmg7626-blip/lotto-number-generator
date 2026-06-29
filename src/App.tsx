@@ -1,7 +1,8 @@
 import drawsData from './data/draws.sample.json'
-import type { Draw, DrawsFile } from './domain/types'
+import type { Draw, DrawsFile, GenerateMode } from './domain/types'
 import { DisclaimerBanner } from './components/DisclaimerBanner'
 import { WinningBar } from './components/WinningBar'
+import { GeneratorPanel } from './components/GeneratorPanel'
 
 // 샘플 데이터(실제 당첨번호 아님 — src/data/README.md). 배포 전 실데이터로 교체한다.
 const draws = (drawsData as DrawsFile).draws
@@ -13,6 +14,12 @@ function latestDraw(list: Draw[]): Draw | null {
 }
 
 export default function App() {
+  // 번호 뽑기 → 5게임 생성/표시는 3단위(Ticket)에서 연결한다.
+  function handleDraw(mode: GenerateMode, count: number) {
+    void mode
+    void count
+  }
+
   return (
     <>
       <div className="pagebg">
@@ -21,6 +28,7 @@ export default function App() {
 
       <DisclaimerBanner />
       <WinningBar draw={latestDraw(draws)} />
+      <GeneratorPanel onDraw={handleDraw} />
     </>
   )
 }
