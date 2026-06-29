@@ -1,25 +1,26 @@
 import drawsData from './data/draws.sample.json'
-import type { DrawsFile } from './domain/types'
-import { calculateFrequencies } from './domain/lotto'
+import type { Draw, DrawsFile } from './domain/types'
+import { DisclaimerBanner } from './components/DisclaimerBanner'
+import { WinningBar } from './components/WinningBar'
 
 // 샘플 데이터(실제 당첨번호 아님 — src/data/README.md). 배포 전 실데이터로 교체한다.
 const draws = (drawsData as DrawsFile).draws
 
-export default function App() {
-  const frequencies = calculateFrequencies(draws)
-  const top = [...frequencies].sort((a, b) => b.count - a.count).slice(0, 5)
+// 회차 당첨번호 띠에 쓸 최신(회차 번호 최대) 회차. 데이터가 없으면 null.
+function latestDraw(list: Draw[]): Draw | null {
+  if (list.length === 0) return null
+  return list.reduce((latest, d) => (d.round > latest.round ? d : latest))
+}
 
+export default function App() {
   return (
-    <main>
-      <h1>로또번호생성기</h1>
-      <p>샘플 데이터 {draws.length}회차 (실제 당첨번호 아님)</p>
-      <ul>
-        {top.map((entry) => (
-          <li key={entry.number}>
-            {entry.number}번: {entry.count}회
-          </li>
-        ))}
-      </ul>
-    </main>
+    <>
+      <div className="pagebg">
+        <div className="pstars"></div>
+      </div>
+
+      <DisclaimerBanner />
+      <WinningBar draw={latestDraw(draws)} />
+    </>
   )
 }

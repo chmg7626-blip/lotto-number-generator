@@ -87,13 +87,13 @@ WP 하나는 따로 완료·검증할 수 있는 크기로 잡는다. 끝나면 
 > design 확정 범위 안에서만 작업하고, 새 UI 결정이 나오면 코드보다 design/spec을 먼저 갱신한다.
 > 추첨 연출 애니메이션은 이번 범위 밖(별도 spec — lotto-draw-animation).
 
-- [ ] WP-007: 공통 Ball + 면책 띠 + 회차 당첨번호 띠
+- [x] WP-007: 공통 Ball + 면책 띠 + 회차 당첨번호 띠
   - 목적: 번호 공 컴포넌트(구간색 z1~z5 + 광택, 크기 변형)와 상단 두 띠(면책 상시 + 회차 당첨번호 샘플).
-  - 변경 파일: src/components/Ball.tsx, src/components/DisclaimerBanner.tsx, src/components/WinningBar.tsx, src/App.tsx, 스타일(CSS)
+  - 변경 파일: src/components/Ball.tsx, src/components/zones.ts(+테스트), src/components/DisclaimerBanner.tsx, src/components/WinningBar.tsx, src/App.tsx, src/main.tsx, src/styles.css, index.html(웹폰트)
   - 완료 조건: 공이 번호 구간에 맞는 색으로 표시되고 숫자가 광택에 묻히지 않는다(z-index 규칙). 면책 띠 상시 노출. 회차 당첨번호 띠가 본번호 6+보너스로 표시되고 "샘플" 명시.
   - 검증: dev 서버 + claude-in-chrome 육안. 구간색·가독성·면책/샘플 표시 확인.
   - 위험: 공 광택이 숫자를 가리는 회귀 → 광택을 z-index:-1로 두는 목업 방식을 지킨다.
-  - 상태: pending
+  - 상태: done (2026-06-29). zoneOf 순수함수 분리(테스트 2개: 경계값·전수 매핑) + Ball/DisclaimerBanner/WinningBar 컴포넌트, styles.css(토큰·무대배경·띠·공), 웹폰트 CDN. App에 최신 샘플 회차(제30회) 전달. lint·typecheck·test(11)·build 통과. claude-in-chrome 육안: 구간색·가독성·면책/샘플 표시 정상.
 
 - [ ] WP-008: 생성 패널 + 추첨기 + 5게임 용지(복사)
   - 목적: 모드칩(순수/자주/기념번호) + 뽑기 버튼 + ×1~5 연속뽑기 + 추첨기 비주얼 + 선택 모드·게임수로 생성한 A~E 5게임 용지 + 게임별/전체 복사.
