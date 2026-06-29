@@ -19,14 +19,10 @@ function assertValidResult(result: GeneratedNumbers) {
     expect(n).toBeLessThanOrEqual(45)
   }
   expect(new Set(result.numbers).size).toBe(6)
-
-  expect(result.bonus).toBeGreaterThanOrEqual(1)
-  expect(result.bonus).toBeLessThanOrEqual(45)
-  expect(result.numbers).not.toContain(result.bonus)
 }
 
 describe('generateRandom', () => {
-  it('본번호 6개·1~45 범위·중복 없음, 보너스 1개·본번호와 중복 없음 (1000회 반복)', () => {
+  it('본번호 6개·1~45 범위·중복 없음 (보너스 없음, 1000회 반복)', () => {
     for (let i = 0; i < 1000; i++) {
       assertValidResult(generateRandom())
     }
@@ -41,7 +37,6 @@ describe('generateRandom', () => {
   it('RNG를 주입하면 결정적이다 (항상 0 → 가장 작은 번호부터)', () => {
     const result = generateRandom(constantRng(0))
     expect(result.numbers).toEqual([1, 2, 3, 4, 5, 6])
-    expect(result.bonus).toBe(7)
   })
 })
 
@@ -90,11 +85,9 @@ function freqWith(counts: Record<number, number>): FrequencyEntry[] {
   return entries
 }
 
-// 결과들에서 특정 번호가 본번호나 보너스로 등장한 비율.
+// 결과들에서 특정 번호가 본번호로 등장한 비율.
 function appearanceRate(results: GeneratedNumbers[], target: number): number {
-  const hits = results.filter(
-    (r) => r.numbers.includes(target) || r.bonus === target,
-  ).length
+  const hits = results.filter((r) => r.numbers.includes(target)).length
   return hits / results.length
 }
 
@@ -113,7 +106,6 @@ describe('generateWeighted', () => {
     const random = generateRandom(constantRng(0))
     expect(weighted).toEqual(random)
     expect(weighted.numbers).toEqual([1, 2, 3, 4, 5, 6])
-    expect(weighted.bonus).toBe(7)
   })
 
   it('자주 모드는 출현 많은 번호를, 드물게 모드는 적은 번호를 선호한다', () => {

@@ -18,7 +18,7 @@ function fullPool(): number[] {
   return pool
 }
 
-// 풀에서 본번호 6개를 비복원 추출하고, 남은 번호 중 보너스 1개를 뽑는다.
+// 풀에서 본번호 6개를 비복원 추출한다(보너스 없음 — 2026-06-29 결정).
 // 비복원이라 중복은 구조적으로 발생하지 않는다(별도 보정 불필요).
 function drawFromPool(pool: number[], rng: Rng): GeneratedNumbers {
   const numbers: number[] = []
@@ -26,12 +26,11 @@ function drawFromPool(pool: number[], rng: Rng): GeneratedNumbers {
     const idx = Math.floor(rng() * pool.length)
     numbers.push(pool.splice(idx, 1)[0])
   }
-  const bonus = pool[Math.floor(rng() * pool.length)]
   numbers.sort((a, b) => a - b)
-  return { numbers, bonus }
+  return { numbers }
 }
 
-// 1~45 중복 없는 본번호 6개 + 남은 39개 중 보너스 1개 (순수 랜덤).
+// 1~45 중복 없는 본번호 6개 (순수 랜덤).
 export function generateRandom(rng: Rng = Math.random): GeneratedNumbers {
   return drawFromPool(fullPool(), rng)
 }
@@ -58,7 +57,7 @@ type WeightedMode = Exclude<GenerateMode, 'random'>
 type Candidate = { number: number; weight: number }
 
 // 가중치에 비례해 후보 하나를 고르고 후보 목록에서 제거한다(비복원). 모든 weight는 1 이상이라
-// 총합이 항상 양수이고 모든 번호가 도달 가능하다 → 6개+보너스 불변식이 깨지지 않는다.
+// 총합이 항상 양수이고 모든 번호가 도달 가능하다 → 본번호 6개 불변식이 깨지지 않는다.
 function pickWeighted(candidates: Candidate[], rng: Rng): number {
   const total = candidates.reduce((sum, c) => sum + c.weight, 0)
   let threshold = rng() * total
@@ -90,8 +89,7 @@ export function generateWeighted(
   for (let i = 0; i < MAIN_COUNT; i++) {
     numbers.push(pickWeighted(candidates, rng))
   }
-  const bonus = pickWeighted(candidates, rng)
 
   numbers.sort((a, b) => a - b)
-  return { numbers, bonus }
+  return { numbers }
 }

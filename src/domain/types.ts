@@ -11,21 +11,14 @@ export type DrawsFile = { draws: Draw[] }
 
 export type GenerateMode = 'random' | 'frequent' | 'rare'
 
+// 생성 결과는 본번호 6개만 다룬다. 보너스는 생성하지 않는다(2026-06-29 결정).
+// 과거 당첨 데이터(Draw)의 bonus는 실제 회차 정보라 별개로 유지한다.
 export type GeneratedNumbers = {
   numbers: number[]
-  bonus: number
 }
 
 // 1~45 각 번호의 누적 출현 횟수. 항상 1~45 전체(길이 45)를 number 오름차순으로 담는다.
 export type FrequencyEntry = {
   number: number
   count: number
-}
-
-export type SavedResult = {
-  id: string
-  createdAt: number
-  mode: GenerateMode
-  numbers: number[]
-  bonus: number
 }

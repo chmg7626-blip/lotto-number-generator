@@ -14,10 +14,10 @@
 
 ## 현재 상태
 
-- 제품 단계: 구현 준비 (설계 확정, spec Approved — plan 작성 단계)
+- 제품 단계: 도메인·저장 구현 완료(WP-001~006) → **UI 재디자인 반영 단계**. 확정 목업으로 범위 변경, spec 재승인(2026-06-29). 다음: design 문서 갱신 → plan(WP-007~) 갱신 → React 구현
 - 콘텐츠 단계: 해당 없음
-- 활성 spec: docs/specs/lotto-mvp.md (Approved 2026-06-24)
-- 활성 design: docs/design/lotto-mvp.md (확정, Codex 안 / TypeScript)
+- 활성 spec: docs/specs/lotto-mvp.md (재Approved 2026-06-29 — 목업 반영 범위 변경)
+- 활성 design: docs/design/lotto-mvp.md (확정, Codex 안 / TypeScript). **목업 반영 갱신 예정**
 - 현재 브랜치: feature/lotto-mvp
 
 ## 진행 중인 챌린지/연재 (없으면 "없음")
@@ -35,6 +35,7 @@
 
 ## 최근 결정
 
+- (2026-06-29) 확정 목업 반영 범위 변경: 저장(localStorage)→복사 대체(savedResults 모듈 삭제), 모드 3종(순수/자주/기념번호), ×1~5 연속뽑기(5게임 용지), 회차 당첨번호 띠·당첨금액(샘플), 빈도 공 그리드, **생성에서 보너스 제거(본번호 6개만)**. 추첨 애니메이션은 별도 spec(범위 밖)
 - 형태/스택: React + Vite + **TypeScript** 정적 웹앱, GitHub Pages 공개 배포 지향 (피드백 수집 목적)
 - 언어 TS 확정: 독립 설계 비교에서 Codex 안 채택. 학습 목적 + 데이터 스키마 타입 명시. (CI에 typecheck 추가)
 - 가중치 공식 확정: 자주=count+1, 드물게=maxCount-count+1 / 빈 데이터 시 랜덤 폴백 / RNG 주입으로 결정적 테스트
