@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import type { GenerateMode } from '../domain/types'
 
-// 모드칩 라벨. 내부 GenerateMode 'rare'는 UI에서 "기념번호 조합"으로 부른다.
+// 모드칩 라벨. 내부 GenerateMode 'frequent'="역대 단골 번호", 'fixed'="행운수 고정".
 const MODES: { value: GenerateMode; label: string }[] = [
   { value: 'random', label: '순수 랜덤' },
-  { value: 'frequent', label: '자주 나온 번호' },
-  { value: 'rare', label: '기념번호 조합' },
+  { value: 'frequent', label: '역대 단골 번호' },
+  { value: 'fixed', label: '행운수 고정' },
 ]
 
 const COUNTS = [1, 2, 3, 4, 5] as const
@@ -47,7 +47,7 @@ export function GeneratorPanel({ onDraw }: GeneratorPanelProps) {
         ))}
       </div>
       <p className="modenote">
-        ‘자주 나온 번호 · 기념번호 조합’은 확률적 근거 없는 재미 요소예요 (예측
+        ‘역대 단골 번호 · 행운수 고정’은 확률에 영향 없는 재미 요소예요 (예측
         아님).
       </p>
 

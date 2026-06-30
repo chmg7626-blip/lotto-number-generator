@@ -1,9 +1,4 @@
-import type {
-  Draw,
-  FrequencyEntry,
-  GenerateMode,
-  GeneratedNumbers,
-} from './types'
+import type { Draw, FrequencyEntry, GeneratedNumbers } from './types'
 
 export const MIN_NUMBER = 1
 export const MAX_NUMBER = 45
@@ -18,21 +13,47 @@ function fullPool(): number[] {
   return pool
 }
 
-// 풀에서 본번호 6개를 비복원 추출한다(보너스 없음 — 2026-06-29 결정).
-// 비복원이라 중복은 구조적으로 발생하지 않는다(별도 보정 불필요).
-function drawFromPool(pool: number[], rng: Rng): GeneratedNumbers {
+// 풀에서 count개를 비복원 추출한다(보너스 없음 — 2026-06-29 결정).
+// 비복원이라 중복은 구조적으로 발생하지 않는다(별도 보정 불필요). pool은 호출자가 소유한다.
+function drawFromPool(pool: number[], count: number, rng: Rng): number[] {
   const numbers: number[] = []
-  for (let i = 0; i < MAIN_COUNT; i++) {
+  for (let i = 0; i < count; i++) {
     const idx = Math.floor(rng() * pool.length)
     numbers.push(pool.splice(idx, 1)[0])
   }
-  numbers.sort((a, b) => a - b)
-  return { numbers }
+  return numbers
 }
 
 // 1~45 중복 없는 본번호 6개 (순수 랜덤).
 export function generateRandom(rng: Rng = Math.random): GeneratedNumbers {
-  return drawFromPool(fullPool(), rng)
+  const numbers = drawFromPool(fullPool(), MAIN_COUNT, rng)
+  numbers.sort((a, b) => a - b)
+  return { numbers }
+}
+
+// 행운수 고정: 고정 번호(0~5개)를 그대로 포함하고 나머지 자리를 비복원 랜덤으로 채운다.
+// 고정이 0개면 generateRandom과 동일하다. 확률에 영향 없는 재미 요소다(예측 아님).
+// fixed는 UI 번호판이 1~45·중복 없음·최대 5개로 막지만, 도메인도 시스템 경계로 방어한다:
+// 범위 밖·중복을 거르고 최대 5개(MAIN_COUNT-1)로 잘라 랜덤 자리가 항상 최소 1개 남게 한다.
+export function generateWithFixed(
+  fixed: number[],
+  rng: Rng = Math.random,
+): GeneratedNumbers {
+  const sanitized: number[] = []
+  for (const n of fixed) {
+    if (sanitized.length >= MAIN_COUNT - 1) break
+    if (n >= MIN_NUMBER && n <= MAX_NUMBER && !sanitized.includes(n)) {
+      sanitized.push(n)
+    }
+  }
+
+  const fixedSet = new Set(sanitized)
+  const pool = fullPool().filter((n) => !fixedSet.has(n))
+  const filled = drawFromPool(pool, MAIN_COUNT - sanitized.length, rng)
+
+  const numbers = [...sanitized, ...filled]
+  numbers.sort((a, b) => a - b)
+  return { numbers }
 }
 
 // 당첨 데이터에서 1~45 각 번호의 누적 출현 횟수를 센다.
@@ -53,7 +74,6 @@ export function calculateFrequencies(draws: Draw[]): FrequencyEntry[] {
   return entries
 }
 
-type WeightedMode = Exclude<GenerateMode, 'random'>
 type Candidate = { number: number; weight: number }
 
 // 가중치에 비례해 후보 하나를 고르고 후보 목록에서 제거한다(비복원). 모든 weight는 1 이상이라
@@ -69,20 +89,18 @@ function pickWeighted(candidates: Candidate[], rng: Rng): number {
   return candidates.splice(candidates.length - 1, 1)[0].number
 }
 
-// 과거 출현 빈도로 가중해 생성한다. 자주=count+1, 드물게=maxCount-count+1(최다 번호도 0이 안 됨).
+// "역대 단골 번호": 과거 출현 빈도로 가중해 생성한다. 자주 나온 번호일수록 가중(count+1).
 // 데이터가 없으면(누적 0건) 순수 랜덤으로 폴백한다. 확률적 근거 없는 재미 요소다(예측 아님).
 export function generateWeighted(
-  mode: WeightedMode,
   frequencies: FrequencyEntry[],
   rng: Rng = Math.random,
 ): GeneratedNumbers {
   const totalCount = frequencies.reduce((sum, e) => sum + e.count, 0)
   if (totalCount === 0) return generateRandom(rng)
 
-  const maxCount = frequencies.reduce((m, e) => Math.max(m, e.count), 0)
   const candidates: Candidate[] = frequencies.map((e) => ({
     number: e.number,
-    weight: mode === 'frequent' ? e.count + 1 : maxCount - e.count + 1,
+    weight: e.count + 1,
   }))
 
   const numbers: number[] = []

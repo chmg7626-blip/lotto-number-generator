@@ -4,6 +4,7 @@ import {
   calculateFrequencies,
   generateRandom,
   generateWeighted,
+  generateWithFixed,
   type Rng,
 } from './lotto'
 
@@ -91,36 +92,68 @@ function appearanceRate(results: GeneratedNumbers[], target: number): number {
   return hits / results.length
 }
 
-describe('generateWeighted', () => {
-  it('자주/드물게 모두 6개 불변식을 동일하게 만족한다 (각 500회)', () => {
+describe('generateWeighted (역대 단골 번호)', () => {
+  it('6개 불변식을 만족한다 (500회)', () => {
     const freq = freqWith({ 1: 10, 7: 5, 20: 3, 45: 1 })
     for (let i = 0; i < 500; i++) {
-      assertValidResult(generateWeighted('frequent', freq))
-      assertValidResult(generateWeighted('rare', freq))
+      assertValidResult(generateWeighted(freq))
     }
   })
 
   it('데이터가 없으면(누적 0건) 순수 랜덤으로 폴백한다', () => {
     const empty = freqWith({})
-    const weighted = generateWeighted('frequent', empty, constantRng(0))
+    const weighted = generateWeighted(empty, constantRng(0))
     const random = generateRandom(constantRng(0))
     expect(weighted).toEqual(random)
     expect(weighted.numbers).toEqual([1, 2, 3, 4, 5, 6])
   })
 
-  it('자주 모드는 출현 많은 번호를, 드물게 모드는 적은 번호를 선호한다', () => {
+  it('출현 많은 번호를 선호한다', () => {
     // 45만 압도적으로 많이 나온 데이터.
     const freq = freqWith({ 45: 1000 })
     const runs = 500
-    const frequent = Array.from({ length: runs }, () =>
-      generateWeighted('frequent', freq),
-    )
-    const rare = Array.from({ length: runs }, () =>
-      generateWeighted('rare', freq),
-    )
+    const frequent = Array.from({ length: runs }, () => generateWeighted(freq))
 
-    // 자주 모드에서는 45가 거의 항상, 드물게 모드에서는 드물게 등장한다(보수적 여유).
+    // 45가 거의 항상 등장한다(보수적 여유).
     expect(appearanceRate(frequent, 45)).toBeGreaterThan(0.7)
-    expect(appearanceRate(rare, 45)).toBeLessThan(0.3)
+  })
+})
+
+describe('generateWithFixed (행운수 고정)', () => {
+  it('고정 0/3/5개 모두 6개 불변식을 만족한다 (각 500회)', () => {
+    for (let i = 0; i < 500; i++) {
+      assertValidResult(generateWithFixed([]))
+      assertValidResult(generateWithFixed([7, 14, 21]))
+      assertValidResult(generateWithFixed([3, 11, 27, 38, 44]))
+    }
+  })
+
+  it('고정한 번호가 결과에 모두 포함된다', () => {
+    const fixed = [3, 11, 27, 38, 44]
+    for (let i = 0; i < 500; i++) {
+      const { numbers } = generateWithFixed(fixed)
+      for (const n of fixed) expect(numbers).toContain(n)
+    }
+  })
+
+  it('고정 0개면 순수 랜덤과 동일하다 (같은 RNG, 경계값)', () => {
+    const fixedResult = generateWithFixed([], constantRng(0))
+    const randomResult = generateRandom(constantRng(0))
+    expect(fixedResult).toEqual(randomResult)
+    expect(fixedResult.numbers).toEqual([1, 2, 3, 4, 5, 6])
+  })
+
+  it('나머지 자리는 고정 번호를 제외한 풀에서 채워진다 (RNG 0 → 최소 미고정 번호)', () => {
+    // 고정 [1,2,3] → 남은 풀의 가장 작은 미고정 번호부터 채운다(4,5,6).
+    const { numbers } = generateWithFixed([1, 2, 3], constantRng(0))
+    expect(numbers).toEqual([1, 2, 3, 4, 5, 6])
+  })
+
+  it('범위 밖·중복 입력을 걸러내고, 6개째 고정은 무시한다 (시스템 경계 방어)', () => {
+    // 0·46은 범위 밖, 7 중복, 유효 고정은 [7,8,9,10,11] 5개까지만.
+    const { numbers } = generateWithFixed([0, 7, 46, 7, 8, 9, 10, 11, 12])
+    expect(numbers).toHaveLength(6)
+    for (const n of [7, 8, 9, 10, 11]) expect(numbers).toContain(n)
+    expect(new Set(numbers).size).toBe(6)
   })
 })
