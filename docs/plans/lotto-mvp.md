@@ -112,13 +112,13 @@ WP 하나는 따로 완료·검증할 수 있는 크기로 잡는다. 끝나면 
   - 위험: clipboard API는 보안 컨텍스트 한정 → 실패 피드백, 필요 시 폴백(design 위험 절). 번호판 5개 차단 누락 시 6개째 고정으로 랜덤 자리 0 → 경계 테스트/육안 확인.
   - 상태: done (2026-07-01). NumberPad(0~5개 토글·6개째 차단·전체해제) + LottoMachine(장식 공 12개·wander) + Ticket(A~E·게임별/전체 복사·clipboard→execCommand 폴백) 신규, GeneratorPanel에 fixed 상태·모드별 조립, App.handleDraw 배선(random/frequent/fixed×count) + useMemo 빈도·hasData. styles.css 이식. lint·typecheck·test(16)·build 통과. claude-in-chrome 육안: 3모드 전환·순수랜덤 ×3·행운수고정 5개+6개째 차단+전 게임 공통·역대단골 가중·면책/샘플/재미요소 안내 정상. **복사는 자동화 클립보드 활성화 제약으로 제가 검증 못 함 → 사용자가 실클릭으로 동작 확인**. 추첨기 공 6→12개(design 갱신·2026-07-01).
 
-- [ ] WP-009: 1~45 출현 통계 그리드 + 당첨금액(샘플) + 조립
+- [x] WP-009: 1~45 출현 통계 그리드 + 당첨금액(샘플) + 조립
   - 목적: 1~45 공 그리드(9열) + 출현 횟수, 당첨금액(1등 강조 + 2~5등, 샘플), App 전체 레이아웃 조립.
   - 변경 파일: src/components/FrequencyGrid.tsx, src/components/PrizeTable.tsx, src/data/prize.sample.ts, src/App.tsx, 스타일(CSS)
   - 완료 조건: spec "빈도 통계"·"회차 당첨번호·당첨금액(샘플)". 그리드가 빈도 높낮이를 보여주고, 빈 데이터(0건) 안전, 당첨금액에 "샘플" 명시.
   - 검증: dev 서버 + claude-in-chrome에서 그리드·당첨금액 표시, 빈 데이터 경로 확인.
   - 위험: 당첨금액 샘플이 실데이터로 오해되지 않게 "샘플" 표시 필수.
-  - 상태: pending
+  - 상태: done (2026-07-01). FrequencyGrid(9열 공 그리드·출현 횟수) + PrizeTable(1등 강조+2~5등) + prize.sample.ts + App 두 섹션 조립(당첨금액·통계, 각 "샘플" 명시). 빈 데이터 시 통계 sub를 "데이터 없음 · 통계 없음"으로(그리드는 45개 0 안전). lint·typecheck·test(16)·build 통과. claude-in-chrome 육안: 당첨금액 1~5등·통계 그리드(41번 0회 포함) 정상.
 
 - [ ] WP-010: 표현 검토 + 반응형 + 최종 로컬 검사
   - 🔔 실화면·모바일 점검: 이미 보유한 `claude-in-chrome` MCP(화면 리사이즈 포함)로. responsive-mobile-check·Playwright 스킬은 부재/미확인이라 도입 안 함 (메모리 lotto-frontend-skill-trial).

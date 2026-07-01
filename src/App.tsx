@@ -11,6 +11,8 @@ import { DisclaimerBanner } from './components/DisclaimerBanner'
 import { WinningBar } from './components/WinningBar'
 import { GeneratorPanel } from './components/GeneratorPanel'
 import type { DrawResult } from './components/GeneratorPanel'
+import { PrizeTable } from './components/PrizeTable'
+import { FrequencyGrid } from './components/FrequencyGrid'
 
 // 샘플 데이터(실제 당첨번호 아님 — src/data/README.md). 배포 전 실데이터로 교체한다.
 const draws = (drawsData as DrawsFile).draws
@@ -47,6 +49,22 @@ export default function App() {
       <DisclaimerBanner />
       <WinningBar draw={latestDraw(draws)} />
       <GeneratorPanel onDraw={handleDraw} result={result} hasData={hasData} />
+
+      <section className="wrap">
+        <h2 className="sec-title">당첨금액</h2>
+        <p className="sec-sub">샘플 · 실제 당첨금이 아닙니다</p>
+        <PrizeTable />
+      </section>
+
+      <section className="wrap" style={{ paddingBottom: 80 }}>
+        <h2 className="sec-title">1~45번 출현 통계</h2>
+        <p className="sec-sub">
+          {hasData
+            ? `샘플 ${draws.length}회차 기준 · 예측이 아닌 재미용 통계`
+            : '데이터 없음 · 통계 없음'}
+        </p>
+        <FrequencyGrid frequencies={frequencies} />
+      </section>
     </>
   )
 }
