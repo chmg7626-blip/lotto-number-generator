@@ -103,14 +103,14 @@ WP 하나는 따로 완료·검증할 수 있는 크기로 잡는다. 끝나면 
   - 위험: 기존 호출부(App/GeneratorPanel)가 옛 시그니처를 참조하면 typecheck 실패 → WP-008에서 함께 정리. rare 제거로 깨지는 테스트는 spec 변경 반영이므로 약화가 아님(완료조건 근거 명시).
   - 상태: done (2026-06-30). generateWithFixed(시스템 경계 방어: 범위 밖·중복 거르고 최대 5개) + generateWeighted 단순화(mode 인자·rare·maxCount 제거) + drawFromPool을 count 받게 일반화 + 타입 'rare'→'fixed'. GeneratorPanel 모드칩 라벨 교체(순수/역대 단골/행운수 고정). lint·typecheck·test(16)·build 통과. App.handleDraw는 여전히 stub(WP-008에서 배선).
 
-- [ ] WP-008: 생성 패널 + 추첨기 + 5게임 용지(복사)
+- [x] WP-008: 생성 패널 + 추첨기 + 5게임 용지(복사)
   - 선행: WP-011(도메인 모드 재구성)
   - 목적: 모드칩(순수/역대 단골/행운수 고정) + **행운수 고정 시 1~45 번호판(NumberPad, 0~5개)** + 뽑기 버튼 + ×1~5 연속뽑기 + 추첨기 비주얼 + 선택 모드·게임수로 생성한 A~E 5게임 용지 + 게임별/전체 복사.
   - 변경 파일: src/components/GeneratorPanel.tsx, src/components/NumberPad.tsx, src/components/LottoMachine.tsx, src/components/Ticket.tsx, src/App.tsx, 스타일(CSS)
   - 완료 조건: spec "번호 생성·연속뽑기"·"생성 모드"·"복사". ×1/×5 경계 동작, 각 게임 본번호 6개(보너스 없음), 역대 단골/행운수 고정 옵션 근처 "재미 요소" 안내, 빈 데이터 시 "데이터 없음, 랜덤 동작" 표시(단골 모드), 행운수 고정 시 번호판 0~5개 토글(6개째 차단)·고정수 전 게임 공통, 개별·전체 복사 동작+피드백.
   - 검증: dev 서버 + claude-in-chrome에서 각 모드·게임수 생성, 행운수 고정 번호판·×N 공통 동작, 복사 클립보드 확인, 면책/안내 노출.
   - 위험: clipboard API는 보안 컨텍스트 한정 → 실패 피드백, 필요 시 폴백(design 위험 절). 번호판 5개 차단 누락 시 6개째 고정으로 랜덤 자리 0 → 경계 테스트/육안 확인.
-  - 상태: 진행 중. 1단위(히어로+로고+모드칩+뽑기버튼+×1~5 연속뽑기)는 `87e00a8`로 커밋됨. **모드칩은 옛 구성(순수/자주/기념번호)이라 WP-011 후 새 구성으로 교체** 필요. 2단위(추첨기)·3단위(용지·복사)·번호판 남음.
+  - 상태: done (2026-07-01). NumberPad(0~5개 토글·6개째 차단·전체해제) + LottoMachine(장식 공 12개·wander) + Ticket(A~E·게임별/전체 복사·clipboard→execCommand 폴백) 신규, GeneratorPanel에 fixed 상태·모드별 조립, App.handleDraw 배선(random/frequent/fixed×count) + useMemo 빈도·hasData. styles.css 이식. lint·typecheck·test(16)·build 통과. claude-in-chrome 육안: 3모드 전환·순수랜덤 ×3·행운수고정 5개+6개째 차단+전 게임 공통·역대단골 가중·면책/샘플/재미요소 안내 정상. **복사는 자동화 클립보드 활성화 제약으로 제가 검증 못 함 → 사용자가 실클릭으로 동작 확인**. 추첨기 공 6→12개(design 갱신·2026-07-01).
 
 - [ ] WP-009: 1~45 출현 통계 그리드 + 당첨금액(샘플) + 조립
   - 목적: 1~45 공 그리드(9열) + 출현 횟수, 당첨금액(1등 강조 + 2~5등, 샘플), App 전체 레이아웃 조립.

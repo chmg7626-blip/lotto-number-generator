@@ -1,8 +1,16 @@
+import { useMemo, useState } from 'react'
 import drawsData from './data/draws.sample.json'
 import type { Draw, DrawsFile, GenerateMode } from './domain/types'
+import {
+  calculateFrequencies,
+  generateRandom,
+  generateWeighted,
+  generateWithFixed,
+} from './domain/lotto'
 import { DisclaimerBanner } from './components/DisclaimerBanner'
 import { WinningBar } from './components/WinningBar'
 import { GeneratorPanel } from './components/GeneratorPanel'
+import type { DrawResult } from './components/GeneratorPanel'
 
 // 샘플 데이터(실제 당첨번호 아님 — src/data/README.md). 배포 전 실데이터로 교체한다.
 const draws = (drawsData as DrawsFile).draws
@@ -14,10 +22,20 @@ function latestDraw(list: Draw[]): Draw | null {
 }
 
 export default function App() {
-  // 번호 뽑기 → 5게임 생성/표시는 3단위(Ticket)에서 연결한다.
-  function handleDraw(mode: GenerateMode, count: number) {
-    void mode
-    void count
+  const frequencies = useMemo(() => calculateFrequencies(draws), [])
+  const hasData = useMemo(
+    () => frequencies.some((entry) => entry.count > 0),
+    [frequencies],
+  )
+  const [result, setResult] = useState<DrawResult | null>(null)
+
+  function handleDraw(mode: GenerateMode, count: number, fixed: number[]) {
+    const games = Array.from({ length: count }, () => {
+      if (mode === 'frequent') return generateWeighted(frequencies)
+      if (mode === 'fixed') return generateWithFixed(fixed)
+      return generateRandom()
+    })
+    setResult({ games, mode, count })
   }
 
   return (
@@ -28,7 +46,7 @@ export default function App() {
 
       <DisclaimerBanner />
       <WinningBar draw={latestDraw(draws)} />
-      <GeneratorPanel onDraw={handleDraw} />
+      <GeneratorPanel onDraw={handleDraw} result={result} hasData={hasData} />
     </>
   )
 }
