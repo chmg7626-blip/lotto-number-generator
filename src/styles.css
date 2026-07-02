@@ -947,6 +947,21 @@ body {
   font-size: 13px;
   color: var(--gold);
 }
+/* 빈도 비례 막대: 공 아래에서 출현 횟수 높낮이를 시각적으로 구분한다. */
+.statbar {
+  display: block;
+  width: 34px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+.statbar-fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold2), var(--gold));
+  border-radius: 999px;
+}
 
 @media (prefers-reduced-motion: reduce) {
   * {
