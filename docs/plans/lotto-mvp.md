@@ -120,14 +120,14 @@ WP 하나는 따로 완료·검증할 수 있는 크기로 잡는다. 끝나면 
   - 위험: 당첨금액 샘플이 실데이터로 오해되지 않게 "샘플" 표시 필수.
   - 상태: done (2026-07-01). FrequencyGrid(9열 공 그리드·출현 횟수) + PrizeTable(1등 강조+2~5등) + prize.sample.ts + App 두 섹션 조립(당첨금액·통계, 각 "샘플" 명시). 빈 데이터 시 통계 sub를 "데이터 없음 · 통계 없음"으로(그리드는 45개 0 안전). lint·typecheck·test(16)·build 통과. claude-in-chrome 육안: 당첨금액 1~5등·통계 그리드(41번 0회 포함) 정상.
 
-- [ ] WP-010: 표현 검토 + 반응형 + 최종 로컬 검사
+- [x] WP-010: 표현 검토 + 반응형 + 최종 로컬 검사
   - 🔔 실화면·모바일 점검: 이미 보유한 `claude-in-chrome` MCP(화면 리사이즈 포함)로. responsive-mobile-check·Playwright 스킬은 부재/미확인이라 도입 안 함 (메모리 lotto-frontend-skill-trial).
   - 목적: 금지 표현 부재 확인, 모바일 폭 점검, 전체 완료 조건 점검, 로컬 게이트 통과.
-  - 변경 파일: (수정 발생 시 해당 파일)
+  - 변경 파일: src/styles.css (모바일 당첨금액 1열 @media 추가)
   - 완료 조건: spec 완료 조건 전체 충족, 표현 금지 확인, 모바일 폭에서 레이아웃 깨짐 없음.
   - 검증: 코드·UI에서 "당첨 확률을 높인다/당첨 보장/예측" 표현 grep 부재. claude-in-chrome 모바일 폭 확인. `npm run lint && npm run typecheck && npm test && npm run build` 통과.
   - 위험: 낮음.
-  - 상태: pending
+  - 상태: done (2026-07-02). 금지 표현 부재(매칭은 면책 문구만: "예측 아님/당첨 보장 아님") 확인. claude-in-chrome으로 390px 폭 전 구간 점검 — 면책·회차 띠·모드칩·×N 칩·행운수 번호판(9열)·5게임 용지·통계 그리드(9열) 모두 넘침 없음. **당첨금액 2~5등 카드가 좁은 폭에서 금액이 글자 단위로 세로 분해되는 문제 발견**(예: "5천원"→3줄) → styles.css에 `@media (max-width:480px) .prize-list{grid-template-columns:1fr}` 추가로 해결. 검증: 1열 강제 시 금액 .pa 높이 88→29px(한 줄)·육안 한 줄 확인. lint·typecheck·test(16)·build 통과. **도구 한계: 이 환경에서 resize_window가 렌더 뷰포트를 안 줄여(innerWidth 1561 고정), body max-width로 시뮬레이션함. 뷰포트 MQ·vw/vh 부재라 내부 grid/flex 折り返し는 유효 재현되나, `@media(max-width:480px)` 자체의 실기기 발동은 미검증(CSS 표준이라 자명).**
 
 ## 실패 루프
 

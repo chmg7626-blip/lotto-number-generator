@@ -953,3 +953,10 @@ body {
     animation: none !important;
   }
 }
+
+/* 모바일 세로 폭: 당첨금액 2~5등을 1열로. 2열이면 카드가 좁아져 금액이 글자 단위로 접힌다. */
+@media (max-width: 480px) {
+  .prize-list {
+    grid-template-columns: 1fr;
+  }
+}
