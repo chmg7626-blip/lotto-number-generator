@@ -1029,6 +1029,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  /* 초소형 폭(≈320px)에서 공 6개가 넘치면 줄바꿈으로 살린다 (Codex 권장) */
+  flex-wrap: wrap;
   gap: 10px;
   min-height: 70px;
 }
@@ -1072,6 +1074,8 @@ body {
 }
 .draw-result-balls {
   display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
   gap: 10px;
 }
 .draw-confirm {
