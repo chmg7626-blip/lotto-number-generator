@@ -975,3 +975,150 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* ===== 추첨 연출 오버레이 (draw-animation) ===== */
+.draw-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background:
+    radial-gradient(
+      60% 50% at 50% 28%,
+      rgba(120, 160, 255, 0.16),
+      transparent 65%
+    ),
+    radial-gradient(
+      50% 40% at 50% 82%,
+      rgba(255, 212, 94, 0.08),
+      transparent 60%
+    ),
+    rgba(8, 12, 28, 0.9);
+  animation: overlay-in 0.3s ease;
+}
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.draw-stage,
+.draw-resultcut {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+/* 오버레이 안 추첨기: 히어로의 정적 머신 스타일은 건드리지 않고 확대만 한다
+   (transform scale이라 공 궤도 안전 반경 규칙이 그대로 유지된다).
+   origin을 bottom에 둬 확대가 위로만 퍼지게 한다 — 아래 트레이와 겹치지 않는다. */
+.draw-stage .lotto-machine {
+  margin: 0;
+  transform: scale(1.15);
+  transform-origin: center bottom;
+}
+/* 섞임 가속: 공 궤도 애니메이션은 컴포넌트 인라인 style(shorthand)이라
+   !important 없이는 주기를 줄일 수 없다. */
+.draw-stage .mball {
+  animation-duration: 2.2s !important;
+}
+
+/* 뽑힌 공 트레이: 뽑힌 순서 그대로, 출구에서 떨어지듯 pop-in */
+.draw-tray {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 64px;
+}
+.draw-tray .ball {
+  animation: ball-popin 0.45s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+@keyframes ball-popin {
+  from {
+    transform: translateY(-46px) scale(0.4);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.draw-skip {
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--dim);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 9px 26px;
+  cursor: pointer;
+}
+
+.draw-result-title {
+  font-family: 'Jua', sans-serif;
+  font-size: 24px;
+  color: var(--gold);
+  text-shadow: 0 2px 12px rgba(255, 200, 80, 0.35);
+}
+.draw-result-balls {
+  display: flex;
+  gap: 10px;
+}
+.draw-confirm {
+  font-family: 'Jua', sans-serif;
+  font-size: 18px;
+  letter-spacing: 2px;
+  color: #3a2c00;
+  background: linear-gradient(180deg, var(--gold), var(--gold2));
+  border: none;
+  padding: 12px 46px;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow:
+    0 12px 34px rgba(255, 200, 80, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* 오버레이 좁은 폭: 확대 머신·공 크기를 줄여 겹침을 막는다 */
+@media (max-width: 480px) {
+  .draw-stage .lotto-machine {
+    transform: scale(0.9);
+  }
+  .draw-stage,
+  .draw-resultcut {
+    gap: 14px;
+  }
+  .draw-tray,
+  .draw-result-balls {
+    gap: 6px;
+  }
+  .draw-tray .ball,
+  .draw-result-balls .ball {
+    width: 42px;
+    height: 42px;
+    font-size: 17px;
+  }
+  .draw-tray .ball::before,
+  .draw-result-balls .ball::before {
+    top: 5px;
+    left: 7px;
+    width: 15px;
+    height: 11px;
+  }
+  .draw-tray .ball::after,
+  .draw-result-balls .ball::after {
+    top: 16px;
+    right: 9px;
+    width: 5px;
+    height: 5px;
+  }
+}
