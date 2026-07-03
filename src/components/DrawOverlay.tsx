@@ -3,10 +3,10 @@ import { Ball } from './Ball'
 import { LottoMachine } from './LottoMachine'
 
 // 연출 타이밍(ms)을 한곳에 모은다(확정 설계 — 조정 가능하게).
-// ×1 기준 시작~결과 컷 = MIX_MS + REVEAL_INTERVAL_MS × 7(공개 6 + 결과 전 여백 1) ≈ 6초
-// (spec 약 5~7초 — 2026-07-03 사용자 요청으로 8~12초에서 단축).
-export const MIX_MS = 1400
-export const REVEAL_INTERVAL_MS = 650
+// ×1 기준 시작~결과 컷 = MIX_MS + REVEAL_INTERVAL_MS × 7(공개 6 + 결과 전 여백 1) ≈ 5초
+// (spec 약 5~7초 — 2026-07-03 사용자 요청으로 8~12초→6초→5초로 단계 단축).
+export const MIX_MS = 1200
+export const REVEAL_INTERVAL_MS = 550
 
 type Phase = 'mixing' | 'revealing' | 'result'
 

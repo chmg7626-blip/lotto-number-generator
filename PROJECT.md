@@ -56,7 +56,8 @@
 
 ## 다음 할 일
 
-- **추첨 애니메이션 PR**: feature/draw-animation push → draft PR → CI 통과 → 사람 최종 검토 → main 병합 (push·PR·병합은 승인 게이트)
+- **추첨 애니메이션 PR #2 마무리**: CI 통과 상태 → ready 전환 → 사람 최종 검토 → main 병합 (승인 게이트)
+- **다음 기능(별도 spec)**: 추첨 연출 **BGM·효과음** (사용자 요청 2026-07-03 — 현 spec 범위 밖으로 분리돼 있음. brainstorm으로 spec부터: 음원 출처/라이선스, 자동재생 정책, 음소거 토글 등)
 - (배포 전) 당첨번호 데이터 출처·이용약관을 외부 조사로 확인해 docs/research/ 에 기록 (실데이터 확보 — 회차 당첨번호·당첨금액 샘플 교체)
 - (선택) 미추적 파일 정리: dgp4d.jpg(용도 미정 마스코트 이미지)·.agents/·.codex/, 폐기된 feature/lotto-mvp-ui-a/-b 브랜치 정리 — 사용자 확인 필요
 
