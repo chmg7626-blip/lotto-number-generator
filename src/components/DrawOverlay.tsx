@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Ball } from './Ball'
-import { LottoMachine } from './LottoMachine'
+import { DrawMachineCanvas } from './DrawMachineCanvas'
 
 // 연출 타이밍(ms)을 한곳에 모은다(확정 설계 — 조정 가능하게).
 // ×1 기준 시작~결과 컷 = MIX_MS + REVEAL_INTERVAL_MS × 7(공개 6 + 결과 전 여백 1) ≈ 5초
@@ -73,7 +73,10 @@ export function DrawOverlay({
     >
       {phase !== 'result' ? (
         <div className="draw-stage">
-          <LottoMachine />
+          <DrawMachineCanvas
+            revealOrder={revealOrder}
+            revealedCount={revealedCount}
+          />
           <div className="draw-tray" aria-live="polite">
             {revealOrder.slice(0, revealedCount).map((n) => (
               <Ball key={n} number={n} />

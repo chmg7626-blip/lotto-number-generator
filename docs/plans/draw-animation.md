@@ -100,6 +100,22 @@ npm run build`, verify 스킬 체크리스트, dev 서버 최종 흐름 확인.
     test 29개·build 전부 통과. dev 서버 최종 흐름 확인. 남은 최종 검증 항목은
     Codex 독립 검토·CI·사람 확인(아래 "최종 검증").
 
+- [x] WP-006: canvas 물리 시뮬레이션 무대 (연출 재작업 — 2026-07-03 사용자 결정)
+  - 목적: 오버레이 무대를 CSS keyframe에서 canvas 2D + rAF 물리(45공·구간색·원형 경계·중력·
+    충돌·에어젯)로 교체. 확정 번호의 공이 출구로 뽑혀 나가며 드럼에서 제거된다.
+  - 변경 파일: src/components/DrawMachineCanvas.tsx(신규), DrawOverlay.tsx(무대 교체),
+    styles.css(죽은 turbo/rumble/머신확대 CSS 제거 + canvas 스타일), docs/design/draw-animation.md
+  - 완료 조건: spec 완료 조건 전체 유지(연출 흐름·번호 불변·건너뛰기·연속뽑기·접근성) —
+    번호는 여전히 도메인 확정, 물리는 표시 전용. 히어로 정적 머신은 무변경.
+  - 검증: 기존 테스트 29개 그대로 통과(jsdom은 canvas 없음 → null 가드로 시뮬 미시작),
+    브라우저 육안(물리 요동·뽑힘·공 잘림 없음), 로컬 게이트, Codex 재검토(로직 변경).
+  - 위험: jsdom getContext null·rAF cleanup 누수 → 가드·cancelAnimationFrame을 effect cleanup으로.
+    물리 튜닝(공이 가라앉거나 폭주)은 육안 반복 조정.
+  - 상태: done (2026-07-04). DrawMachineCanvas(45공·구간색·원형 경계·중력·충돌·에어젯·출구 추출,
+    dpr 대응). jsdom은 CanvasRenderingContext2D 인터페이스 존재 확인으로 조용히 건너뜀(로그 0).
+    기존 테스트 29개 그대로 통과, 브라우저 육안 확인(요동·뽑힌 공 드럼 제거·결과 컷=용지 일치).
+    Codex 재검토는 커밋 후 실행.
+
 ## 실패 루프
 
 막히면 어디서 다시 시작할지 (development-workflow.md "실패·수정 루프" 참조):
