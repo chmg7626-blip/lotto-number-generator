@@ -116,7 +116,7 @@ body {
   flex-wrap: wrap;
   background: rgba(12, 18, 38, 0.55);
   color: var(--dim);
-  font-size: 12.5px;
+  font-size: 13.5px;
   padding: 9px 18px;
   border-bottom: 1px solid var(--line);
   backdrop-filter: blur(4px);
@@ -140,7 +140,7 @@ body {
 }
 .winbar .wlabel {
   font-family: 'Jua', sans-serif;
-  font-size: 13px;
+  font-size: 14.5px;
   color: var(--dim);
 }
 .winbar .wlabel b {
@@ -229,9 +229,9 @@ body {
 
 /* 띠·그리드용 작은 공 */
 .ball.sm {
-  width: 38px;
-  height: 38px;
-  font-size: 15px;
+  width: 44px;
+  height: 44px;
+  font-size: 17px;
 }
 .ball.sm::before {
   top: 5px;
@@ -248,9 +248,9 @@ body {
 
 /* 용지용 중간 공 */
 .ball.tk {
-  width: 40px;
-  height: 40px;
-  font-size: 16px;
+  width: 46px;
+  height: 46px;
+  font-size: 18px;
 }
 .ball.tk::before {
   top: 5px;
@@ -309,8 +309,8 @@ body {
   gap: 10px;
 }
 .logo-img {
-  width: 54px;
-  height: 54px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   background-image: url('/logo-mascot.jpg');
   background-size: 300%;
@@ -320,7 +320,7 @@ body {
 }
 .logo-name {
   font-family: 'Jua', sans-serif;
-  font-size: 19px;
+  font-size: 21px;
   line-height: 1.1;
   text-align: left;
 }
@@ -336,13 +336,13 @@ body {
   font-family: 'Jua', sans-serif;
   letter-spacing: 2px;
   color: var(--gold);
-  font-size: 14px;
+  font-size: 16px;
   margin-bottom: 8px;
   text-shadow: 0 2px 10px rgba(255, 200, 80, 0.4);
 }
 .htitle {
   font-family: 'Jua', sans-serif;
-  font-size: 60px;
+  font-size: 72px;
   line-height: 1.05;
   letter-spacing: 1px;
   text-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
@@ -352,8 +352,8 @@ body {
 }
 .hsub {
   color: var(--dim);
-  font-size: 16px;
-  margin-top: 12px;
+  font-size: 18px;
+  margin-top: 14px;
 }
 
 .modechips {
@@ -366,9 +366,9 @@ body {
   border: 1px solid var(--line);
 }
 .chip {
-  font-size: 14px;
+  font-size: 16px;
   color: var(--dim);
-  padding: 8px 18px;
+  padding: 10px 24px;
   border-radius: 999px;
   cursor: pointer;
   border: none;
@@ -390,12 +390,12 @@ body {
 }
 .drawbtn {
   font-family: 'Jua', sans-serif;
-  font-size: 22px;
+  font-size: 26px;
   letter-spacing: 2px;
   color: #3a2c00;
   background: linear-gradient(180deg, var(--gold), var(--gold2));
   border: none;
-  padding: 16px 54px;
+  padding: 19px 64px;
   border-radius: 999px;
   cursor: pointer;
   box-shadow:
@@ -413,9 +413,9 @@ body {
 }
 .cnt {
   font-family: 'Jua', sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--dim);
-  padding: 7px 12px;
+  padding: 9px 15px;
   border-radius: 999px;
   cursor: pointer;
   border: none;
@@ -428,7 +428,7 @@ body {
 
 .modenote {
   color: var(--dim);
-  font-size: 12px;
+  font-size: 13.5px;
   margin: 0 0 18px;
   opacity: 0.85;
 }
@@ -442,7 +442,7 @@ body {
 
 /* ===== 행운수 고정 번호판 (fixed 모드 전용) ===== */
 .numpad {
-  max-width: 560px;
+  max-width: 640px;
   margin: 4px auto 20px;
   padding: 16px 18px;
   background: rgba(12, 18, 38, 0.5);
@@ -520,8 +520,8 @@ body {
   margin: 30px auto 0;
 }
 .cap {
-  width: 44px;
-  height: 16px;
+  width: 52px;
+  height: 18px;
   background: linear-gradient(180deg, var(--gold), #e9a82f);
   border-radius: 9px 9px 4px 4px;
   margin-bottom: -5px;
@@ -530,8 +530,8 @@ body {
 }
 .sphere {
   position: relative;
-  width: 280px;
-  height: 280px;
+  width: 340px;
+  height: 340px;
   border-radius: 50%;
   overflow: hidden;
   background: radial-gradient(
@@ -567,8 +567,8 @@ body {
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 104px;
-  height: 52px;
+  width: 120px;
+  height: 60px;
   background: linear-gradient(
     180deg,
     rgba(255, 212, 94, 0.28),
@@ -584,11 +584,11 @@ body {
 }
 .mball {
   position: absolute;
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   font-family: 'Jua', sans-serif;
-  font-size: 19px;
+  font-size: 21px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -647,8 +647,8 @@ body {
 }
 .stand {
   position: relative;
-  width: 144px;
-  height: 24px;
+  width: 170px;
+  height: 26px;
   margin-top: -2px;
   background: linear-gradient(180deg, var(--gold), #e9a82f);
   border-radius: 5px 5px 14px 14px;
@@ -677,7 +677,7 @@ body {
 }
 
 /* 추첨기 통 안 공이 작은 원을 그리며 도는 효과.
-   구는 지름 280·공 48이라 안쪽 안전 반경(중심에서 116) 안에 base를 두고
+   구는 지름 340·공 52라 안쪽 안전 반경(중심에서 140) 안에 base를 두고
    궤도 반경을 20 이하로 제한해, 어느 순간에도 공이 구 밖으로 나가 잘리지 않게 한다.
    (overflow:hidden은 안전망으로 유지.) orbit1/3=시계방향, orbit2/4=반시계방향. */
 @keyframes orbit1 {
@@ -753,9 +753,9 @@ body {
 .ticket {
   position: relative;
   z-index: 3;
-  max-width: 560px;
+  max-width: 640px;
   margin: 30px auto 0;
-  padding: 18px 22px 20px;
+  padding: 20px 26px 22px;
   text-align: left;
   background: linear-gradient(180deg, #fffdf4, #fdf3da);
   border-radius: 16px;
@@ -788,11 +788,11 @@ body {
 }
 .ticket-head .t {
   font-family: 'Jua', sans-serif;
-  font-size: 17px;
+  font-size: 19px;
   color: #6b4e12;
 }
 .ticket-head .s {
-  font-size: 12px;
+  font-size: 13px;
   color: #a18a4f;
 }
 .game {
@@ -807,9 +807,9 @@ body {
 }
 .glabel {
   font-family: 'Jua', sans-serif;
-  font-size: 15px;
+  font-size: 17px;
   color: #b07e1a;
-  width: 18px;
+  width: 20px;
   flex: none;
 }
 .gcopy {
@@ -828,11 +828,11 @@ body {
   position: relative;
   z-index: 3;
   margin-top: 22px;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--txt);
   background: rgba(255, 255, 255, 0.06);
   border: 1.5px solid var(--line);
-  padding: 11px 30px;
+  padding: 13px 38px;
   border-radius: 999px;
   cursor: pointer;
   font-family: inherit;
@@ -840,18 +840,18 @@ body {
 
 /* ===== 하단 섹션(당첨금액·출현 통계) 공통 ===== */
 .wrap {
-  max-width: 1000px;
+  max-width: 1120px;
   margin: 0 auto;
   padding: 56px 24px;
 }
 .sec-title {
   font-family: 'Jua', sans-serif;
-  font-size: 26px;
+  font-size: 30px;
   margin-bottom: 6px;
 }
 .sec-sub {
   color: var(--dim);
-  font-size: 14px;
+  font-size: 15.5px;
   margin-bottom: 26px;
 }
 
@@ -873,12 +873,12 @@ body {
 }
 .prize-rank {
   font-family: 'Jua', sans-serif;
-  font-size: 18px;
+  font-size: 20px;
   color: var(--gold);
 }
 .prize-amt {
   font-family: 'Jua', sans-serif;
-  font-size: 44px;
+  font-size: 52px;
   line-height: 1.1;
   margin-top: 4px;
 }
@@ -909,18 +909,18 @@ body {
 }
 .prize-row .pr {
   font-family: 'Jua', sans-serif;
-  font-size: 15px;
+  font-size: 17px;
   color: var(--gold);
-  min-width: 36px;
+  min-width: 40px;
 }
 .prize-row .pa {
   font-family: 'Jua', sans-serif;
-  font-size: 19px;
+  font-size: 22px;
 }
 .prize-row .pc {
   margin-left: auto;
   color: var(--dim);
-  font-size: 13px;
+  font-size: 14px;
 }
 
 /* 1~45 출현 통계 그리드 */
@@ -934,7 +934,7 @@ body {
 .statgrid {
   display: grid;
   grid-template-columns: repeat(9, 1fr);
-  gap: 16px 8px;
+  gap: 18px 10px;
 }
 .statcell {
   display: flex;
@@ -944,14 +944,14 @@ body {
 }
 .statcnt {
   font-family: 'Jua', sans-serif;
-  font-size: 13px;
+  font-size: 15px;
   color: var(--gold);
 }
 /* 빈도 비례 막대: 공 아래에서 출현 횟수 높낮이를 시각적으로 구분한다. */
 .statbar {
   display: block;
-  width: 34px;
-  height: 4px;
+  width: 40px;
+  height: 5px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.12);
   overflow: hidden;
@@ -973,5 +973,271 @@ body {
 @media (max-width: 480px) {
   .prize-list {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ===== 추첨 연출 오버레이 (draw-animation) ===== */
+.draw-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background:
+    radial-gradient(
+      60% 50% at 50% 28%,
+      rgba(120, 160, 255, 0.16),
+      transparent 65%
+    ),
+    radial-gradient(
+      50% 40% at 50% 82%,
+      rgba(255, 212, 94, 0.08),
+      transparent 60%
+    ),
+    rgba(8, 12, 28, 0.9);
+  animation: overlay-in 0.3s ease;
+  overflow-y: auto; /* 낮은 창에서 확대 머신+트레이가 넘칠 때 잘리지 않게 */
+}
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.draw-stage,
+.draw-resultcut {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+/* 컷인(대형 공 공개)을 무대 위에 겹치기 위한 기준 */
+.draw-stage {
+  position: relative;
+}
+
+/* 오버레이 무대의 추첨 드럼: canvas 물리 시뮬레이션(DrawMachineCanvas)이 그린다.
+   히어로의 정적 CSS 머신(LottoMachine)은 장식용으로 그대로 둔다. */
+.draw-canvas {
+  width: min(470px, 88vw);
+  height: auto;
+}
+
+/* 컷인: 뽑힌 공이 화면 중앙에 크게 공개되는 순간(연출의 주인공).
+   금색 플래시가 배경에서 퍼지고 공이 튕기며 등장한다. */
+.draw-cutin {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.draw-cutin::before {
+  content: '';
+  position: absolute;
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 212, 94, 0.4),
+    rgba(255, 212, 94, 0.12) 45%,
+    transparent 70%
+  );
+  animation: cutin-flash 0.55s ease-out;
+}
+.draw-cutin .ball {
+  width: 150px;
+  height: 150px;
+  font-size: 60px;
+  animation: cutin-pop 0.45s cubic-bezier(0.2, 1.6, 0.4, 1);
+  box-shadow:
+    inset -10px -14px 24px rgba(0, 0, 0, 0.28),
+    inset 8px 10px 18px rgba(255, 255, 255, 0.6),
+    0 24px 60px rgba(0, 0, 0, 0.5),
+    0 0 70px rgba(255, 212, 94, 0.45);
+}
+.draw-cutin .ball::before {
+  top: 18px;
+  left: 26px;
+  width: 58px;
+  height: 40px;
+}
+.draw-cutin .ball::after {
+  top: 60px;
+  right: 30px;
+  width: 14px;
+  height: 14px;
+}
+@keyframes cutin-pop {
+  from {
+    transform: translateY(90px) scale(0.25);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+@keyframes cutin-flash {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* 마지막(6번째) 공 컷인 강화: 더 큰 공 + 진한 플래시 + 확장 링 */
+.draw-cutin.final .ball {
+  width: 185px;
+  height: 185px;
+  font-size: 74px;
+  box-shadow:
+    inset -12px -17px 28px rgba(0, 0, 0, 0.28),
+    inset 10px 12px 22px rgba(255, 255, 255, 0.6),
+    0 28px 70px rgba(0, 0, 0, 0.55),
+    0 0 100px rgba(255, 212, 94, 0.65);
+}
+.draw-cutin.final::before {
+  width: 430px;
+  height: 430px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 212, 94, 0.55),
+    rgba(255, 212, 94, 0.18) 45%,
+    transparent 70%
+  );
+}
+.draw-cutin.final::after {
+  content: '';
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 212, 94, 0.7);
+  animation: cutin-ring 0.7s ease-out forwards;
+}
+@keyframes cutin-ring {
+  from {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  to {
+    transform: scale(2.1);
+    opacity: 0;
+  }
+}
+
+/* 뽑힌 공 트레이: 뽑힌 순서 그대로, 출구에서 떨어지듯 pop-in */
+.draw-tray {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 초소형 폭(≈320px)에서 공 6개가 넘치면 줄바꿈으로 살린다 (Codex 권장) */
+  flex-wrap: wrap;
+  gap: 10px;
+  min-height: 70px;
+}
+/* 오버레이의 공(트레이·결과 컷)은 무대가 커진 만큼 기본 공보다 한 단계 크게 */
+.draw-tray .ball,
+.draw-result-balls .ball {
+  width: 62px;
+  height: 62px;
+  font-size: 25px;
+}
+.draw-tray .ball {
+  animation: ball-popin 0.32s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+@keyframes ball-popin {
+  from {
+    transform: translateY(-56px) scale(0.4);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.draw-skip {
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--dim);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 9px 26px;
+  cursor: pointer;
+}
+
+.draw-result-title {
+  font-family: 'Jua', sans-serif;
+  font-size: 28px;
+  color: var(--gold);
+  text-shadow: 0 2px 12px rgba(255, 200, 80, 0.35);
+}
+.draw-result-balls {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.draw-confirm {
+  font-family: 'Jua', sans-serif;
+  font-size: 20px;
+  letter-spacing: 2px;
+  color: #3a2c00;
+  background: linear-gradient(180deg, var(--gold), var(--gold2));
+  border: none;
+  padding: 14px 52px;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow:
+    0 12px 34px rgba(255, 200, 80, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* 오버레이 좁은 폭: 공 크기를 줄여 겹침을 막는다 (canvas는 vw로 이미 축소됨) */
+@media (max-width: 480px) {
+  .draw-stage,
+  .draw-resultcut {
+    gap: 14px;
+  }
+  .draw-tray,
+  .draw-result-balls {
+    gap: 6px;
+  }
+  .draw-tray .ball,
+  .draw-result-balls .ball {
+    width: 46px;
+    height: 46px;
+    font-size: 19px;
+  }
+  .draw-tray .ball::before,
+  .draw-result-balls .ball::before {
+    top: 5px;
+    left: 7px;
+    width: 15px;
+    height: 11px;
+  }
+  .draw-tray .ball::after,
+  .draw-result-balls .ball::after {
+    top: 16px;
+    right: 9px;
+    width: 5px;
+    height: 5px;
   }
 }
