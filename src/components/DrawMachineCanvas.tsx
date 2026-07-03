@@ -17,15 +17,23 @@ const ZONE_TEXT: Record<string, string> = {
   z5: '#33470a',
 }
 
-// 물리 튜닝 상수 (논리 좌표계 px 기준. 육안으로 조정)
-const SIZE = 520
-const CENTER = SIZE / 2
-const DRUM_RADIUS = 244
+// 캔버스 논리 좌표계(px). 드럼 위에 튜브(출구) 공간을 두려고 세로가 더 길다.
+const WIDTH = 520
+const HEIGHT = 600
+const DRUM_CX = 260
+const DRUM_CY = 330
+const DRUM_RADIUS = 220
 const RIM = 5 // 드럼 테두리 두께 — 공은 테두리 안쪽에서만 반사
-const BALL_RADIUS = 21
-const GRAVITY = 0.25
-const RESTITUTION = 0.85
-const MAX_SPEED = 16
+const TUBE_HALF = 34
+const TUBE_TOP = 14
+const BALL_RADIUS = 28
+
+// 물리 튜닝(육안 조정): 차분하게 부글거리는 배경 믹싱.
+// 2026-07-04 재설계 — 믹싱은 배경이고 주인공은 컷인이라, 요동을 낮게 유지한다.
+const BALL_COUNT = 24 // 2026-07-04 사용자 피드백 — 드럼이 더 차 보이게(꽉 끼지 않는 선)
+const GRAVITY = 0.2
+const RESTITUTION = 0.75
+const MAX_SPEED = 9
 
 type SimBall = {
   n: number
@@ -36,46 +44,59 @@ type SimBall = {
   extracting: boolean
 }
 
-// 45개 공을 드럼 안에 겹치지 않게 대략적으로 흩뿌린다(초기 겹침은 첫 프레임 충돌 보정이 푼다).
-function createBalls(): SimBall[] {
-  const balls: SimBall[] = []
+// 표시할 공 BALL_COUNT개를 고른다. 뽑힐 6개(revealOrder)는 반드시 포함하고 나머지는 무작위 —
+// 공이 적어도 추첨 결과와 어긋나지 않는다(번호는 도메인에서 이미 확정, 여기는 표시 전용).
+function pickVisibleNumbers(revealOrder: number[]): number[] {
+  const rest: number[] = []
   for (let n = 1; n <= 45; n++) {
+    if (!revealOrder.includes(n)) rest.push(n)
+  }
+  for (let i = rest.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[rest[i], rest[j]] = [rest[j], rest[i]]
+  }
+  return [...revealOrder, ...rest.slice(0, BALL_COUNT - revealOrder.length)]
+}
+
+// 공들을 드럼 안에 겹치지 않게 대략적으로 흩뿌린다(초기 겹침은 첫 프레임 충돌 보정이 푼다).
+function createBalls(revealOrder: number[]): SimBall[] {
+  return pickVisibleNumbers(revealOrder).map((n) => {
     const angle = Math.random() * Math.PI * 2
     const dist =
       Math.sqrt(Math.random()) * (DRUM_RADIUS - RIM - BALL_RADIUS - 2)
-    balls.push({
+    return {
       n,
-      x: CENTER + Math.cos(angle) * dist,
-      y: CENTER + Math.sin(angle) * dist,
-      vx: (Math.random() - 0.5) * 12,
-      vy: (Math.random() - 0.5) * 12,
+      x: DRUM_CX + Math.cos(angle) * dist,
+      y: DRUM_CY + Math.sin(angle) * dist,
+      vx: (Math.random() - 0.5) * 5,
+      vy: (Math.random() - 0.5) * 5,
       extracting: false,
-    })
-  }
-  return balls
+    }
+  })
 }
 
-function stepPhysics(balls: SimBall[]) {
+function stepPhysics(balls: SimBall[], agitation: number) {
   const inner = DRUM_RADIUS - RIM - BALL_RADIUS
 
   for (const ball of balls) {
     if (ball.extracting) {
-      // 뽑힌 공: 경계를 무시하고 출구(상단 중앙)로 빨려 올라간다.
-      ball.vx += (CENTER - ball.x) * 0.02
-      ball.vy -= 1.1
+      // 뽑힌 공: 경계를 무시하고 튜브 중심선으로 정렬되며 위로 빨려 올라간다.
+      ball.vx += (DRUM_CX - ball.x) * 0.06
+      ball.vy -= 1.3
       ball.x += ball.vx
       ball.y += ball.vy
       continue
     }
 
     ball.vy += GRAVITY
-    // 에어젯: 바닥 근처 공을 무작위로 세게 쳐올려 계속 요동하게 한다(가라앉음 방지).
-    if (ball.y > CENTER + inner * 0.45 && Math.random() < 0.09) {
-      ball.vy -= 7 + Math.random() * 6
-      ball.vx += (Math.random() - 0.5) * 5
+    // 에어젯: 바닥 근처 공을 가끔 쳐올려 가라앉지 않게 한다. agitation(서스펜스)에서 세진다.
+    if (ball.y > DRUM_CY + inner * 0.5 && Math.random() < 0.04 * agitation) {
+      ball.vy -= (4.5 + Math.random() * 3) * agitation
+      ball.vx += (Math.random() - 0.5) * 3 * agitation
     }
     // 약한 난류
-    ball.vx += (Math.random() - 0.5) * 0.35
+    ball.vx += (Math.random() - 0.5) * 0.12 * agitation
+    ball.vy += (Math.random() - 0.5) * 0.08 * agitation
 
     const speed = Math.hypot(ball.vx, ball.vy)
     if (speed > MAX_SPEED) {
@@ -87,14 +108,14 @@ function stepPhysics(balls: SimBall[]) {
     ball.y += ball.vy
 
     // 원형 경계 반사
-    const dx = ball.x - CENTER
-    const dy = ball.y - CENTER
+    const dx = ball.x - DRUM_CX
+    const dy = ball.y - DRUM_CY
     const dist = Math.hypot(dx, dy)
     if (dist > inner && dist > 0) {
       const nx = dx / dist
       const ny = dy / dist
-      ball.x = CENTER + nx * inner
-      ball.y = CENTER + ny * inner
+      ball.x = DRUM_CX + nx * inner
+      ball.y = DRUM_CY + ny * inner
       const outward = ball.vx * nx + ball.vy * ny
       if (outward > 0) {
         ball.vx -= (1 + RESTITUTION) * outward * nx
@@ -135,16 +156,43 @@ function stepPhysics(balls: SimBall[]) {
   }
 }
 
-function drawFrame(ctx: CanvasRenderingContext2D, balls: SimBall[]) {
-  ctx.clearRect(0, 0, SIZE, SIZE)
+function drawFrame(
+  ctx: CanvasRenderingContext2D,
+  balls: SimBall[],
+  suspense: boolean,
+) {
+  ctx.clearRect(0, 0, WIDTH, HEIGHT)
+  ctx.save()
+  // 서스펜스: 장면 전체가 미세하게 떨린다(두구두구).
+  if (suspense) {
+    ctx.translate((Math.random() - 0.5) * 7, (Math.random() - 0.5) * 5)
+  }
 
-  // 유리 드럼: 은은한 채움 + 금색 테두리 + 상단 하이라이트
+  // 출구 튜브: 드럼 상단에서 캔버스 위 끝까지.
+  const tubeBottom = DRUM_CY - DRUM_RADIUS + 26
+  ctx.fillStyle = 'rgba(120, 160, 255, 0.1)'
+  ctx.fillRect(
+    DRUM_CX - TUBE_HALF,
+    TUBE_TOP,
+    TUBE_HALF * 2,
+    tubeBottom - TUBE_TOP,
+  )
+  ctx.strokeStyle = 'rgba(255, 212, 94, 0.45)'
+  ctx.lineWidth = 3
+  ctx.beginPath()
+  ctx.moveTo(DRUM_CX - TUBE_HALF, TUBE_TOP)
+  ctx.lineTo(DRUM_CX - TUBE_HALF, tubeBottom)
+  ctx.moveTo(DRUM_CX + TUBE_HALF, TUBE_TOP)
+  ctx.lineTo(DRUM_CX + TUBE_HALF, tubeBottom)
+  ctx.stroke()
+
+  // 유리 드럼: 은은한 채움 + 금색 테두리
   const glass = ctx.createRadialGradient(
-    CENTER - 70,
-    CENTER - 90,
+    DRUM_CX - 70,
+    DRUM_CY - 90,
     40,
-    CENTER,
-    CENTER,
+    DRUM_CX,
+    DRUM_CY,
     DRUM_RADIUS,
   )
   glass.addColorStop(0, 'rgba(255, 255, 255, 0.16)')
@@ -152,7 +200,7 @@ function drawFrame(ctx: CanvasRenderingContext2D, balls: SimBall[]) {
   glass.addColorStop(1, 'rgba(20, 30, 60, 0.28)')
   ctx.fillStyle = glass
   ctx.beginPath()
-  ctx.arc(CENTER, CENTER, DRUM_RADIUS, 0, Math.PI * 2)
+  ctx.arc(DRUM_CX, DRUM_CY, DRUM_RADIUS, 0, Math.PI * 2)
   ctx.fill()
   ctx.lineWidth = RIM
   ctx.strokeStyle = 'rgba(255, 212, 94, 0.55)'
@@ -161,10 +209,10 @@ function drawFrame(ctx: CanvasRenderingContext2D, balls: SimBall[]) {
   // 바닥 송풍구 힌트
   ctx.fillStyle = 'rgba(255, 212, 94, 0.16)'
   ctx.beginPath()
-  ctx.moveTo(CENTER - 55, CENTER + DRUM_RADIUS - 8)
-  ctx.lineTo(CENTER + 55, CENTER + DRUM_RADIUS - 8)
-  ctx.lineTo(CENTER + 26, CENTER + DRUM_RADIUS - 62)
-  ctx.lineTo(CENTER - 26, CENTER + DRUM_RADIUS - 62)
+  ctx.moveTo(DRUM_CX - 55, DRUM_CY + DRUM_RADIUS - 8)
+  ctx.lineTo(DRUM_CX + 55, DRUM_CY + DRUM_RADIUS - 8)
+  ctx.lineTo(DRUM_CX + 26, DRUM_CY + DRUM_RADIUS - 62)
+  ctx.lineTo(DRUM_CX - 26, DRUM_CY + DRUM_RADIUS - 62)
   ctx.closePath()
   ctx.fill()
 
@@ -190,7 +238,7 @@ function drawFrame(ctx: CanvasRenderingContext2D, balls: SimBall[]) {
     ctx.fill()
 
     ctx.fillStyle = ZONE_TEXT[zone]
-    ctx.font = "bold 17px 'Jua', 'Pretendard', sans-serif"
+    ctx.font = "bold 22px 'Jua', 'Pretendard', sans-serif"
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     ctx.fillText(String(ball.n), 0, 1)
@@ -198,38 +246,39 @@ function drawFrame(ctx: CanvasRenderingContext2D, balls: SimBall[]) {
     ctx.restore()
   }
 
-  // 상단 출구 캡(드럼 위 뚜껑)
-  ctx.fillStyle = 'rgba(255, 212, 94, 0.9)'
-  ctx.beginPath()
-  ctx.roundRect(CENTER - 30, CENTER - DRUM_RADIUS - 12, 60, 18, 8)
-  ctx.fill()
+  ctx.restore()
 }
 
 type DrawMachineCanvasProps = {
-  // 게임 A의 공개 순서와 지금까지 공개된 수. 번호는 도메인에서 이미 확정 — 물리는 표시 전용이고,
-  // 공개된 번호의 공을 출구로 내보내는 연출만 담당한다.
+  // 게임 A의 공개 순서와 드럼에서 나간 공 수(shotCount). 번호는 도메인에서 이미 확정 —
+  // 물리는 표시 전용이고, 나간 번호의 공을 튜브로 내보내는 연출만 담당한다.
   revealOrder: number[]
-  revealedCount: number
+  shotCount: number
+  // 마지막 공 직전 서스펜스: 장면 떨림 + 요동 강화.
+  suspense: boolean
 }
 
 export function DrawMachineCanvas({
   revealOrder,
-  revealedCount,
+  shotCount,
+  suspense,
 }: DrawMachineCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const ballsRef = useRef<SimBall[]>([])
+  const suspenseRef = useRef(suspense)
+  suspenseRef.current = suspense
 
-  // 새로 공개된 번호의 공을 '뽑히는 중'으로 표시한다.
+  // 나간 번호의 공을 '뽑히는 중'으로 표시한다.
   useEffect(() => {
-    const revealed = new Set(revealOrder.slice(0, revealedCount))
+    const shot = new Set(revealOrder.slice(0, shotCount))
     for (const ball of ballsRef.current) {
-      if (revealed.has(ball.n) && !ball.extracting) {
+      if (shot.has(ball.n) && !ball.extracting) {
         ball.extracting = true
-        ball.vx = (CENTER - ball.x) * 0.05
-        ball.vy = -10
+        ball.vx = (DRUM_CX - ball.x) * 0.05
+        ball.vy = -9
       }
     }
-  }, [revealOrder, revealedCount])
+  }, [revealOrder, shotCount])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -241,34 +290,34 @@ export function DrawMachineCanvas({
     if (!ctx) return
 
     const dpr = window.devicePixelRatio || 1
-    canvas.width = SIZE * dpr
-    canvas.height = SIZE * dpr
+    canvas.width = WIDTH * dpr
+    canvas.height = HEIGHT * dpr
     ctx.scale(dpr, dpr)
 
-    ballsRef.current = createBalls()
+    ballsRef.current = createBalls(revealOrder)
 
     let frameId = 0
     const loop = () => {
-      stepPhysics(ballsRef.current)
-      // 출구 위로 완전히 빠져나간 공은 드럼에서 제거한다.
+      // 서스펜스 중엔 요동을 키워 "곧 나온다"는 긴장을 만든다.
+      stepPhysics(ballsRef.current, suspenseRef.current ? 3 : 1)
+      // 튜브 위로 완전히 빠져나간 공은 드럼에서 제거한다.
       ballsRef.current = ballsRef.current.filter(
-        (ball) =>
-          !(ball.extracting && ball.y < CENTER - DRUM_RADIUS - BALL_RADIUS * 2),
+        (ball) => !(ball.extracting && ball.y < -BALL_RADIUS),
       )
-      drawFrame(ctx, ballsRef.current)
+      drawFrame(ctx, ballsRef.current, suspenseRef.current)
       frameId = window.requestAnimationFrame(loop)
     }
     frameId = window.requestAnimationFrame(loop)
 
     return () => window.cancelAnimationFrame(frameId)
-  }, [])
+  }, [revealOrder])
 
   return (
     <canvas
       ref={canvasRef}
       className="draw-canvas"
-      width={SIZE}
-      height={SIZE}
+      width={WIDTH}
+      height={HEIGHT}
       aria-hidden="true"
     />
   )

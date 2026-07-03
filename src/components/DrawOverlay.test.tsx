@@ -1,7 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
-import { DrawOverlay, MIX_MS, REVEAL_INTERVAL_MS } from './DrawOverlay'
+import {
+  DrawOverlay,
+  MIX_MS,
+  SHOOT_MS,
+  SHOWCASE_MS,
+  SHOWCASE_FINAL_MS,
+  SUSPENSE_MS,
+} from './DrawOverlay'
 
 // react-dom 없이 act를 쓰려면 act 환경 플래그가 필요하다(테스트 전용).
 ;(
@@ -57,9 +64,11 @@ function advance(ms: number) {
 }
 
 // setTimeout 체인은 상태 갱신(리렌더) 후에야 다음 타이머를 예약하므로,
-// 한 번의 act 안에서 여러 구간을 한꺼번에 진행할 수 없다 — 공개 n단계를 한 구간씩 진행한다.
-function advanceReveals(steps: number) {
-  for (let i = 0; i < steps; i++) advance(REVEAL_INTERVAL_MS)
+// 한 번의 act 안에서 여러 단계를 한꺼번에 진행할 수 없다 — 단계별로 진행한다.
+// 공개 1회 = 슛(SHOOT_MS) → 컷인(SHOWCASE_MS) → 트레이 안착.
+function advanceOneReveal() {
+  advance(SHOOT_MS)
+  advance(SHOWCASE_MS)
 }
 
 function click(selector: string) {
@@ -76,6 +85,11 @@ function trayNumbers(): number[] {
   )
 }
 
+function cutinNumber(): number | null {
+  const el = container.querySelector('.draw-cutin .ball')
+  return el ? Number(el.textContent) : null
+}
+
 function resultNumbers(): number[] {
   return Array.from(container.querySelectorAll('.draw-result-balls .ball')).map(
     (el) => Number(el.textContent),
@@ -86,30 +100,46 @@ describe('DrawOverlay', () => {
   it('mixing에서 시작한다 — 공개된 공 0개, 건너뛰기만 보인다', () => {
     renderOverlay()
     expect(trayNumbers()).toEqual([])
+    expect(cutinNumber()).toBeNull()
     expect(container.querySelector('.draw-skip')).not.toBeNull()
     expect(container.querySelector('.draw-confirm')).toBeNull()
   })
 
-  it('공이 뽑힌 순서(정렬 안 됨)대로 하나씩 공개된다', () => {
+  it('공 하나마다 슛 → 컷인(뽑힌 순서) → 트레이 안착 순으로 공개된다', () => {
     renderOverlay()
     advance(MIX_MS)
+    // 슛 중: 아직 컷인도 트레이도 없다.
+    expect(cutinNumber()).toBeNull()
     expect(trayNumbers()).toEqual([])
 
-    advanceReveals(1)
+    advance(SHOOT_MS)
+    // 컷인: 첫 공(뽑힌 순서, 정렬 안 됨)이 크게 공개되고, 트레이엔 아직 없다.
+    expect(cutinNumber()).toBe(44)
+    expect(trayNumbers()).toEqual([])
+
+    advance(SHOWCASE_MS)
+    // 안착: 트레이에 들어가고 다음 슛으로 넘어간다.
     expect(trayNumbers()).toEqual([44])
+    expect(cutinNumber()).toBeNull()
 
-    advanceReveals(2)
-    expect(trayNumbers()).toEqual([44, 3, 27])
-
-    advanceReveals(3)
-    expect(trayNumbers()).toEqual(REVEAL_ORDER)
+    advanceOneReveal()
+    expect(trayNumbers()).toEqual([44, 3])
   })
 
-  it('6개 공개 후 결과 컷 — 오름차순 정렬 + 확인 버튼, 확인 시 onConfirm', () => {
+  it('5개 공개 후 서스펜스를 거쳐 마지막 공 → 결과 컷(오름차순)·확인', () => {
     const onConfirm = vi.fn()
     renderOverlay(onConfirm)
     advance(MIX_MS)
-    advanceReveals(7) // 공개 6 + 결과 전 여백 1
+    for (let i = 0; i < 5; i++) advanceOneReveal()
+    expect(trayNumbers()).toEqual([44, 3, 27, 11, 45])
+
+    // 서스펜스: 아직 마지막 공이 안 나왔다.
+    expect(container.querySelector('.draw-confirm')).toBeNull()
+    advance(SUSPENSE_MS)
+    // 마지막 공 컷인은 final 강화(더 크게·더 길게)로 표시된다.
+    advance(SHOOT_MS)
+    expect(container.querySelector('.draw-cutin.final')).not.toBeNull()
+    advance(SHOWCASE_FINAL_MS)
 
     expect(resultNumbers()).toEqual(SORTED)
     expect(container.querySelector('.draw-skip')).toBeNull()
@@ -121,7 +151,7 @@ describe('DrawOverlay', () => {
   it('건너뛰기를 누르면 즉시 결과 컷으로 넘어간다', () => {
     renderOverlay()
     advance(MIX_MS)
-    advanceReveals(1) // 연출 도중(1개 공개)
+    advanceOneReveal() // 연출 도중(1개 공개)
     click('.draw-skip')
 
     expect(resultNumbers()).toEqual(SORTED)
@@ -130,7 +160,7 @@ describe('DrawOverlay', () => {
 
   it('언마운트하면 예약된 타이머가 정리된다 (유령 전이 없음)', () => {
     renderOverlay()
-    advance(MIX_MS) // revealing 진입 — 다음 공개가 예약된 상태
+    advance(MIX_MS) // 첫 슛이 예약된 상태
     unmountOnce()
     expect(vi.getTimerCount()).toBe(0)
   })
