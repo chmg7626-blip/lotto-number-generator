@@ -14,13 +14,13 @@
 
 ## 현재 상태
 
-- 제품 단계: 1차 MVP **main 병합 완료**(2026-07-02, PR #1). **추첨 애니메이션 구현 완료**(2026-07-03)
-  — WP-001~005 done, 로컬 게이트(lint·typecheck·test 29·build)·Codex 독립 검토("특이사항 없음") 통과.
-  **다음: push → draft PR → CI → 사람 최종 검토 → 병합**(push·PR은 승인 게이트)
+- 제품 단계: **추첨 애니메이션 main 병합 완료**(2026-07-04, PR #2) — 물리 시뮬레이션 무대 +
+  "주인공 교체" 리듬(튜브 슛→대형 컷인→서스펜스, 총 ≈7초). 피드백 5회 반영, Codex 검토 3회·CI 전부 통과.
+  1차 MVP는 PR #1(2026-07-02)로 병합됨.
 - 콘텐츠 단계: 해당 없음
-- 활성 spec: docs/specs/draw-animation.md (Approved 2026-07-03)
-- 활성 design: docs/design/draw-animation.md (확정 — 절충안, proposals 참조)
-- 현재 브랜치: feature/draw-animation
+- 활성 spec: 없음 (직전 완료: docs/specs/draw-animation.md — plan Done). 다음 후보: BGM·효과음 spec
+- 활성 design: (다음 spec에서)
+- 현재 브랜치: main
 
 ## 진행 중인 챌린지/연재 (없으면 "없음")
 
@@ -56,8 +56,8 @@
 
 ## 다음 할 일
 
-- **추첨 애니메이션 PR #2 마무리**: CI 통과 상태 → ready 전환 → 사람 최종 검토 → main 병합 (승인 게이트)
-- **다음 기능(별도 spec)**: 추첨 연출 **BGM·효과음** (사용자 요청 2026-07-03 — 현 spec 범위 밖으로 분리돼 있음. brainstorm으로 spec부터: 음원 출처/라이선스, 자동재생 정책, 음소거 토글 등)
+- **다음 기능(별도 spec)**: 추첨 연출 **BGM·효과음** (사용자 요청 2026-07-03 — brainstorm으로 spec부터: 음원 출처/라이선스는 외부 조사, 자동재생 정책, 음소거 토글 등). 진짜 "보너스 공" 추첨 연출을 원하면 생성 로직·spec 변경이 필요한 별개 결정 — 함께 논의
+- (배포 전) 당첨번호 데이터 출처·이용약관을 외부 조사로 확인해 docs/research/ 에 기록 (실데이터 확보 — 회차 당첨번호·당첨금액 샘플 교체) → GitHub Pages 배포
 - (배포 전) 당첨번호 데이터 출처·이용약관을 외부 조사로 확인해 docs/research/ 에 기록 (실데이터 확보 — 회차 당첨번호·당첨금액 샘플 교체)
 - (선택) 미추적 파일 정리: dgp4d.jpg(용도 미정 마스코트 이미지)·.agents/·.codex/, 폐기된 feature/lotto-mvp-ui-a/-b 브랜치 정리 — 사용자 확인 필요
 
