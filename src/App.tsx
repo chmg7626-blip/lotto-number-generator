@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import drawsData from './data/draws.sample.json'
 import type { Draw, DrawsFile, GenerateMode } from './domain/types'
 import {
@@ -13,6 +13,8 @@ import { GeneratorPanel } from './components/GeneratorPanel'
 import type { DrawResult } from './components/GeneratorPanel'
 import { PrizeTable } from './components/PrizeTable'
 import { FrequencyGrid } from './components/FrequencyGrid'
+import { DrawOverlay } from './components/DrawOverlay'
+import { revealSequence } from './components/drawReveal'
 
 // 샘플 데이터(실제 당첨번호 아님 — src/data/README.md). 배포 전 실데이터로 교체한다.
 const draws = (drawsData as DrawsFile).draws
@@ -23,6 +25,19 @@ function latestDraw(list: Draw[]): Draw | null {
   return list.reduce((latest, d) => (d.round > latest.round ? d : latest))
 }
 
+// 확정된 번호를 오버레이 확인 전까지 보관한다(확인 후에만 용지 반영 — 확정 설계 핵심 결정 2).
+// revealOrder는 게임 A만 만든다(×2~×5도 첫 게임만 연출 — spec 요구 4).
+type PendingDraw = { result: DrawResult; revealOrder: number[] }
+
+// reduce 환경이면 연출 없이 즉시 용지에 반영한다. CSS만으로 처리하면 오버레이가
+// 잠깐 뜨는 회귀가 생겨 JS에서 분기한다(확정 설계 핵심 결정 3). jsdom에는 matchMedia가 없다.
+function prefersReducedMotion(): boolean {
+  return (
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  )
+}
+
 export default function App() {
   const frequencies = useMemo(() => calculateFrequencies(draws), [])
   const hasData = useMemo(
@@ -30,6 +45,8 @@ export default function App() {
     [frequencies],
   )
   const [result, setResult] = useState<DrawResult | null>(null)
+  const [pendingDraw, setPendingDraw] = useState<PendingDraw | null>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
 
   function handleDraw(mode: GenerateMode, count: number, fixed: number[]) {
     const games = Array.from({ length: count }, () => {
@@ -37,34 +54,73 @@ export default function App() {
       if (mode === 'fixed') return generateWithFixed(fixed)
       return generateRandom()
     })
-    setResult({ games, mode, count })
+    const drawResult: DrawResult = { games, mode, count }
+
+    if (prefersReducedMotion()) {
+      setResult(drawResult)
+      return
+    }
+    setPendingDraw({
+      result: drawResult,
+      revealOrder: revealSequence(games[0].numbers),
+    })
   }
+
+  function confirmDraw() {
+    if (!pendingDraw) return
+    setResult(pendingDraw.result)
+    setPendingDraw(null)
+  }
+
+  // 오버레이가 떠 있는 동안 배경을 inert로 막고 body 스크롤을 잠근다 —
+  // 키보드·스크린리더가 뒤 화면에 닿지 않게 한다(확정 설계 "접근성·입력 차단").
+  useEffect(() => {
+    const content = contentRef.current
+    if (!pendingDraw || !content) return
+    content.setAttribute('inert', '')
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      content.removeAttribute('inert')
+      document.body.style.overflow = previousOverflow
+    }
+  }, [pendingDraw])
 
   return (
     <>
-      <div className="pagebg">
-        <div className="pstars"></div>
+      <div className="app-content" ref={contentRef}>
+        <div className="pagebg">
+          <div className="pstars"></div>
+        </div>
+
+        <DisclaimerBanner />
+        <WinningBar draw={latestDraw(draws)} />
+        <GeneratorPanel onDraw={handleDraw} result={result} hasData={hasData} />
+
+        <section className="wrap">
+          <h2 className="sec-title">당첨금액</h2>
+          <p className="sec-sub">샘플 · 실제 당첨금이 아닙니다</p>
+          <PrizeTable />
+        </section>
+
+        <section className="wrap" style={{ paddingBottom: 80 }}>
+          <h2 className="sec-title">1~45번 출현 통계</h2>
+          <p className="sec-sub">
+            {hasData
+              ? `샘플 ${draws.length}회차 기준 · 예측이 아닌 재미용 통계`
+              : '데이터 없음 · 통계 없음'}
+          </p>
+          <FrequencyGrid frequencies={frequencies} />
+        </section>
       </div>
 
-      <DisclaimerBanner />
-      <WinningBar draw={latestDraw(draws)} />
-      <GeneratorPanel onDraw={handleDraw} result={result} hasData={hasData} />
-
-      <section className="wrap">
-        <h2 className="sec-title">당첨금액</h2>
-        <p className="sec-sub">샘플 · 실제 당첨금이 아닙니다</p>
-        <PrizeTable />
-      </section>
-
-      <section className="wrap" style={{ paddingBottom: 80 }}>
-        <h2 className="sec-title">1~45번 출현 통계</h2>
-        <p className="sec-sub">
-          {hasData
-            ? `샘플 ${draws.length}회차 기준 · 예측이 아닌 재미용 통계`
-            : '데이터 없음 · 통계 없음'}
-        </p>
-        <FrequencyGrid frequencies={frequencies} />
-      </section>
+      {pendingDraw && (
+        <DrawOverlay
+          revealOrder={pendingDraw.revealOrder}
+          sortedNumbers={pendingDraw.result.games[0].numbers}
+          onConfirm={confirmDraw}
+        />
+      )}
     </>
   )
 }
