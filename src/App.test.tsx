@@ -128,6 +128,21 @@ describe('App 추첨 연출 흐름', () => {
   })
 })
 
+describe('용지 구매 링크', () => {
+  it('확인 후 용지에 동행복권 구매 링크가 새 탭으로 열리게 있다', () => {
+    renderApp()
+    click('.drawbtn')
+    click('.draw-skip')
+    click('.draw-confirm')
+
+    const link = container.querySelector<HTMLAnchorElement>('.buylink')
+    expect(link).not.toBeNull()
+    expect(link!.href).toBe('https://dhlottery.co.kr/')
+    expect(link!.target).toBe('_blank')
+    expect(link!.rel).toContain('noopener')
+  })
+})
+
 describe('App 사운드 흐름', () => {
   it('뽑기 클릭 전에는 어떤 소리 요청도 없고, 클릭하면 음원 로드가 시작된다', () => {
     const player = renderApp()

@@ -101,6 +101,14 @@ export function Ticket({ games, modeLabel }: TicketProps) {
             ? '복사 실패'
             : '📋 전체 복사'}
       </button>
+      <a
+        className="buylink"
+        href="https://dhlottery.co.kr"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        🎫 동행복권에서 구매하기
+      </a>
     </>
   )
 }
