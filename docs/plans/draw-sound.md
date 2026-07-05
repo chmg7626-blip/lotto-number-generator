@@ -43,7 +43,7 @@ WP 하나는 따로 완료·검증할 수 있는 크기로 잡는다. 끝나면 
     WP-004 수동 확인으로 미룸
   - 상태: done (2026-07-05 — 테스트 39개·typecheck·lint 통과)
 
-- [ ] WP-002: CC0 음원 확보·배치 + research 최종 목록
+- [x] WP-002: CC0 음원 확보·배치 + research 최종 목록
   - 목적: research 후보에서 실제 사용할 음원 5종(bgm·shoot·cutin·suspense·fanfare)을 확보한다.
   - 변경 파일: public/sounds/\*(신규 음원), docs/research/draw-sound-assets.md(최종 사용 파일
     목록·라이선스 재확인 기록)
@@ -52,7 +52,9 @@ WP 하나는 따로 완료·검증할 수 있는 크기로 잡는다. 끝나면 
   - 검증: 파일 존재·포맷·용량 확인(효과음 수십 KB·BGM 수백 KB 수준), research 문서 갱신 diff
   - 위험: Freesound·ZapSplat 다운로드에 계정 필요 가능성 — 그 경우 사용자가 브라우저에서 직접
     다운로드(외부 사이트 로그인은 Claude가 하지 않음). .aif 후보는 변환 또는 대체.
-  - 상태: pending
+  - 상태: done (2026-07-05 — 사용자 다운로드 5종을 ffmpeg(mp3 128k)로 변환·배치, 총 ~2.1MB.
+    BGM은 후보와 달리 Pixabay 트랙으로 교체 — spec 요구 9 갱신·research 위험 기록. 빌드에서
+    dist/sounds 정적 복사·번들 미포함 확인)
 
 - [x] WP-003: 연출 통합 (세션 시작·phase 결합·음소거 토글 UI)
   - 목적: 확정 설계대로 소리를 연출에 결합한다 — 클릭 핸들러 세션 시작 + phase 전이 재생 요청.

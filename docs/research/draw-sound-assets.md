@@ -56,6 +56,27 @@
 - spec 요구사항 9(출처·라이선스 기록 후 도입)의 기록 위치는 이 문서다 — 실제 도입 파일이
   확정되면 이 문서에 최종 사용 파일 목록을 갱신한다.
 
+## 최종 사용 파일 (2026-07-05 확정)
+
+| 배치 파일(public/sounds/) | 원본                                                         | 출처                                                           | 라이선스                               |
+| ------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------- | -------------------------------------- |
+| bgm.mp3                   | alexguz-funk-amp-breakbeat-541097-bgm.mp3                    | Pixabay (alexguz, 트랙 ID 541097 — 정확한 URL 확인 필요)       | **Pixabay Content License (CC0 아님)** |
+| shoot.mp3                 | 389590\_\_jofae\_\_swing-woosh.wav                           | https://freesound.org/people/Jofae/sounds/389590/              | CC0                                    |
+| cutin.mp3                 | 465264\_\_rvgerxini\_\_quick-pop.mp3                         | https://freesound.org/people/Rvgerxini/sounds/465264/          | CC0                                    |
+| suspense.mp3              | 19433\_\_heigh-hoo\_\_drumroll.aiff (mp3 변환)               | https://freesound.org/people/Heigh-hoo/sounds/19433/           | CC0                                    |
+| fanfare.mp3               | 607407\_\_colorscrimsontears\_\_fanfare-3-rpg.wav (mp3 변환) | https://freesound.org/people/colorsCrimsonTears/sounds/607407/ | CC0                                    |
+
+- BGM은 조사 결론(ZapSplat CC0 후보)과 달리 사용자가 직접 고른 Pixabay 트랙으로 교체됐다.
+- 다운로드 시점 개별 페이지 라이선스 재확인은 사용자에게 요청했고 이상 보고는 없었다
+  (Freesound 4건 — 페이지 표시 변동 시 이 문서를 갱신).
+
+## 위험 기록 — BGM (Pixabay Content License)
+
+Pixabay는 이 조사에서 "CC0 아님·standalone 재배포 제한 → 제외"로 결론 냈던 출처다.
+공개 GitHub 저장소에 음원 파일을 포함하는 것은 standalone 재배포로 해석될 여지가 있다.
+**사용자가 위험을 인지하고 그대로 사용하기로 결정했다(2026-07-05).** 문제가 제기되면
+CC0 후보(ZapSplat·OpenGameArt 루프)로 교체한다 — 코드가 파일 교체만으로 대응 가능한 구조.
+
 ## 불확실성
 
 - 위 개별 파일의 CC0 표시는 조사 시점 기준이다. **다운로드 시점에 각 페이지의 라이선스 표시를
