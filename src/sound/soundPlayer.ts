@@ -2,7 +2,7 @@
 // 컴포넌트는 SoundPlayer 인터페이스에 이벤트만 요청하고, 테스트는 mock을 주입해
 // "언제 어떤 이벤트를 요청했는가"를 검증한다(실제 오디오 재생은 jsdom에서 검증 불가).
 
-export type SoundEvent = 'bgm' | 'shoot' | 'cutin' | 'suspense' | 'fanfare'
+export type SoundEvent = 'shoot' | 'cutin' | 'suspense' | 'fanfare'
 
 export interface SoundPlayer {
   load(): void
@@ -12,7 +12,6 @@ export interface SoundPlayer {
 }
 
 export const SOUND_EVENTS: SoundEvent[] = [
-  'bgm',
   'shoot',
   'cutin',
   'suspense',
@@ -25,7 +24,6 @@ export type AudioLike = {
   pause(): void
   currentTime: number
   muted: boolean
-  loop: boolean
 }
 
 export type CreateAudio = (url: string) => AudioLike
@@ -57,7 +55,6 @@ export function createHtmlAudioPlayer(
       for (const event of SOUND_EVENTS) {
         ignoreFailure(() => {
           const audio = createAudio(soundUrl(event))
-          audio.loop = event === 'bgm'
           audio.muted = muted
           audios.set(event, audio)
         })
@@ -67,16 +64,15 @@ export function createHtmlAudioPlayer(
       const audio = audios.get(event)
       if (!audio) return
       ignoreFailure(() => {
-        // 효과음은 항상 처음부터, BGM은 멈춘 지점부터 이어서(spec 요구 1 — 확인 후 재개).
-        if (event !== 'bgm') audio.currentTime = 0
+        audio.currentTime = 0
         return audio.play()
       })
     },
     stopAll() {
-      for (const [event, audio] of audios) {
+      for (const audio of audios.values()) {
         ignoreFailure(() => {
           audio.pause()
-          if (event !== 'bgm') audio.currentTime = 0
+          audio.currentTime = 0
         })
       }
     },

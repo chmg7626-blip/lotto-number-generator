@@ -56,26 +56,27 @@
 - spec 요구사항 9(출처·라이선스 기록 후 도입)의 기록 위치는 이 문서다 — 실제 도입 파일이
   확정되면 이 문서에 최종 사용 파일 목록을 갱신한다.
 
-## 최종 사용 파일 (2026-07-05 확정)
+## 최종 사용 파일 (2026-07-05 확정, 같은 날 BGM 제거)
 
-| 배치 파일(public/sounds/) | 원본                                                         | 출처                                                           | 라이선스                               |
-| ------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------- | -------------------------------------- |
-| bgm.mp3                   | alexguz-funk-amp-breakbeat-541097-bgm.mp3                    | Pixabay (alexguz, 트랙 ID 541097 — 정확한 URL 확인 필요)       | **Pixabay Content License (CC0 아님)** |
-| shoot.mp3                 | 389590\_\_jofae\_\_swing-woosh.wav                           | https://freesound.org/people/Jofae/sounds/389590/              | CC0                                    |
-| cutin.mp3                 | 465264\_\_rvgerxini\_\_quick-pop.mp3                         | https://freesound.org/people/Rvgerxini/sounds/465264/          | CC0                                    |
-| suspense.mp3              | 19433\_\_heigh-hoo\_\_drumroll.aiff (mp3 변환)               | https://freesound.org/people/Heigh-hoo/sounds/19433/           | CC0                                    |
-| fanfare.mp3               | 607407\_\_colorscrimsontears\_\_fanfare-3-rpg.wav (mp3 변환) | https://freesound.org/people/colorsCrimsonTears/sounds/607407/ | CC0                                    |
+| 배치 파일(public/sounds/) | 원본                                                                       | 출처                                                           | 라이선스 |
+| ------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------- | -------- |
+| shoot.mp3                 | 389590\_\_jofae\_\_swing-woosh.wav                                         | https://freesound.org/people/Jofae/sounds/389590/              | CC0      |
+| cutin.mp3                 | 465264\_\_rvgerxini\_\_quick-pop.mp3                                       | https://freesound.org/people/Rvgerxini/sounds/465264/          | CC0      |
+| suspense.mp3              | 19433\_\_heigh-hoo\_\_drumroll.aiff (mp3 변환, 1.1초 트림)                 | https://freesound.org/people/Heigh-hoo/sounds/19433/           | CC0      |
+| fanfare.mp3               | 607407\_\_colorscrimsontears\_\_fanfare-3-rpg.wav (mp3 변환, 앞 무음 제거) | https://freesound.org/people/colorsCrimsonTears/sounds/607407/ | CC0      |
 
-- BGM은 조사 결론(ZapSplat CC0 후보)과 달리 사용자가 직접 고른 Pixabay 트랙으로 교체됐다.
 - 다운로드 시점 개별 페이지 라이선스 재확인은 사용자에게 요청했고 이상 보고는 없었다
   (Freesound 4건 — 페이지 표시 변동 시 이 문서를 갱신).
+- **BGM(Pixabay 트랙)은 2026-07-05 사용자 결정으로 제거**됐다(연출에 산만). 이에 따라 아래
+  Pixabay 위험 기록은 해소됐고, 남은 음원은 전부 CC0다.
 
-## 위험 기록 — BGM (Pixabay Content License)
+## 위험 기록 — BGM (Pixabay Content License) — **해소됨(2026-07-05 BGM 제거)**
 
 Pixabay는 이 조사에서 "CC0 아님·standalone 재배포 제한 → 제외"로 결론 냈던 출처다.
 공개 GitHub 저장소에 음원 파일을 포함하는 것은 standalone 재배포로 해석될 여지가 있다.
-**사용자가 위험을 인지하고 그대로 사용하기로 결정했다(2026-07-05).** 문제가 제기되면
-CC0 후보(ZapSplat·OpenGameArt 루프)로 교체한다 — 코드가 파일 교체만으로 대응 가능한 구조.
+사용자가 위험을 인지하고 사용하기로 결정했으나(2026-07-05), 같은 날 BGM 자체가 제거되면서
+파일도 삭제됐다. 단, **git 이력에는 커밋 cc97483~26846c0 사이에 bgm.mp3가 남아 있다** —
+문제가 제기되면 이력 정리가 필요할 수 있다(이력 파괴 명령은 사용자가 직접 실행).
 
 ## 불확실성
 

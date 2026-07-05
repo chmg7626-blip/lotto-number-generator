@@ -8,7 +8,6 @@ function makeFakeAudio(url: string) {
     pause: vi.fn<() => void>(),
     currentTime: 0,
     muted: false,
-    loop: false,
   }
 }
 
@@ -25,14 +24,11 @@ function makePlayer() {
 }
 
 describe('createHtmlAudioPlayer', () => {
-  it('load는 이벤트별 오디오를 한 번만 만들고 bgm만 loop다', () => {
+  it('load는 이벤트별 오디오를 한 번만 만든다', () => {
     const { player, created } = makePlayer()
     player.load()
     player.load()
     expect(created).toHaveLength(SOUND_EVENTS.length)
-    for (const audio of created) {
-      expect(audio.loop).toBe(audio.url.endsWith('/bgm.mp3'))
-    }
   })
 
   it('play는 해당 이벤트 오디오를 처음부터 재생하고, load 전에는 아무 일도 없다', () => {
@@ -46,24 +42,14 @@ describe('createHtmlAudioPlayer', () => {
     expect(shoot.currentTime).toBe(0)
   })
 
-  it('play(bgm)은 되감지 않고 멈춘 지점부터 이어서 재생한다', () => {
-    const { player, created } = makePlayer()
-    player.load()
-    const bgm = created.find((a) => a.url.endsWith('/bgm.mp3'))!
-    bgm.currentTime = 12
-    player.play('bgm')
-    expect(bgm.play).toHaveBeenCalledTimes(1)
-    expect(bgm.currentTime).toBe(12)
-  })
-
-  it('stopAll은 모두 멈추되 효과음만 되감고 bgm 위치는 보존한다', () => {
+  it('stopAll은 모든 오디오를 멈추고 처음으로 되돌린다', () => {
     const { player, created } = makePlayer()
     player.load()
     for (const audio of created) audio.currentTime = 5
     player.stopAll()
     for (const audio of created) {
       expect(audio.pause).toHaveBeenCalled()
-      expect(audio.currentTime).toBe(audio.url.endsWith('/bgm.mp3') ? 5 : 0)
+      expect(audio.currentTime).toBe(0)
     }
   })
 
@@ -88,7 +74,7 @@ describe('createHtmlAudioPlayer', () => {
       return audio
     })
     player.load()
-    expect(() => player.play('bgm')).not.toThrow()
+    expect(() => player.play('shoot')).not.toThrow()
     expect(() => player.stopAll()).not.toThrow()
   })
 
@@ -97,6 +83,6 @@ describe('createHtmlAudioPlayer', () => {
       throw new Error('no audio support')
     })
     expect(() => player.load()).not.toThrow()
-    expect(() => player.play('bgm')).not.toThrow()
+    expect(() => player.play('shoot')).not.toThrow()
   })
 })

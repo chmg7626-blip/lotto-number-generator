@@ -84,6 +84,20 @@ WP 하나는 따로 완료·검증할 수 있는 크기로 잡는다. 끝나면 
   - 상태: done (2026-07-05 — 테스트 49개·typecheck·lint 통과, 홈 토글 실브라우저 표시 확인.
     실제 소리 재생·재개는 사용자 청취 확인 대기)
 
+- [x] WP-006: BGM 제거 + 팡파르 타이밍 수정 (2026-07-05 spec 3차 변경 반영)
+  - 목적: BGM 완전 제거(산만함), 팡파르를 마지막 공 공개 순간으로 동기화, 드럼롤을 공개
+    순간에 끝나게 트림.
+  - 변경 파일: src/sound/soundPlayer.ts(bgm 이벤트 삭제·원복), src/App.tsx(리스너·홈 토글
+    제거, load만 유지), src/components/DrawOverlay.tsx(팡파르를 마지막 showcase로·skip 보장),
+    src/styles.css, public/sounds/(bgm.mp3 삭제·suspense 트림·fanfare 무음 제거), 테스트 갱신,
+    research 최종 목록 갱신
+  - 완료 조건: spec 갱신된 "재생 흐름" — 뽑기 전 무음 / 마지막 컷인 팡파르(결과 컷 중복 없음) /
+    건너뛰기 팡파르 1회 / 확인 시 정지
+  - 검증: npm test·typecheck·lint + 실브라우저 청취(사용자)
+  - 위험: 드럼롤 트림 길이(1.1초)가 체감상 짧거나 길 수 있음 — 사용자 청취로 조정
+  - 상태: done (2026-07-05 — 테스트 47개·typecheck·lint 통과. bgm.mp3 삭제·suspense 1.1s·
+    fanfare 무음 제거. 타이밍 체감은 사용자 청취 확인 대기)
+
 - [ ] WP-004: 최종 검증 (spec 완료 조건 전체)
   - 목적: 조각 검증이 아니라 spec 완료 조건 전체 충족을 확인하고 완료를 선언한다.
   - 변경 파일: (검증 전용 — 필요 시 수정 커밋)

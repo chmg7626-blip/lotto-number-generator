@@ -19,21 +19,18 @@
   저장값 없음·읽기 실패 = 기본 ON (spec 요구 3, 경계값).
 - 음원 파일: `public/sounds/` 정적 자산. JS 번들에 import하지 않는다(spec 요구 7).
   CC0 확인·최종 목록은 docs/research/draw-sound-assets.md 갱신으로 관리(spec 요구 9).
-- 통합 (2026-07-05 BGM 홈 배경음 전환 반영):
-  - **BGM은 첫 사용자 상호작용(pointerdown·keydown 1회)에서 시작**한다 — 자동재생 정책상
-    로드 직후 시작은 불가하므로 window 리스너로 제스처 체인 안에서 `load()`+`play('bgm')`
-    (spec 요구 1·4). `번호 뽑기` 클릭(`App.handleDraw`)은 `stopAll()`로 BGM을 멈추고 연출로
-    넘어가며, `확인`(`confirmDraw`)은 `stopAll()` 후 `play('bgm')`으로 멈춘 지점부터 재개한다.
-    reduced-motion 분기에서는 BGM을 멈추지 않고 연출 효과음도 없다(spec 요구 8).
+- 통합 (2026-07-05 BGM 제거·팡파르 타이밍 반영):
+  - BGM은 없다(spec 요구 1). `번호 뽑기` 클릭(`App.handleDraw`)에서 `load()`만 시작하고
+    (클릭 제스처 체인 — 자동재생 정책, spec 요구 4), reduced-motion 분기에서는 어떤 소리
+    요청도 하지 않는다(spec 요구 8).
   - `DrawOverlay`는 `soundPlayer`를 prop으로 주입받아 phase 전이에 소리를 결합:
-    shooting 진입=`shoot`(휙), showcase 진입=`cutin`(팝), suspense 진입=`suspense`(드럼롤),
-    result 진입=`stopAll()` 후 `fanfare` 1회. 건너뛰기도 result 진입이므로 같은 경로로 정리된다
-    (spec 요구 5).
-  - 음소거 토글 버튼은 **홈 화면(상시)과 오버레이 안** 양쪽에 둔다(spec 요구 3). 토글 시
-    preference 저장 + `setMuted` 즉시 적용.
-  - 이를 위해 `soundPlayer`의 재생 의미를 나눈다: 효과음 `play`는 항상 처음부터,
-    **`play('bgm')`은 이어서 재생**(currentTime 유지). `stopAll()`은 전부 멈추되 효과음만
-    처음으로 되감고 BGM 위치는 보존한다(멈춘 지점 재개 — spec 요구 1).
+    shooting 진입=`shoot`(휙), 1~5번째 showcase 진입=`cutin`(팝), suspense 진입=`suspense`
+    (드럼롤 — **파일을 서스펜스 0.8초+마지막 슛 0.3초 ≈ 1.1초로 트림**해 공개 순간에 끝난다),
+    **마지막 showcase 진입=`stopAll()` 후 `fanfare`**(번호 공개와 동기 — spec 요구 2).
+    result 진입은 팡파르가 이미 울렸으면 아무것도 안 하고, 건너뛰기로 바로 왔으면 그때
+    `stopAll()`+`fanfare` 1회(spec 요구 5). 확인(`confirmDraw`) 시 `stopAll()`(spec 완료 조건).
+  - 음소거 토글 버튼은 오버레이 안에 둔다(연출 중·결과 컷 모두 접근 가능 — spec 요구 3).
+    토글 시 preference 저장 + `setMuted` 즉시 적용.
 
 ## 핵심 결정
 
@@ -86,3 +83,6 @@
 - 2026-07-05: BGM을 연출 구간 → 홈페이지 배경음으로 전환(spec 요구 1·3·4·8 변경·재승인 반영).
   첫 상호작용 시작·뽑기 시 정지·확인 후 이어서 재개, 홈 화면 토글 추가, play/stopAll의 BGM
   위치 보존 의미 추가. 나머지 구조·결정은 유지.
+- 2026-07-05: **BGM 제거 + 팡파르 타이밍 수정**(spec 3차 변경 반영). SoundEvent에서 bgm 삭제,
+  첫 상호작용 리스너·홈 토글·BGM 위치 보존 로직 제거(원복). 팡파르를 결과 컷 → 마지막 공
+  대형 컷인으로 이동, 드럼롤 파일 ≈1.1초 트림. 건너뛰기 경로는 result 진입에서 팡파르 1회 보장.
