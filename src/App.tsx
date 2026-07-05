@@ -61,6 +61,23 @@ export default function App({ soundPlayer }: AppProps = {}) {
     player.setMuted(!soundOn)
   }, [player, soundOn])
 
+  // BGM은 첫 사용자 상호작용에서 시작한다 — 자동재생 정책상 로드 직후 재생은 차단되므로
+  // 제스처 이벤트 핸들러 안에서 시작해야 한다(확정 설계 결정 2, spec 요구 1·4).
+  useEffect(() => {
+    const removeListeners = () => {
+      window.removeEventListener('pointerdown', startBgm)
+      window.removeEventListener('keydown', startBgm)
+    }
+    function startBgm() {
+      removeListeners()
+      player.load()
+      player.play('bgm')
+    }
+    window.addEventListener('pointerdown', startBgm)
+    window.addEventListener('keydown', startBgm)
+    return removeListeners
+  }, [player])
+
   function handleDraw(mode: GenerateMode, count: number, fixed: number[]) {
     const games = Array.from({ length: count }, () => {
       if (mode === 'frequent') return generateWeighted(frequencies)
@@ -73,10 +90,9 @@ export default function App({ soundPlayer }: AppProps = {}) {
       setResult(drawResult)
       return
     }
-    // 클릭 제스처 체인 안에서 로드·BGM을 시작한다 — 자동재생 정책을 보수적으로 만족
-    // (확정 설계 결정 2). 오버레이 이벤트 효과음은 DrawOverlay가 phase 전이에서 요청한다.
-    player.load()
-    player.play('bgm')
+    // 홈 BGM을 멈추고 연출 효과음으로 넘어간다(확인 후 멈춘 지점부터 재개 — spec 요구 1).
+    // 오버레이 이벤트 효과음은 DrawOverlay가 phase 전이에서 요청한다.
+    player.stopAll()
     setPendingDraw({
       result: drawResult,
       revealOrder: revealSequence(games[0].numbers),
@@ -86,6 +102,7 @@ export default function App({ soundPlayer }: AppProps = {}) {
   function confirmDraw() {
     if (!pendingDraw) return
     player.stopAll()
+    player.play('bgm')
     setResult(pendingDraw.result)
     setPendingDraw(null)
   }
@@ -118,6 +135,14 @@ export default function App({ soundPlayer }: AppProps = {}) {
         </div>
 
         <DisclaimerBanner />
+        <button
+          type="button"
+          className="page-sound-toggle"
+          onClick={toggleSound}
+          aria-pressed={soundOn}
+        >
+          {soundOn ? '🔊 소리 켬' : '🔇 소리 꺼짐'}
+        </button>
         <WinningBar draw={latestDraw(draws)} />
         <GeneratorPanel onDraw={handleDraw} result={result} hasData={hasData} />
 

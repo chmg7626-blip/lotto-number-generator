@@ -128,31 +128,51 @@ describe('App 추첨 연출 흐름', () => {
   })
 })
 
+// 홈 BGM은 첫 사용자 상호작용에서 시작된다 — 클릭이 아니라 pointerdown이 트리거다.
+function firstInteraction() {
+  act(() => {
+    window.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }))
+  })
+}
+
 describe('App 사운드 흐름', () => {
-  it('뽑기 클릭 전에는 재생 요청이 없고, 클릭하면 로드와 BGM이 시작된다', () => {
+  it('상호작용 전에는 재생 요청이 없고, 첫 pointerdown에서 BGM이 시작된다', () => {
     const player = renderApp()
     expect(player.load).not.toHaveBeenCalled()
     expect(player.play).not.toHaveBeenCalled()
 
-    click('.drawbtn')
+    firstInteraction()
     expect(player.load).toHaveBeenCalledTimes(1)
     expect(player.play).toHaveBeenCalledWith('bgm')
+
+    // 리스너는 1회용 — 다음 상호작용에서 다시 시작하지 않는다.
+    firstInteraction()
+    expect(player.play).toHaveBeenCalledTimes(1)
   })
 
-  it('확인으로 오버레이를 닫으면 모든 소리가 멈춘다', () => {
+  it('뽑기 클릭 시 홈 BGM이 멈춘다', () => {
+    const player = renderApp()
+    firstInteraction()
+    click('.drawbtn')
+    expect(player.stopAll).toHaveBeenCalled()
+  })
+
+  it('확인으로 오버레이를 닫으면 연출 소리가 멈추고 BGM이 재개된다', () => {
     const player = renderApp()
     click('.drawbtn')
     click('.draw-skip')
     player.stopAll.mockClear() // 결과 컷 진입(팡파르 전 정리) 몫은 제외
+    player.play.mockClear()
     click('.draw-confirm')
     expect(player.stopAll).toHaveBeenCalledTimes(1)
+    expect(player.play).toHaveBeenCalledWith('bgm')
   })
 
-  it('prefers-reduced-motion이면 소리 요청도 없다', () => {
+  it('prefers-reduced-motion이면 뽑기가 BGM을 멈추지 않고 연출 소리도 없다', () => {
     stubReducedMotion(true)
     const player = renderApp()
     click('.drawbtn')
-    expect(player.load).not.toHaveBeenCalled()
+    expect(player.stopAll).not.toHaveBeenCalled()
     expect(player.play).not.toHaveBeenCalled()
   })
 
@@ -161,10 +181,9 @@ describe('App 사운드 흐름', () => {
     expect(player.setMuted).toHaveBeenLastCalledWith(false)
   })
 
-  it('토글이 즉시 반영되고 localStorage에 저장돼 재마운트 후 유지된다', () => {
+  it('홈 화면 토글이 즉시 반영되고 localStorage에 저장돼 재마운트 후 유지된다', () => {
     const player = renderApp()
-    click('.drawbtn')
-    click('.draw-sound-toggle')
+    click('.page-sound-toggle')
     expect(player.setMuted).toHaveBeenLastCalledWith(true)
 
     // 재마운트(새 방문) — 저장된 OFF가 복원된다.

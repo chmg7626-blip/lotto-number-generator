@@ -46,14 +46,24 @@ describe('createHtmlAudioPlayer', () => {
     expect(shoot.currentTime).toBe(0)
   })
 
-  it('stopAll은 모든 오디오를 멈추고 처음으로 되돌린다', () => {
+  it('play(bgm)은 되감지 않고 멈춘 지점부터 이어서 재생한다', () => {
+    const { player, created } = makePlayer()
+    player.load()
+    const bgm = created.find((a) => a.url.endsWith('/bgm.mp3'))!
+    bgm.currentTime = 12
+    player.play('bgm')
+    expect(bgm.play).toHaveBeenCalledTimes(1)
+    expect(bgm.currentTime).toBe(12)
+  })
+
+  it('stopAll은 모두 멈추되 효과음만 되감고 bgm 위치는 보존한다', () => {
     const { player, created } = makePlayer()
     player.load()
     for (const audio of created) audio.currentTime = 5
     player.stopAll()
     for (const audio of created) {
       expect(audio.pause).toHaveBeenCalled()
-      expect(audio.currentTime).toBe(0)
+      expect(audio.currentTime).toBe(audio.url.endsWith('/bgm.mp3') ? 5 : 0)
     }
   })
 

@@ -67,15 +67,16 @@ export function createHtmlAudioPlayer(
       const audio = audios.get(event)
       if (!audio) return
       ignoreFailure(() => {
-        audio.currentTime = 0
+        // 효과음은 항상 처음부터, BGM은 멈춘 지점부터 이어서(spec 요구 1 — 확인 후 재개).
+        if (event !== 'bgm') audio.currentTime = 0
         return audio.play()
       })
     },
     stopAll() {
-      for (const audio of audios.values()) {
+      for (const [event, audio] of audios) {
         ignoreFailure(() => {
           audio.pause()
-          audio.currentTime = 0
+          if (event !== 'bgm') audio.currentTime = 0
         })
       }
     },

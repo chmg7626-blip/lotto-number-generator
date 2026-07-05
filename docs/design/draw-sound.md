@@ -19,24 +19,31 @@
   저장값 없음·읽기 실패 = 기본 ON (spec 요구 3, 경계값).
 - 음원 파일: `public/sounds/` 정적 자산. JS 번들에 import하지 않는다(spec 요구 7).
   CC0 확인·최종 목록은 docs/research/draw-sound-assets.md 갱신으로 관리(spec 요구 9).
-- 통합:
-  - **사운드 세션 시작은 `번호 뽑기` 클릭 핸들러**(`App.handleDraw`)에서 연결한다(Codex B —
-    자동재생 정책상 클릭 제스처 체인 안에서 `load()`+BGM 시작). reduced-motion 분기(즉시 반영
-    경로)에서는 어떤 소리 요청도 하지 않는다(spec 요구 8).
+- 통합 (2026-07-05 BGM 홈 배경음 전환 반영):
+  - **BGM은 첫 사용자 상호작용(pointerdown·keydown 1회)에서 시작**한다 — 자동재생 정책상
+    로드 직후 시작은 불가하므로 window 리스너로 제스처 체인 안에서 `load()`+`play('bgm')`
+    (spec 요구 1·4). `번호 뽑기` 클릭(`App.handleDraw`)은 `stopAll()`로 BGM을 멈추고 연출로
+    넘어가며, `확인`(`confirmDraw`)은 `stopAll()` 후 `play('bgm')`으로 멈춘 지점부터 재개한다.
+    reduced-motion 분기에서는 BGM을 멈추지 않고 연출 효과음도 없다(spec 요구 8).
   - `DrawOverlay`는 `soundPlayer`를 prop으로 주입받아 phase 전이에 소리를 결합:
     shooting 진입=`shoot`(휙), showcase 진입=`cutin`(팝), suspense 진입=`suspense`(드럼롤),
     result 진입=`stopAll()` 후 `fanfare` 1회. 건너뛰기도 result 진입이므로 같은 경로로 정리된다
-    (spec 요구 5). 확인(언마운트) 시 `stopAll()` (spec 요구 1).
-  - 음소거 토글 버튼은 오버레이 안에 둔다(연출 중·결과 컷 모두 접근 가능). 토글 시
+    (spec 요구 5).
+  - 음소거 토글 버튼은 **홈 화면(상시)과 오버레이 안** 양쪽에 둔다(spec 요구 3). 토글 시
     preference 저장 + `setMuted` 즉시 적용.
+  - 이를 위해 `soundPlayer`의 재생 의미를 나눈다: 효과음 `play`는 항상 처음부터,
+    **`play('bgm')`은 이어서 재생**(currentTime 유지). `stopAll()`은 전부 멈추되 효과음만
+    처음으로 되감고 BGM 위치는 보존한다(멈춘 지점 재개 — spec 요구 1).
 
 ## 핵심 결정
 
 1. **A 골격 — 단일 `play(event)` API + 이벤트 enum**: 재생 계층 표면적을 최소로 유지.
    테스트는 mock `SoundPlayer` 주입으로 "언제 어떤 이벤트를 요청했는가"를 검증(spec 요구 10).
-2. **B에서 채택 ① — 클릭 핸들러에서 세션 시작**: 오버레이 mount useEffect만으로 소리를
-   시작하면 엄격한 브라우저에서 제스처 체인으로 인정되지 않을 수 있다. `handleDraw`에서
-   `load()`와 BGM 시작을 연결해 자동재생 정책을 보수적으로 만족시킨다(spec 요구 4).
+2. **B에서 채택 ① — 사용자 제스처 핸들러에서 세션 시작**: mount useEffect만으로 소리를
+   시작하면 엄격한 브라우저에서 제스처 체인으로 인정되지 않을 수 있다. 제스처 이벤트 핸들러
+   안에서 `load()`+BGM 시작을 연결해 자동재생 정책을 보수적으로 만족시킨다(spec 요구 4).
+   (2026-07-05 변경: 시작 지점이 `번호 뽑기` 클릭 → **첫 상호작용 window 리스너**로 이동 —
+   BGM이 홈 배경음이 되면서. 제스처 체인 원칙은 동일.)
 3. **B에서 채택 ② — `BASE_URL` 기준 음원 참조**: GitHub Pages는 `/<repo>/` 서브패스로
    배포되므로 절대경로 `/sounds/...`는 깨진다. `import.meta.env.BASE_URL`로 조립한다.
 4. **음소거는 muted 플래그(A)**: 정지/재개 방식(B) 대신 muted 유지 — BGM 재생 위치가 보존돼
@@ -73,3 +80,9 @@
    적용, reduced-motion 무음.
 4. 회귀·verify: 기존 연출·도메인 테스트 통과 확인, lint·typecheck·test·build, 빌드 산출물에서
    음원이 JS 번들에 포함되지 않았는지 확인.
+
+## 변경 이력
+
+- 2026-07-05: BGM을 연출 구간 → 홈페이지 배경음으로 전환(spec 요구 1·3·4·8 변경·재승인 반영).
+  첫 상호작용 시작·뽑기 시 정지·확인 후 이어서 재개, 홈 화면 토글 추가, play/stopAll의 BGM
+  위치 보존 의미 추가. 나머지 구조·결정은 유지.
