@@ -45,16 +45,34 @@ afterEach(() => {
   vi.useRealTimers()
 })
 
-function renderOverlay(onConfirm: () => void = () => {}) {
+// 사운드는 요청 시점만 검증한다 — 실제 재생 대신 mock을 주입한다(spec 요구 10).
+function makeMockPlayer() {
+  return {
+    load: vi.fn(),
+    play: vi.fn(),
+    stopAll: vi.fn(),
+    setMuted: vi.fn(),
+  }
+}
+
+function renderOverlay(
+  onConfirm: () => void = () => {},
+  soundPlayer = makeMockPlayer(),
+  onToggleSound: () => void = () => {},
+) {
   act(() => {
     root.render(
       <DrawOverlay
         revealOrder={REVEAL_ORDER}
         sortedNumbers={SORTED}
         onConfirm={onConfirm}
+        soundPlayer={soundPlayer}
+        soundOn={true}
+        onToggleSound={onToggleSound}
       />,
     )
   })
+  return soundPlayer
 }
 
 function advance(ms: number) {
@@ -163,5 +181,62 @@ describe('DrawOverlay', () => {
     advance(MIX_MS) // 첫 슛이 예약된 상태
     unmountOnce()
     expect(vi.getTimerCount()).toBe(0)
+  })
+})
+
+describe('DrawOverlay 사운드 요청', () => {
+  it('공개마다 shoot→cutin, 마지막 공 앞 suspense, 마지막 컷인에서 stopAll 후 fanfare 순으로 요청한다', () => {
+    const player = renderOverlay()
+    expect(player.play).not.toHaveBeenCalled() // mixing에는 이벤트 효과음이 없다
+
+    advance(MIX_MS)
+    for (let i = 0; i < 5; i++) advanceOneReveal()
+    advance(SUSPENSE_MS)
+    advance(SHOOT_MS)
+    // 마지막 공 대형 컷인: 번호 공개와 동기로 팡파르(컷인 팝 대신 — spec 요구 2).
+    const pairs = Array.from({ length: 5 }, () => ['shoot', 'cutin']).flat()
+    expect(player.play.mock.calls.map(([event]) => event)).toEqual([
+      ...pairs,
+      'suspense',
+      'shoot',
+      'fanfare',
+    ])
+    // 팡파르 전에 나머지 소리를 정리한다.
+    expect(player.stopAll).toHaveBeenCalledTimes(1)
+    const fanfareOrder =
+      player.play.mock.invocationCallOrder[player.play.mock.calls.length - 1]
+    expect(player.stopAll.mock.invocationCallOrder[0]).toBeLessThan(
+      fanfareOrder,
+    )
+
+    // 결과 컷 진입에서는 팡파르를 다시 재생하지 않는다(1회 보장).
+    advance(SHOWCASE_FINAL_MS)
+    expect(
+      player.play.mock.calls.filter(([event]) => event === 'fanfare'),
+    ).toHaveLength(1)
+    expect(player.stopAll).toHaveBeenCalledTimes(1)
+  })
+
+  it('건너뛰기 시 stopAll 후 fanfare 1회 — 어긋난 효과음이 남지 않는다', () => {
+    const player = renderOverlay()
+    advance(MIX_MS)
+    advanceOneReveal() // 연출 도중
+    player.play.mockClear()
+    player.stopAll.mockClear()
+
+    click('.draw-skip')
+    expect(player.stopAll).toHaveBeenCalledTimes(1)
+    expect(player.play.mock.calls.map(([event]) => event)).toEqual(['fanfare'])
+
+    // 결과 컷 이후 타이머가 더 흘러도 추가 요청이 없다(팡파르 1회 보장).
+    advance(SHOWCASE_FINAL_MS + SUSPENSE_MS)
+    expect(player.play).toHaveBeenCalledTimes(1)
+  })
+
+  it('음소거 토글 버튼이 onToggleSound를 호출한다', () => {
+    const onToggleSound = vi.fn()
+    renderOverlay(() => {}, makeMockPlayer(), onToggleSound)
+    click('.draw-sound-toggle')
+    expect(onToggleSound).toHaveBeenCalledTimes(1)
   })
 })

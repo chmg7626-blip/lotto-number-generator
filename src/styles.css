@@ -838,6 +838,29 @@ body {
   font-family: inherit;
 }
 
+/* 동행복권 공식 사이트로 이동하는 외부 링크 — 복사 버튼과 같은 줄에 나란히 */
+.buylink {
+  position: relative;
+  z-index: 3;
+  display: inline-block;
+  margin-top: 22px;
+  margin-left: 10px;
+  font-size: 16px;
+  color: #3a2c00;
+  background: linear-gradient(180deg, var(--gold), var(--gold2));
+  border: 1.5px solid transparent;
+  padding: 13px 38px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-family: inherit;
+}
+
+@media (max-width: 480px) {
+  .buylink {
+    margin-left: 0;
+  }
+}
+
 /* ===== 하단 섹션(당첨금액·출현 통계) 공통 ===== */
 .wrap {
   max-width: 1120px;
@@ -1180,6 +1203,21 @@ body {
   border: 1px solid var(--line);
   border-radius: 999px;
   padding: 9px 26px;
+  cursor: pointer;
+}
+
+/* 음소거 토글: 연출 중·결과 컷 어느 단계에서든 같은 자리에 보인다 */
+.draw-sound-toggle {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--dim);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 16px;
   cursor: pointer;
 }
 

@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Ball } from './Ball'
 import { DrawMachineCanvas } from './DrawMachineCanvas'
+import type { SoundPlayer } from '../sound/soundPlayer'
 
 // 연출 타이밍(ms). "뽑히는 순간"이 주인공인 리듬(2026-07-04 재설계 — design 변경 이력):
 // 믹싱(배경) → [슛(공이 튜브로 나감) → 컷인(화면 중앙 확대 공개)] ×6 → 결과 컷.
@@ -19,12 +20,19 @@ type DrawOverlayProps = {
   revealOrder: number[]
   sortedNumbers: number[]
   onConfirm: () => void
+  // 소리는 요청만 보낸다 — BGM 시작·정지 소유자는 App(클릭 제스처·확인 시 정리).
+  soundPlayer: SoundPlayer
+  soundOn: boolean
+  onToggleSound: () => void
 }
 
 export function DrawOverlay({
   revealOrder,
   sortedNumbers,
   onConfirm,
+  soundPlayer,
+  soundOn,
+  onToggleSound,
 }: DrawOverlayProps) {
   const [phase, setPhase] = useState<Phase>('mixing')
   // shotCount: 드럼에서 나간(나가는 중 포함) 공 수 — 캔버스 추출 기준.
@@ -49,8 +57,20 @@ export function DrawOverlay({
     if (phase === 'result') confirmButtonRef.current?.focus()
   }, [phase])
 
+  // 팡파르는 마지막 공 대형 컷인에서 번호 공개와 동기로 1회 — 결과 컷은 이어지기만 한다.
+  // 건너뛰기로 컷인을 안 거치고 result에 오면 그때 1회 재생한다(spec 요구 2·5).
+  const fanfarePlayedRef = useRef(false)
+  const playFanfareOnce = useCallback(() => {
+    if (fanfarePlayedRef.current) return
+    fanfarePlayedRef.current = true
+    soundPlayer.stopAll()
+    soundPlayer.play('fanfare')
+  }, [soundPlayer])
+
   // 상태가 바뀔 때마다 다음 전이 하나만 예약하고 cleanup에서 해제한다 —
   // StrictMode 재실행·건너뛰기·언마운트에서 유령 전이가 없다(확정 설계 "위험과 완화").
+  // 소리는 이 타이머 콜백 안(리렌더 전)에서 요청한다 — phase 반영 후 effect에서 재생하면
+  // 렌더 한 사이클 + 오디오 시작 지연만큼 화면보다 늦어진다(2026-07-05 체감 어긋남 피드백).
   useEffect(() => {
     if (phase === 'result') return
     const delay =
@@ -65,12 +85,16 @@ export function DrawOverlay({
               : SHOWCASE_MS
     const timer = window.setTimeout(() => {
       if (phase === 'mixing') {
+        soundPlayer.play('shoot')
         setShotCount(1)
         setPhase('shooting')
       } else if (phase === 'suspense') {
+        soundPlayer.play('shoot')
         setShotCount(revealOrder.length)
         setPhase('shooting')
       } else if (phase === 'shooting') {
+        if (shotCount >= revealOrder.length) playFanfareOnce()
+        else soundPlayer.play('cutin')
         setPhase('showcase')
       } else {
         // showcase 종료: 컷인 공이 트레이에 안착한다.
@@ -78,17 +102,20 @@ export function DrawOverlay({
         if (shotCount >= revealOrder.length) {
           setPhase('result')
         } else if (shotCount === revealOrder.length - 1) {
+          soundPlayer.play('suspense')
           setPhase('suspense')
         } else {
+          soundPlayer.play('shoot')
           setShotCount(shotCount + 1)
           setPhase('shooting')
         }
       }
     }, delay)
     return () => window.clearTimeout(timer)
-  }, [phase, shotCount, revealOrder.length])
+  }, [phase, shotCount, revealOrder.length, soundPlayer, playFanfareOnce])
 
   function skip() {
+    playFanfareOnce()
     setShotCount(revealOrder.length)
     setSettledCount(revealOrder.length)
     setPhase('result')
@@ -101,6 +128,14 @@ export function DrawOverlay({
       aria-modal="true"
       aria-label="추첨 연출"
     >
+      <button
+        type="button"
+        className="draw-sound-toggle"
+        onClick={onToggleSound}
+        aria-pressed={soundOn}
+      >
+        {soundOn ? '🔊 소리 켬' : '🔇 소리 꺼짐'}
+      </button>
       {phase !== 'result' ? (
         <div className="draw-stage">
           <DrawMachineCanvas
