@@ -14,14 +14,14 @@
 
 ## 현재 상태
 
-- 제품 단계: **추첨 연출 효과음 구현 완료·PR 대기**(2026-07-05) — 효과음 4종(휙·팝·드럼롤·
-  팡파르, 전부 Freesound CC0) + 음소거 토글(localStorage). BGM은 3차 변경 끝에 제거.
-  verify·Codex 독립 검토 완료(지적 2건 사용자 판단 종결). 추첨 애니메이션은 PR #2(2026-07-04),
-  1차 MVP는 PR #1(2026-07-02)로 병합됨.
+- 제품 단계: **추첨 연출 효과음 main 병합 완료**(2026-07-05, PR #3) — 효과음 4종(휙·팝·드럼롤·
+  팡파르, 전부 Freesound CC0) + 음소거 토글(localStorage) + 소리·화면 동기화(타이머 콜백 재생).
+  BGM은 3차 변경 끝에 제거. Codex 검토 2회·CI 전부 통과. 번외로 용지에 동행복권 구매 링크.
+  추첨 애니메이션은 PR #2(2026-07-04), 1차 MVP는 PR #1(2026-07-02)로 병합됨.
 - 콘텐츠 단계: 해당 없음
-- 활성 spec: docs/specs/draw-sound.md (Approved — plan WP 전부 done, PR·CI·병합 대기)
-- 활성 design: docs/design/draw-sound.md
-- 현재 브랜치: feature/draw-sound
+- 활성 spec: 없음 (직전 완료: docs/specs/draw-sound.md — plan Done)
+- 활성 design: (다음 spec에서)
+- 현재 브랜치: main
 
 ## 진행 중인 챌린지/연재 (없으면 "없음")
 
@@ -63,11 +63,9 @@
 
 ## 다음 할 일
 
-- **draw-sound PR**: push·draft PR 승인됨(2026-07-05) → CI 통과 확인 → 사용자 실브라우저 청취
-  (드럼롤 1.1초 체감·건너뛰기 팡파르) → ready for review → 사람 최종 확인·병합
 - (배포 전) 당첨번호 데이터 출처·이용약관을 외부 조사로 확인해 docs/research/ 에 기록 (실데이터 확보 — 회차 당첨번호·당첨금액 샘플 교체) → GitHub Pages 배포
 - 진짜 "보너스 공" 추첨 연출을 원하면 생성 로직·spec 변경이 필요한 별개 결정 — 별도 논의
-- (선택) 미추적 파일 정리: dgp4d.jpg(용도 미정 마스코트 이미지)·.agents/·.codex/, 폐기된 feature/lotto-mvp-ui-a/-b 브랜치 정리 — 사용자 확인 필요
+- (선택) 미추적 파일 정리: dgp4d.jpg(용도 미정 마스코트 이미지)·.agents/·.codex/, 폐기된 feature/lotto-mvp-ui-a/-b·병합 완료된 feature/draw-animation·feature/draw-sound 로컬 브랜치 정리 — 사용자 확인 필요
 
 ## 주의사항
 
