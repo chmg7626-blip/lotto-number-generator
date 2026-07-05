@@ -7,6 +7,8 @@ const LABELS = ['A', 'B', 'C', 'D', 'E']
 type TicketProps = {
   games: GeneratedNumbers[]
   modeLabel: string
+  // 전문가 훈수(패러디) 멘트 — 뽑기 시점에 확정된 값을 받는다(spec: expert-parody).
+  quip: string
 }
 
 function gameText(game: GeneratedNumbers): string {
@@ -40,7 +42,7 @@ async function writeClipboard(text: string): Promise<boolean> {
 }
 
 // 뽑은 A~E 게임을 로또 용지로 렌더하고 게임별/전체 복사를 제공한다. 보너스 없이 본번호 6개만.
-export function Ticket({ games, modeLabel }: TicketProps) {
+export function Ticket({ games, modeLabel, quip }: TicketProps) {
   // 복사 피드백: 성공한 키('all' | 'g0'…) 또는 실패한 키('all:fail' 등). 잠시 뒤 해제한다.
   const [copied, setCopied] = useState<string | null>(null)
 
@@ -88,6 +90,13 @@ export function Ticket({ games, modeLabel }: TicketProps) {
             </div>
           )
         })}
+
+        <p className="quip">
+          🧙 전문가 훈수{' '}
+          <span className="quip-tag">패러디 · 과학적 근거 없음</span>
+          <br />
+          {quip}
+        </p>
       </div>
 
       <button

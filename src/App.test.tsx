@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import App from './App'
+import { EXPERT_QUIPS } from './components/expertQuips'
 ;(
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
 ).IS_REACT_ACT_ENVIRONMENT = true
@@ -140,6 +141,21 @@ describe('용지 구매 링크', () => {
     expect(link!.href).toBe('https://dhlottery.co.kr/')
     expect(link!.target).toBe('_blank')
     expect(link!.rel).toContain('noopener')
+  })
+})
+
+describe('전문가 훈수(패러디)', () => {
+  it('용지에 멘트 풀의 문구 1개와 패러디 표시가 보인다', () => {
+    renderApp()
+    click('.drawbtn')
+    click('.draw-skip')
+    click('.draw-confirm')
+
+    const quip = container.querySelector('.quip')
+    expect(quip).not.toBeNull()
+    const text = quip!.textContent ?? ''
+    expect(EXPERT_QUIPS.some((q) => text.includes(q))).toBe(true)
+    expect(text).toContain('패러디')
   })
 })
 

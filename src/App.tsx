@@ -15,6 +15,7 @@ import { PrizeTable } from './components/PrizeTable'
 import { FrequencyGrid } from './components/FrequencyGrid'
 import { DrawOverlay } from './components/DrawOverlay'
 import { revealSequence } from './components/drawReveal'
+import { pickQuip } from './components/expertQuips'
 import { createHtmlAudioPlayer } from './sound/soundPlayer'
 import type { SoundPlayer } from './sound/soundPlayer'
 import { loadSoundOn, saveSoundOn } from './storage/soundPreference'
@@ -67,7 +68,7 @@ export default function App({ soundPlayer }: AppProps = {}) {
       if (mode === 'fixed') return generateWithFixed(fixed)
       return generateRandom()
     })
-    const drawResult: DrawResult = { games, mode, count }
+    const drawResult: DrawResult = { games, mode, count, quip: pickQuip() }
 
     if (prefersReducedMotion()) {
       setResult(drawResult)

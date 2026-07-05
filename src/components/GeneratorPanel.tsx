@@ -14,10 +14,12 @@ const MODES: { value: GenerateMode; label: string }[] = [
 const COUNTS = [1, 2, 3, 4, 5] as const
 
 // 번호 뽑기 결과. 생성 당시 모드·게임수를 함께 담아 용지 라벨이 이후 모드 변경과 어긋나지 않게 한다.
+// quip은 뽑기 시점에 확정한 전문가 훈수(패러디) 멘트 — 리렌더에 흔들리지 않는다(spec 요구 2).
 export type DrawResult = {
   games: GeneratedNumbers[]
   mode: GenerateMode
   count: number
+  quip: string
 }
 
 function modeLabel(mode: GenerateMode): string {
@@ -119,7 +121,11 @@ export function GeneratorPanel({
       <LottoMachine />
 
       {result && (
-        <Ticket games={result.games} modeLabel={modeLabel(result.mode)} />
+        <Ticket
+          games={result.games}
+          modeLabel={modeLabel(result.mode)}
+          quip={result.quip}
+        />
       )}
     </section>
   )
