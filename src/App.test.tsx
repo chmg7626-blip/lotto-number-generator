@@ -10,6 +10,7 @@ let container: HTMLDivElement
 let root: Root
 
 beforeEach(() => {
+  window.localStorage.clear()
   container = document.createElement('div')
   document.body.appendChild(container)
   root = createRoot(container)
@@ -21,10 +22,21 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-function renderApp() {
+// 사운드는 요청 시점만 검증한다 — 실제 재생 대신 mock을 주입한다(spec 요구 10).
+function makeMockPlayer() {
+  return {
+    load: vi.fn(),
+    play: vi.fn(),
+    stopAll: vi.fn(),
+    setMuted: vi.fn(),
+  }
+}
+
+function renderApp(soundPlayer = makeMockPlayer()) {
   act(() => {
-    root.render(<App />)
+    root.render(<App soundPlayer={soundPlayer} />)
   })
+  return soundPlayer
 }
 
 function click(selector: string) {
@@ -113,5 +125,52 @@ describe('App 추첨 연출 흐름', () => {
     for (let i = 0; i < 5; i++) {
       expect(ticketGameNumbers(i)).toHaveLength(6)
     }
+  })
+})
+
+describe('App 사운드 흐름', () => {
+  it('뽑기 클릭 전에는 재생 요청이 없고, 클릭하면 로드와 BGM이 시작된다', () => {
+    const player = renderApp()
+    expect(player.load).not.toHaveBeenCalled()
+    expect(player.play).not.toHaveBeenCalled()
+
+    click('.drawbtn')
+    expect(player.load).toHaveBeenCalledTimes(1)
+    expect(player.play).toHaveBeenCalledWith('bgm')
+  })
+
+  it('확인으로 오버레이를 닫으면 모든 소리가 멈춘다', () => {
+    const player = renderApp()
+    click('.drawbtn')
+    click('.draw-skip')
+    player.stopAll.mockClear() // 결과 컷 진입(팡파르 전 정리) 몫은 제외
+    click('.draw-confirm')
+    expect(player.stopAll).toHaveBeenCalledTimes(1)
+  })
+
+  it('prefers-reduced-motion이면 소리 요청도 없다', () => {
+    stubReducedMotion(true)
+    const player = renderApp()
+    click('.drawbtn')
+    expect(player.load).not.toHaveBeenCalled()
+    expect(player.play).not.toHaveBeenCalled()
+  })
+
+  it('첫 방문(저장값 없음)은 기본 ON — muted=false로 반영된다', () => {
+    const player = renderApp()
+    expect(player.setMuted).toHaveBeenLastCalledWith(false)
+  })
+
+  it('토글이 즉시 반영되고 localStorage에 저장돼 재마운트 후 유지된다', () => {
+    const player = renderApp()
+    click('.drawbtn')
+    click('.draw-sound-toggle')
+    expect(player.setMuted).toHaveBeenLastCalledWith(true)
+
+    // 재마운트(새 방문) — 저장된 OFF가 복원된다.
+    act(() => root.unmount())
+    root = createRoot(container)
+    const nextPlayer = renderApp()
+    expect(nextPlayer.setMuted).toHaveBeenLastCalledWith(true)
   })
 })

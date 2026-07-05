@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Ball } from './Ball'
 import { DrawMachineCanvas } from './DrawMachineCanvas'
+import type { SoundPlayer } from '../sound/soundPlayer'
 
 // 연출 타이밍(ms). "뽑히는 순간"이 주인공인 리듬(2026-07-04 재설계 — design 변경 이력):
 // 믹싱(배경) → [슛(공이 튜브로 나감) → 컷인(화면 중앙 확대 공개)] ×6 → 결과 컷.
@@ -19,12 +20,19 @@ type DrawOverlayProps = {
   revealOrder: number[]
   sortedNumbers: number[]
   onConfirm: () => void
+  // 소리는 요청만 보낸다 — BGM 시작·정지 소유자는 App(클릭 제스처·확인 시 정리).
+  soundPlayer: SoundPlayer
+  soundOn: boolean
+  onToggleSound: () => void
 }
 
 export function DrawOverlay({
   revealOrder,
   sortedNumbers,
   onConfirm,
+  soundPlayer,
+  soundOn,
+  onToggleSound,
 }: DrawOverlayProps) {
   const [phase, setPhase] = useState<Phase>('mixing')
   // shotCount: 드럼에서 나간(나가는 중 포함) 공 수 — 캔버스 추출 기준.
@@ -48,6 +56,29 @@ export function DrawOverlay({
   useEffect(() => {
     if (phase === 'result') confirmButtonRef.current?.focus()
   }, [phase])
+
+  // phase 전이마다 소리를 요청한다. StrictMode 이중 실행·같은 phase 재진입(shooting↔showcase)에서
+  // 중복 재생되지 않게 phase+shotCount 키로 가드한다(확정 설계 "위험과 대응").
+  // 팡파르는 result 진입 1회뿐 — 건너뛰기·일반 도달이 같은 키('result')를 쓴다.
+  const lastSoundKeyRef = useRef<string | null>(null)
+  useEffect(() => {
+    const key =
+      phase === 'shooting' || phase === 'showcase'
+        ? `${phase}:${shotCount}`
+        : phase
+    if (lastSoundKeyRef.current === key) return
+    lastSoundKeyRef.current = key
+    if (phase === 'shooting') {
+      soundPlayer.play('shoot')
+    } else if (phase === 'showcase') {
+      soundPlayer.play('cutin')
+    } else if (phase === 'suspense') {
+      soundPlayer.play('suspense')
+    } else if (phase === 'result') {
+      soundPlayer.stopAll()
+      soundPlayer.play('fanfare')
+    }
+  }, [phase, shotCount, soundPlayer])
 
   // 상태가 바뀔 때마다 다음 전이 하나만 예약하고 cleanup에서 해제한다 —
   // StrictMode 재실행·건너뛰기·언마운트에서 유령 전이가 없다(확정 설계 "위험과 완화").
@@ -101,6 +132,14 @@ export function DrawOverlay({
       aria-modal="true"
       aria-label="추첨 연출"
     >
+      <button
+        type="button"
+        className="draw-sound-toggle"
+        onClick={onToggleSound}
+        aria-pressed={soundOn}
+      >
+        {soundOn ? '🔊 소리 켬' : '🔇 소리 꺼짐'}
+      </button>
       {phase !== 'result' ? (
         <div className="draw-stage">
           <DrawMachineCanvas

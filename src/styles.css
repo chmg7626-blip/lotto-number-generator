@@ -1183,6 +1183,21 @@ body {
   cursor: pointer;
 }
 
+/* 음소거 토글: 연출 중·결과 컷 어느 단계에서든 같은 자리에 보인다 */
+.draw-sound-toggle {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--dim);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
 .draw-result-title {
   font-family: 'Jua', sans-serif;
   font-size: 28px;

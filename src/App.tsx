@@ -15,6 +15,9 @@ import { PrizeTable } from './components/PrizeTable'
 import { FrequencyGrid } from './components/FrequencyGrid'
 import { DrawOverlay } from './components/DrawOverlay'
 import { revealSequence } from './components/drawReveal'
+import { createHtmlAudioPlayer } from './sound/soundPlayer'
+import type { SoundPlayer } from './sound/soundPlayer'
+import { loadSoundOn, saveSoundOn } from './storage/soundPreference'
 
 // 샘플 데이터(실제 당첨번호 아님 — src/data/README.md). 배포 전 실데이터로 교체한다.
 const draws = (drawsData as DrawsFile).draws
@@ -38,7 +41,10 @@ function prefersReducedMotion(): boolean {
   )
 }
 
-export default function App() {
+// soundPlayer prop은 테스트에서 mock을 주입하기 위한 것 — 실제 앱은 HTMLAudio 구현을 쓴다.
+type AppProps = { soundPlayer?: SoundPlayer }
+
+export default function App({ soundPlayer }: AppProps = {}) {
   const frequencies = useMemo(() => calculateFrequencies(draws), [])
   const hasData = useMemo(
     () => frequencies.some((entry) => entry.count > 0),
@@ -47,6 +53,13 @@ export default function App() {
   const [result, setResult] = useState<DrawResult | null>(null)
   const [pendingDraw, setPendingDraw] = useState<PendingDraw | null>(null)
   const contentRef = useRef<HTMLDivElement>(null)
+  const [player] = useState(() => soundPlayer ?? createHtmlAudioPlayer())
+  const [soundOn, setSoundOn] = useState(loadSoundOn)
+
+  // 초기 복원값과 토글 변경을 재생 계층에 반영한다(음소거는 정지가 아니라 muted — 확정 설계 결정 4).
+  useEffect(() => {
+    player.setMuted(!soundOn)
+  }, [player, soundOn])
 
   function handleDraw(mode: GenerateMode, count: number, fixed: number[]) {
     const games = Array.from({ length: count }, () => {
@@ -60,6 +73,10 @@ export default function App() {
       setResult(drawResult)
       return
     }
+    // 클릭 제스처 체인 안에서 로드·BGM을 시작한다 — 자동재생 정책을 보수적으로 만족
+    // (확정 설계 결정 2). 오버레이 이벤트 효과음은 DrawOverlay가 phase 전이에서 요청한다.
+    player.load()
+    player.play('bgm')
     setPendingDraw({
       result: drawResult,
       revealOrder: revealSequence(games[0].numbers),
@@ -68,8 +85,15 @@ export default function App() {
 
   function confirmDraw() {
     if (!pendingDraw) return
+    player.stopAll()
     setResult(pendingDraw.result)
     setPendingDraw(null)
+  }
+
+  function toggleSound() {
+    const next = !soundOn
+    setSoundOn(next)
+    saveSoundOn(next)
   }
 
   // 오버레이가 떠 있는 동안 배경을 inert로 막고 body 스크롤을 잠근다 —
@@ -119,6 +143,9 @@ export default function App() {
           revealOrder={pendingDraw.revealOrder}
           sortedNumbers={pendingDraw.result.games[0].numbers}
           onConfirm={confirmDraw}
+          soundPlayer={player}
+          soundOn={soundOn}
+          onToggleSound={toggleSound}
         />
       )}
     </>
