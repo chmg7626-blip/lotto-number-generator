@@ -818,12 +818,12 @@ body {
   margin-top: 12px;
   padding-top: 10px;
   border-top: 2px dashed #e3d6ad;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 18px;
+  line-height: 1.55;
   color: #6b4e12;
 }
 .quip-tag {
-  font-size: 11px;
+  font-size: 12px;
   color: #a18a4f;
   border: 1px solid #e3d6ad;
   border-radius: 999px;
