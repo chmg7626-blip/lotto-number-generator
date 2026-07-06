@@ -14,14 +14,14 @@
 
 ## 현재 상태
 
-- 제품 단계: **전문가 훈수(패러디)까지 main 병합 완료**(2026-07-05, PR #4) — 용지에 랜덤 패러디
-  멘트 16개(금지어 테스트 차단, 18px). 같은 날 추첨 연출 효과음도 병합(PR #3 — 효과음 4종
-  Freesound CC0·음소거 토글·소리 동기화, BGM은 3차 변경 끝 제거, 동행복권 구매 링크 포함).
-  추첨 애니메이션은 PR #2(2026-07-04), 1차 MVP는 PR #1(2026-07-02)로 병합됨.
+- 제품 단계: **실데이터 교체·배포 파이프라인 구현 완료, Codex 검토 대기**(2026-07-06,
+  feature/real-data-deploy에 설계 커밋 a4996b5 + 구현 커밋 f133527). 전 회차(1~1231) 실데이터
+  JSON·주간 자동 갱신·Pages 배포 워크플로우까지 로컬 검증 완료. 이전: 전문가 훈수 PR #4,
+  효과음 PR #3(2026-07-05), 추첨 애니메이션 PR #2, 1차 MVP PR #1.
 - 콘텐츠 단계: 해당 없음
-- 활성 spec: 없음 (직전 완료: docs/specs/expert-parody.md — Fast, plan 없이 완료)
-- 활성 design: (다음 spec에서)
-- 현재 브랜치: main
+- 활성 spec: docs/specs/real-data-deploy.md (Approved 2026-07-06, Standard)
+- 활성 design: docs/design/real-data-deploy.md (절충안) / plan: docs/plans/real-data-deploy.md
+- 현재 브랜치: feature/real-data-deploy
 
 ## 진행 중인 챌린지/연재 (없으면 "없음")
 
@@ -38,6 +38,12 @@
 
 ## 최근 결정
 
+- (2026-07-06) 실데이터·배포: 출처는 동행복권 공식(조사: docs/research/lotto-draw-data.md).
+  **전체 회차 JSON 공개 재배포는 약관 리스크를 사용자가 인지하고 감수** — 완화로 출처·비공식·
+  삭제 수용 문구 상시 노출. 위험등급 Standard(배포 인프라지만 정적 호스팅 — 사람 확정).
+  설계는 절충안(A 골격: 공용 검증·증분 갱신·단일 CI 파이프라인 + B 통제: diff allowlist·
+  prize-round 일치 검증·atomic write). 취득은 스파이크로 발견한 **공식 페이지 JSON API**
+  (selectPstLt645Info.do)로 확정 — 엑셀 계획을 사용자 승인으로 변경(구 common.do API는 폐기됨)
 - (2026-07-05) 전문가 훈수(패러디): 1차에서 미룬 기능을 **Fast 등급으로 사람 확정**(동작 추가지만
   문구 표시 전용 — 독립 설계·Codex 검토 생략, 요청이 곧 승인). 멘트 16개 랜덤(뽑기 시점 확정),
   '당첨·보장·확률을 높' 금지어는 테스트로 차단. 함께 정리: 생일 조합은 행운수 고정으로 해소,
@@ -67,7 +73,9 @@
 
 ## 다음 할 일
 
-- (배포 전) 당첨번호 데이터 출처·이용약관을 외부 조사로 확인해 docs/research/ 에 기록 (실데이터 확보 — 회차 당첨번호·당첨금액 샘플 교체) → GitHub Pages 배포
+- **codex-review 독립 검토**(Standard 필수 — 다음 세션 시작점) → 지적 수정 → push·draft PR(사용자 승인 게이트)
+- 사용자: GitHub Settings→Pages→Source를 "GitHub Actions"로 설정(배포 전 1회) → 병합 후 Pages URL 실확인
+- 병합 후 update-data.yml을 workflow_dispatch로 수동 실행해 "변경 없음" 경로·diff allowlist 실동작 확인
 - 진짜 "보너스 공" 추첨 연출을 원하면 생성 로직·spec 변경이 필요한 별개 결정 — 별도 논의
 - (선택) 미추적 파일 정리: dgp4d.jpg(용도 미정 마스코트 이미지)·.agents/·.codex/, 폐기된 feature/lotto-mvp-ui-a/-b·병합 완료된 feature/draw-animation·draw-sound·expert-parody 로컬 브랜치 정리 — 사용자 확인 필요
 

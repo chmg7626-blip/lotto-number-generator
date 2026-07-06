@@ -122,9 +122,9 @@ WP 하나는 따로 완료·검증할 수 있는 크기로 잡는다. 끝나면 
 
 모든 WP가 done이면 전체가 목표를 달성했는지 따로 확인한다:
 
-- [ ] spec 완료 조건 충족 (정상 7 + 오류·경계 6)
-- [ ] 테스트 (정상·오류·경계값)
-- [ ] lint/typecheck
+- [x] spec 완료 조건 충족 — 로컬 확인 범위 (워크플로우 실동작·Pages URL은 push·배포 후 확인)
+- [x] 테스트 (정상·오류·경계값 — 88개 통과, 2026-07-06)
+- [x] lint/typecheck (양쪽 tsconfig 통과, 2026-07-06)
 - [ ] Codex 독립 검토 (Standard)
 - [ ] CI 통과
 - [ ] Pages URL 실확인 (JS·CSS·오디오·데이터 로드)
@@ -139,3 +139,6 @@ WP 하나는 따로 완료·검증할 수 있는 크기로 잡는다. 끝나면 
   → UTF-8 JSON 746KB, 전 회차 1건 호출 가능, 인증 불요. 필드: ltEpsd·ltRflYmd(YYYYMMDD)·
   tm1~tm6WnNo·bnsWnNo·rnk1~5{WnNope,WnAmt}. 검증: 1231회=조사 결과 일치,
   1회(2002-12-07)=실측 일치, 회차 구멍 0. 구 common.do API는 폐기(302→홈).
+- 2026-07-06: WP-002~006 구현 커밋 f133527. **Codex 독립 검토 미실시(다음 세션 시작점)**
+  — 검토 후 push·PR·Pages 설정(Settings→Pages→Source: GitHub Actions, 사용자)·
+  workflow_dispatch로 갱신 워크플로우 실동작 확인 순.
