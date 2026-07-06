@@ -23,3 +23,16 @@ export type FrequencyEntry = {
   number: number
   count: number
 }
+
+// 최신 회차의 등수별 당첨금. 당첨번호 파일과 분리해 최신 회차만 담는다
+// (확정 설계 docs/design/real-data-deploy.md — round는 draws 최신 회차와 일치해야 한다).
+export type PrizeTierData = {
+  rank: 1 | 2 | 3 | 4 | 5
+  winners: number
+  prizePerGame: number
+}
+
+export type LatestPrizeFile = {
+  round: number
+  tiers: PrizeTierData[]
+}

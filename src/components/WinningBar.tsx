@@ -2,7 +2,7 @@ import type { Draw } from '../domain/types'
 import { Ball } from './Ball'
 
 // 회차 당첨번호 띠. 과거 당첨 데이터(Draw)를 그대로 쓰므로 본번호 6 + 보너스를 보여준다.
-// 실데이터 미확보 상태라 "샘플"임을 명시한다(데이터 없으면 렌더하지 않음).
+// 데이터가 없으면 렌더하지 않는다.
 type WinningBarProps = {
   draw: Draw | null
 }
@@ -13,7 +13,7 @@ export function WinningBar({ draw }: WinningBarProps) {
   return (
     <div className="winbar">
       <span className="wlabel">
-        <b>제{draw.round}회</b> 당첨번호 <span className="sample">· 샘플</span>
+        <b>제{draw.round}회</b> 당첨번호
       </span>
       <span className="wballs">
         {draw.numbers.map((n) => (
