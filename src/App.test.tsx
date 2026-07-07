@@ -200,25 +200,37 @@ describe('전문가 훈수(패러디)', () => {
 })
 
 describe('App 배경음악(BGM) 흐름', () => {
-  function pointerDown() {
+  // 페이지 아무 곳이나 클릭(자동재생 허용 제스처) — BGM 시작 신호.
+  function firstClick() {
     act(() => {
-      document.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }))
+      container.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     })
   }
 
-  it('첫 상호작용(pointerdown)에서 로드와 BGM 루프를 시작한다 — 그 전에는 무음', () => {
+  it('첫 클릭에서 로드와 BGM 루프를 시작한다 — 그 전에는 무음, 두 번째부터는 재시작 없음', () => {
     const player = renderApp()
     expect(player.startBgm).not.toHaveBeenCalled()
-    pointerDown()
+    firstClick()
     expect(player.load).toHaveBeenCalled()
     expect(player.startBgm).toHaveBeenCalledTimes(1)
-    pointerDown() // once — 두 번째 상호작용에서 다시 시작하지 않는다
+    firstClick() // once — 두 번째 상호작용에서 다시 시작하지 않는다
     expect(player.startBgm).toHaveBeenCalledTimes(1)
+  })
+
+  it('첫 클릭이 곧 뽑기여도 시작→정지 순서가 보장돼 연출 중 BGM이 없다', () => {
+    const player = renderApp()
+    click('.drawbtn') // 페이지 첫 상호작용이 뽑기 버튼
+    expect(player.startBgm).toHaveBeenCalledTimes(1)
+    expect(player.stopBgm).toHaveBeenCalledTimes(1)
+    // capture(문서)에서 시작이 먼저, React 핸들러의 정지가 나중 — 결과적으로 무음.
+    expect(player.startBgm.mock.invocationCallOrder[0]).toBeLessThan(
+      player.stopBgm.mock.invocationCallOrder[0],
+    )
   })
 
   it('뽑기(연출 시작)에서 BGM을 멈추고, 확인으로 닫으면 다시 시작한다', () => {
     const player = renderApp()
-    pointerDown()
+    firstClick()
     player.startBgm.mockClear()
 
     click('.drawbtn')
@@ -233,9 +245,25 @@ describe('App 배경음악(BGM) 흐름', () => {
   it('reduced-motion(연출 없음)에서는 뽑기가 BGM을 멈추지 않는다', () => {
     stubReducedMotion(true)
     const player = renderApp()
-    pointerDown()
+    firstClick()
     click('.drawbtn')
     expect(player.stopBgm).not.toHaveBeenCalled()
+  })
+
+  it('홈 상시 토글이 보이고, 누르면 즉시 음소거되며 저장돼 재마운트 후 유지된다', () => {
+    const player = renderApp()
+    const toggle = container.querySelector('.home-sound-toggle')
+    expect(toggle).not.toBeNull()
+    expect(toggle!.textContent).toContain('소리 켬')
+
+    click('.home-sound-toggle')
+    expect(player.setMuted).toHaveBeenLastCalledWith(true)
+    expect(toggle!.textContent).toContain('소리 꺼짐')
+
+    act(() => root.unmount())
+    root = createRoot(container)
+    const nextPlayer = renderApp()
+    expect(nextPlayer.setMuted).toHaveBeenLastCalledWith(true)
   })
 })
 
@@ -246,7 +274,7 @@ describe('App 사운드 흐름', () => {
     expect(player.play).not.toHaveBeenCalled()
 
     click('.drawbtn')
-    expect(player.load).toHaveBeenCalledTimes(1)
+    expect(player.load).toHaveBeenCalled() // 제스처(BGM 시작)와 뽑기 경로 양쪽에서 요청될 수 있다
     expect(player.play).not.toHaveBeenCalledWith('fanfare') // 연출 소리는 오버레이 phase 몫
   })
 
@@ -259,11 +287,10 @@ describe('App 사운드 흐름', () => {
     expect(player.stopAll).toHaveBeenCalledTimes(1)
   })
 
-  it('prefers-reduced-motion이면 소리 요청도 없다', () => {
+  it('prefers-reduced-motion이면 연출 효과음 요청이 없다 (BGM 시작·로드는 제스처 몫)', () => {
     stubReducedMotion(true)
     const player = renderApp()
     click('.drawbtn')
-    expect(player.load).not.toHaveBeenCalled()
     expect(player.play).not.toHaveBeenCalled()
   })
 

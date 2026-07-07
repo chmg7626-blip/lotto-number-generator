@@ -33,6 +33,9 @@ type GeneratorPanelProps = {
   hasData: boolean
   // 단골 빈도 설명(spec: frequent-stat-note) — App이 result·빈도에서 계산해 내려준다.
   notes: string[] | null
+  // 홈 상시 음소거 토글(BGM 재도입으로 홈에서도 소리가 남 — spec draw-sound 요구 3).
+  soundOn: boolean
+  onToggleSound: () => void
 }
 
 export function GeneratorPanel({
@@ -40,6 +43,8 @@ export function GeneratorPanel({
   result,
   hasData,
   notes,
+  soundOn,
+  onToggleSound,
 }: GeneratorPanelProps) {
   const [mode, setMode] = useState<GenerateMode>('random')
   const [count, setCount] = useState(1)
@@ -61,6 +66,15 @@ export function GeneratorPanel({
           로또 6/45<small>LUCKY DRAW</small>
         </div>
       </div>
+
+      <button
+        type="button"
+        className="home-sound-toggle"
+        onClick={onToggleSound}
+        aria-pressed={soundOn}
+      >
+        {soundOn ? '🔊 소리 켬' : '🔇 소리 꺼짐'}
+      </button>
 
       <div className="kicker">매주 토요일 저녁 8시 45분 추첨</div>
       <h1 className="htitle">

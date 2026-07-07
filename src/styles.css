@@ -328,6 +328,22 @@ body {
   color: var(--dim);
 }
 
+/* 홈 상시 음소거 토글 — 로고와 대칭인 히어로 우상단(오버레이 토글과 같은 룩) */
+.home-sound-toggle {
+  position: absolute;
+  top: 24px;
+  right: 22px;
+  z-index: 6;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--dim);
+  background: rgba(12, 18, 38, 0.5);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
 .kicker {
   font-family: 'Jua', sans-serif;
   letter-spacing: 2px;
