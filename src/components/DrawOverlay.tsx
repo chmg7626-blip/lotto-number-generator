@@ -69,49 +69,72 @@ export function DrawOverlay({
 
   // 상태가 바뀔 때마다 다음 전이 하나만 예약하고 cleanup에서 해제한다 —
   // StrictMode 재실행·건너뛰기·언마운트에서 유령 전이가 없다(확정 설계 "위험과 완화").
-  // 소리는 이 타이머 콜백 안(리렌더 전)에서 요청한다 — phase 반영 후 effect에서 재생하면
-  // 렌더 한 사이클 + 오디오 시작 지연만큼 화면보다 늦어진다(2026-07-05 체감 어긋남 피드백).
+  // 소리는 리렌더 전에, 그리고 출력 지연(스피커까지의 하드웨어 경로)만큼 화면보다 먼저
+  // 요청한다 — 요청을 화면과 같이 출발시켜도 귀에는 출력 지연만큼 늦게 닿기 때문이다
+  // (2026-07-05 체감 어긋남 → 2026-07-07 "그래도 살짝 늦음" 피드백). 과보상 상한 250ms.
   useEffect(() => {
     if (phase === 'result') return
-    const delay =
-      phase === 'mixing'
-        ? MIX_MS
-        : phase === 'shooting'
-          ? SHOOT_MS
-          : phase === 'suspense'
-            ? SUSPENSE_MS
-            : shotCount >= revealOrder.length
-              ? SHOWCASE_FINAL_MS
-              : SHOWCASE_MS
-    const timer = window.setTimeout(() => {
-      if (phase === 'mixing') {
-        soundPlayer.play('shoot')
+
+    const isFinalShot = shotCount >= revealOrder.length
+    let delay: number
+    let requestSound: (() => void) | null
+    let applyTransition: () => void
+
+    if (phase === 'mixing') {
+      delay = MIX_MS
+      requestSound = () => soundPlayer.play('shoot')
+      applyTransition = () => {
         setShotCount(1)
         setPhase('shooting')
-      } else if (phase === 'suspense') {
-        soundPlayer.play('shoot')
+      }
+    } else if (phase === 'suspense') {
+      delay = SUSPENSE_MS
+      requestSound = () => soundPlayer.play('shoot')
+      applyTransition = () => {
         setShotCount(revealOrder.length)
         setPhase('shooting')
-      } else if (phase === 'shooting') {
-        if (shotCount >= revealOrder.length) playFanfareOnce()
-        else soundPlayer.play('cutin')
-        setPhase('showcase')
-      } else {
-        // showcase 종료: 컷인 공이 트레이에 안착한다.
+      }
+    } else if (phase === 'shooting') {
+      delay = SHOOT_MS
+      requestSound = isFinalShot
+        ? playFanfareOnce
+        : () => soundPlayer.play('cutin')
+      applyTransition = () => setPhase('showcase')
+    } else if (isFinalShot) {
+      // 마지막 showcase 종료: 소리 없이 결과 컷으로 이어진다(팡파르는 컷인에서 이미 1회).
+      delay = SHOWCASE_FINAL_MS
+      requestSound = null
+      applyTransition = () => {
         setSettledCount(shotCount)
-        if (shotCount >= revealOrder.length) {
-          setPhase('result')
-        } else if (shotCount === revealOrder.length - 1) {
-          soundPlayer.play('suspense')
+        setPhase('result')
+      }
+    } else {
+      // showcase 종료: 컷인 공이 트레이에 안착하고 다음 슛(또는 서스펜스)으로 넘어간다.
+      delay = SHOWCASE_MS
+      const nextIsSuspense = shotCount === revealOrder.length - 1
+      requestSound = () =>
+        soundPlayer.play(nextIsSuspense ? 'suspense' : 'shoot')
+      applyTransition = () => {
+        setSettledCount(shotCount)
+        if (nextIsSuspense) {
           setPhase('suspense')
         } else {
-          soundPlayer.play('shoot')
           setShotCount(shotCount + 1)
           setPhase('shooting')
         }
       }
-    }, delay)
-    return () => window.clearTimeout(timer)
+    }
+
+    const lead = Math.min(soundPlayer.outputLatencyMs(), 250, delay)
+    const soundTimer =
+      requestSound === null
+        ? null
+        : window.setTimeout(requestSound, delay - lead)
+    const timer = window.setTimeout(applyTransition, delay)
+    return () => {
+      if (soundTimer !== null) window.clearTimeout(soundTimer)
+      window.clearTimeout(timer)
+    }
   }, [phase, shotCount, revealOrder.length, soundPlayer, playFanfareOnce])
 
   function skip() {

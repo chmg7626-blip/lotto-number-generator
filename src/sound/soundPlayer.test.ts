@@ -175,6 +175,23 @@ describe('createWebAudioPlayer', () => {
     expect(() => player.stopAll()).not.toThrow()
   })
 
+  it('outputLatencyMs는 컨텍스트의 출력 지연(초)을 ms로 돌려주고, 없으면 baseLatency→0 순으로 폴백한다', () => {
+    const withOutput = makePlayer()
+    expect(withOutput.player.outputLatencyMs()).toBe(0) // load 전 — 컨텍스트 없음
+    withOutput.context.outputLatency = 0.12
+    withOutput.player.load()
+    expect(withOutput.player.outputLatencyMs()).toBeCloseTo(120)
+
+    const withBase = makePlayer()
+    withBase.context.baseLatency = 0.02
+    withBase.player.load()
+    expect(withBase.player.outputLatencyMs()).toBeCloseTo(20)
+
+    const withNeither = makePlayer()
+    withNeither.player.load()
+    expect(withNeither.player.outputLatencyMs()).toBe(0)
+  })
+
   it('컨텍스트 생성 실패도 예외를 던지지 않는다', () => {
     const player = createWebAudioPlayer({
       createContext: () => {

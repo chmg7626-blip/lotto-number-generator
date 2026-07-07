@@ -13,6 +13,9 @@ export interface SoundPlayer {
   play(event: SoundEvent): void
   stopAll(): void
   setMuted(muted: boolean): void
+  // 스피커·이어폰까지의 출력 지연 추정(ms). 연출이 소리를 이만큼 먼저 출발시켜
+  // "귀에 닿는 시점"을 화면과 맞춘다. 추정치가 없으면 0(보상 없음 — 기존 동작).
+  outputLatencyMs(): number
 }
 
 export const SOUND_EVENTS: SoundEvent[] = [
@@ -41,6 +44,10 @@ export type GainLike = {
 export type AudioContextLike = {
   state: string
   destination: unknown
+  // 출력 지연 추정(초). outputLatency는 하드웨어 경로 전체, baseLatency는 처리 지연만 —
+  // 브라우저에 따라 없을 수 있어 둘 다 선택 속성이다.
+  outputLatency?: number
+  baseLatency?: number
   resume(): Promise<void> | void
   decodeAudioData(data: ArrayBuffer): Promise<unknown>
   createGain(): GainLike
@@ -133,6 +140,11 @@ export function createWebAudioPlayer(
     setMuted(next) {
       muted = next
       if (gain) gain.gain.value = next ? 0 : 1
+    },
+    outputLatencyMs() {
+      if (!context) return 0
+      const seconds = context.outputLatency ?? context.baseLatency ?? 0
+      return Number.isFinite(seconds) && seconds > 0 ? seconds * 1000 : 0
     },
   }
 }
