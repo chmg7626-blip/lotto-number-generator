@@ -1,0 +1,43 @@
+# 주간 데이터 갱신: 동행복권 공식 회차 조회에서 새 회차를 받아 데이터 파일만 봇 커밋한다.
+# 토 15:30 UTC = 일 00:30 KST (추첨은 토 저녁 — 여유를 두고 실행). 수동 실행도 가능.
+# main 직접 push 금지 규칙의 명시적 예외다 — diff allowlist로 생성 데이터 파일 외 변경을 차단한다
+# (확정 설계 docs/design/real-data-deploy.md 핵심 결정 4).
+name: Update lotto data
+
+on:
+  schedule:
+    - cron: '30 15 * * 6'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # 스크립트는 Node 타입 제거 실행(≥23.6)을 쓴다. 의존성이 없어 npm ci는 불필요.
+          node-version: 24
+      - run: node scripts/update-draws.ts
+      - name: 변경 검사(diff allowlist) 후 커밋
+        run: |
+          CHANGED=$(git status --porcelain)
+          if [ -z "$CHANGED" ]; then
+            echo "변경 없음 — 커밋하지 않는다"
+            exit 0
+          fi
+          DISALLOWED=$(echo "$CHANGED" | awk '{print $NF}' \
+            | grep -vx -e 'src/data/draws.json' -e 'src/data/latestPrize.json' || true)
+          if [ -n "$DISALLOWED" ]; then
+            echo "허용 목록 밖 변경 — 커밋하지 않고 실패한다:"
+            echo "$DISALLOWED"
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data/draws.json src/data/latestPrize.json
+          git commit -m "데이터 갱신: 로또 6/45 최신 회차 반영 (자동)"
+          git push

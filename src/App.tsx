@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import drawsData from './data/draws.sample.json'
+import drawsData from './data/draws.json'
+import latestPrizeData from './data/latestPrize.json'
 import type { Draw, DrawsFile, GenerateMode } from './domain/types'
 import {
   calculateFrequencies,
@@ -8,6 +9,7 @@ import {
   generateWithFixed,
 } from './domain/lotto'
 import { DisclaimerBanner } from './components/DisclaimerBanner'
+import { SourceNotice } from './components/SourceNotice'
 import { WinningBar } from './components/WinningBar'
 import { GeneratorPanel } from './components/GeneratorPanel'
 import type { DrawResult } from './components/GeneratorPanel'
@@ -20,8 +22,9 @@ import { createHtmlAudioPlayer } from './sound/soundPlayer'
 import type { SoundPlayer } from './sound/soundPlayer'
 import { loadSoundOn, saveSoundOn } from './storage/soundPreference'
 
-// 샘플 데이터(실제 당첨번호 아님 — src/data/README.md). 배포 전 실데이터로 교체한다.
+// 실데이터(동행복권 공식 출처 — src/data/README.md). npm run data:update 로 갱신된다.
 const draws = (drawsData as DrawsFile).draws
+const prizeRound = latestPrizeData.round
 
 // 회차 당첨번호 띠에 쓸 최신(회차 번호 최대) 회차. 데이터가 없으면 null.
 function latestDraw(list: Draw[]): Draw | null {
@@ -123,7 +126,9 @@ export default function App({ soundPlayer }: AppProps = {}) {
 
         <section className="wrap">
           <h2 className="sec-title">당첨금액</h2>
-          <p className="sec-sub">샘플 · 실제 당첨금이 아닙니다</p>
+          <p className="sec-sub">
+            제{prizeRound}회 기준 · 금액은 만원 미만 절사한 약식 표기
+          </p>
           <PrizeTable />
         </section>
 
@@ -131,11 +136,13 @@ export default function App({ soundPlayer }: AppProps = {}) {
           <h2 className="sec-title">1~45번 출현 통계</h2>
           <p className="sec-sub">
             {hasData
-              ? `샘플 ${draws.length}회차 기준 · 예측이 아닌 재미용 통계`
+              ? `역대 ${draws.length}회차 기준 · 예측이 아닌 재미용 통계`
               : '데이터 없음 · 통계 없음'}
           </p>
           <FrequencyGrid frequencies={frequencies} />
         </section>
+
+        <SourceNotice />
       </div>
 
       {pendingDraw && (

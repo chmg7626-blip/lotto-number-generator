@@ -125,7 +125,7 @@ body {
   color: var(--gold);
 }
 
-/* 이번 회차 당첨번호 띠 (샘플) */
+/* 이번 회차 당첨번호 띠 */
 .winbar {
   position: relative;
   z-index: 5;
@@ -145,10 +145,6 @@ body {
 }
 .winbar .wlabel b {
   color: var(--gold);
-}
-.winbar .wlabel .sample {
-  color: #ff9c6e;
-  font-size: 11px;
 }
 .wballs {
   display: inline-flex;
@@ -1297,4 +1293,19 @@ body {
     width: 5px;
     height: 5px;
   }
+}
+
+/* 데이터 출처·비공식 고지 */
+.source-note {
+  position: relative;
+  z-index: 5;
+  text-align: center;
+  color: var(--dim);
+  font-size: 12.5px;
+  line-height: 1.7;
+  padding: 0 18px 34px;
+}
+.source-note a {
+  color: var(--dim);
+  text-decoration: underline;
 }
