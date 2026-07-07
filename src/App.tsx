@@ -126,7 +126,9 @@ export default function App({ soundPlayer }: AppProps = {}) {
 
         <section className="wrap">
           <h2 className="sec-title">당첨금액</h2>
-          <p className="sec-sub">제{prizeRound}회 기준</p>
+          <p className="sec-sub">
+            제{prizeRound}회 기준 · 금액은 만원 미만 절사한 약식 표기
+          </p>
           <PrizeTable />
         </section>
 
