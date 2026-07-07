@@ -31,12 +31,15 @@ type GeneratorPanelProps = {
   result: DrawResult | null
   // 단골 가중에 쓸 과거 데이터가 있는지(빈 데이터면 단골 모드가 랜덤으로 폴백함을 안내).
   hasData: boolean
+  // 단골 빈도 설명(spec: frequent-stat-note) — App이 result·빈도에서 계산해 내려준다.
+  notes: string[] | null
 }
 
 export function GeneratorPanel({
   onDraw,
   result,
   hasData,
+  notes,
 }: GeneratorPanelProps) {
   const [mode, setMode] = useState<GenerateMode>('random')
   const [count, setCount] = useState(1)
@@ -125,6 +128,7 @@ export function GeneratorPanel({
           games={result.games}
           modeLabel={modeLabel(result.mode)}
           quip={result.quip}
+          notes={notes}
         />
       )}
     </section>

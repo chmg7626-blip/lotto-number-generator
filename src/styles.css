@@ -809,6 +809,22 @@ body {
   flex: none;
 }
 
+/* 단골 빈도 설명(spec: frequent-stat-note) — frequent 모드에서 게임 줄 아래 한 줄.
+   게임 줄의 점선 구분은 설명 줄이 대신 지고, 마지막 줄(.nb)은 훈수의 위 점선과 겹치지 않게 뺀다. */
+.game.with-note {
+  border-bottom: none;
+}
+.gnote {
+  font-size: 13px;
+  color: #8a6d2f;
+  padding: 0 0 9px 29px;
+  border-bottom: 1px dashed #ece0bf;
+}
+.gnote.nb {
+  border-bottom: none;
+  padding-bottom: 2px;
+}
+
 /* 전문가 훈수(패러디) — 용지 카드 하단 한 줄 농담 */
 .quip {
   margin-top: 12px;

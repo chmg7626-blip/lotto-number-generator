@@ -18,6 +18,7 @@ import { FrequencyGrid } from './components/FrequencyGrid'
 import { DrawOverlay } from './components/DrawOverlay'
 import { revealSequence } from './components/drawReveal'
 import { pickQuip } from './components/expertQuips'
+import { buildFrequentNotes } from './components/frequentNote'
 import { createHtmlAudioPlayer } from './sound/soundPlayer'
 import type { SoundPlayer } from './sound/soundPlayer'
 import { loadSoundOn, saveSoundOn } from './storage/soundPreference'
@@ -122,7 +123,21 @@ export default function App({ soundPlayer }: AppProps = {}) {
 
         <DisclaimerBanner />
         <WinningBar draw={latestDraw(draws)} />
-        <GeneratorPanel onDraw={handleDraw} result={result} hasData={hasData} />
+        <GeneratorPanel
+          onDraw={handleDraw}
+          result={result}
+          hasData={hasData}
+          notes={
+            result
+              ? buildFrequentNotes(
+                  result.mode,
+                  result.games,
+                  frequencies,
+                  draws.length,
+                )
+              : null
+          }
+        />
 
         <section className="wrap">
           <h2 className="sec-title">당첨금액</h2>
