@@ -46,12 +46,14 @@ afterEach(() => {
 })
 
 // 사운드는 요청 시점만 검증한다 — 실제 재생 대신 mock을 주입한다(spec 요구 10).
-function makeMockPlayer() {
+// 출력 지연 기본 0 = 보상 없음(소리와 화면 전환이 같은 시점).
+function makeMockPlayer(outputLatencyMs = 0) {
   return {
     load: vi.fn(),
     play: vi.fn(),
     stopAll: vi.fn(),
     setMuted: vi.fn(),
+    outputLatencyMs: vi.fn(() => outputLatencyMs),
   }
 }
 
@@ -231,6 +233,25 @@ describe('DrawOverlay 사운드 요청', () => {
     // 결과 컷 이후 타이머가 더 흘러도 추가 요청이 없다(팡파르 1회 보장).
     advance(SHOWCASE_FINAL_MS + SUSPENSE_MS)
     expect(player.play).toHaveBeenCalledTimes(1)
+  })
+
+  it('출력 지연만큼 소리를 화면 전환보다 먼저 요청한다 (보상)', () => {
+    const player = renderOverlay(() => {}, makeMockPlayer(100))
+
+    // mixing 종료 100ms 전: 첫 shoot 소리가 먼저 출발하고, 화면은 아직 mixing이다.
+    advance(MIX_MS - 100)
+    expect(player.play.mock.calls.map(([event]) => event)).toEqual(['shoot'])
+    advance(100) // 화면이 shooting으로 전환
+
+    // shooting 종료 100ms 전: cutin 소리가 먼저, 컷인 공 표시는 아직 없다.
+    advance(SHOOT_MS - 100)
+    expect(player.play.mock.calls.map(([event]) => event)).toEqual([
+      'shoot',
+      'cutin',
+    ])
+    expect(cutinNumber()).toBeNull()
+    advance(100)
+    expect(cutinNumber()).toBe(44)
   })
 
   it('음소거 토글 버튼이 onToggleSound를 호출한다', () => {
