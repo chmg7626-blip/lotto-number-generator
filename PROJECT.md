@@ -14,16 +14,14 @@
 
 ## 현재 상태
 
-- 제품 단계: **실데이터·배포 PR #5 ready for review(사용자 병합 대기) + 단골 빈도 설명 구현
-  완료**(2026-07-07). 실데이터 건은 Codex 검토([치명] deploy 권한·[권장] 약식 표기 고지) 수정
-  b62a49f 반영·CI check 통과. 단골 빈도 설명은 feature/frequent-stat-note(#5 위에 스택,
-  커밋 8fa64b1)에 spec+구현+테스트 완료 — push·PR은 #5 병합 후. 이전: 전문가 훈수 PR #4,
-  효과음 PR #3(2026-07-05), 추첨 애니메이션 PR #2, 1차 MVP PR #1.
+- 제품 단계: **공개 배포 완료**(2026-07-07) — https://chmg7626-blip.github.io/lotto-number-generator/
+  실데이터·배포 PR #5(Codex 검토 반영)와 단골 빈도 설명 PR #6(Fast) 모두 main 병합·배포 검증
+  (사이트 200 응답·번들에 새 기능 포함). 저장소는 Pages 조건으로 **공개 전환**(사용자 승인).
+  update-data.yml workflow_dispatch 실동작 확인 — "변경 없음: 이미 최신 (1231회까지)" 경로 정상.
+  이전: 전문가 훈수 PR #4, 효과음 PR #3(2026-07-05), 추첨 애니메이션 PR #2, 1차 MVP PR #1.
 - 콘텐츠 단계: 해당 없음
-- 활성 spec: docs/specs/frequent-stat-note.md (Approved 2026-07-07, Fast) /
-  docs/specs/real-data-deploy.md (Approved 2026-07-06, Standard — PR #5)
-- 활성 design: docs/design/real-data-deploy.md (절충안) / plan: docs/plans/real-data-deploy.md
-- 현재 브랜치: feature/frequent-stat-note (feature/real-data-deploy 기반)
+- 활성 spec: 없음 (frequent-stat-note·real-data-deploy 모두 병합 완료)
+- 현재 브랜치: main
 
 ## 진행 중인 챌린지/연재 (없으면 "없음")
 
@@ -40,6 +38,9 @@
 
 ## 최근 결정
 
+- (2026-07-07) **저장소 공개 전환**: 무료 플랜에서 GitHub Pages는 공개 저장소만 가능 — 사용자
+  승인으로 전환. git 이력의 Pixabay BGM 잔존·전 회차 JSON 재배포 위험도 함께 공개됨(기존
+  위험 감수 결정의 연장). PR #5·#6 병합, Pages 배포·주간 갱신 실동작까지 검증 완료
 - (2026-07-07) 단골 빈도 설명: 목업 3안 비교 후 **B안(게임 아래 설명 한 줄)·frequent 모드
   한정·Fast 사람 확정**(독립 설계·Codex 검토 생략). 게임당 상위 2개 언급, 동률은 공동 순위,
   수치는 draws 집계(자동 갱신 추종), 은/는 조사는 끝자리 규칙. 당첨금 만원 미만 절사는
@@ -79,13 +80,12 @@
 
 ## 다음 할 일
 
-- 사용자: GitHub Settings→Pages→Source를 "GitHub Actions"로 설정(배포 전 1회) → **PR #5 최종
-  검토·병합** → Pages URL 실확인
-- PR #5 병합 후: feature/frequent-stat-note push·PR 생성(승인 게이트) → CI → 병합
-- 병합 후 update-data.yml을 workflow_dispatch로 수동 실행해 "변경 없음" 경로·diff allowlist 실동작 확인
+- 공개 배포됨 — 피드백 수집 시작(원래 목적). 실사용 모바일에서 사이트 한번 둘러보기
+- 다음 토요일 추첨(1232회) 후 update-data.yml 자동 실행이 새 회차를 실제로 커밋하는지 확인
+- (선택) 공개 저장소 git 이력에 남은 Pixabay BGM 정리 여부 — 이력 재작성은 사용자만 가능, 위험 감수 시 그대로 둠
 - (선택) CI "Node.js 20 deprecated" 경고 해소 — 워크플로우 node-version 22+로 상향
 - 진짜 "보너스 공" 추첨 연출을 원하면 생성 로직·spec 변경이 필요한 별개 결정 — 별도 논의
-- (선택) 미추적 파일 정리: dgp4d.jpg(용도 미정 마스코트 이미지)·.agents/·.codex/, 폐기된 feature/lotto-mvp-ui-a/-b·병합 완료된 feature/draw-animation·draw-sound·expert-parody 로컬 브랜치 정리 — 사용자 확인 필요
+- (선택) 미추적 파일 정리: dgp4d.jpg(용도 미정 마스코트 이미지)·.agents/·.codex/, 폐기된 feature/lotto-mvp-ui-a/-b·병합 완료된 로컬 feature 브랜치 정리 — 사용자 확인 필요
 
 ## 주의사항
 
