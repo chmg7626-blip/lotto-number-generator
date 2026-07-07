@@ -16,6 +16,10 @@ export interface SoundPlayer {
   // 스피커·이어폰까지의 출력 지연 추정(ms). 연출이 소리를 이만큼 먼저 출발시켜
   // "귀에 닿는 시점"을 화면과 맞춘다. 추정치가 없으면 0(보상 없음 — 기존 동작).
   outputLatencyMs(): number
+  // 홈 배경음악(루프). 효과음과 분리된 낮은 음량 게인을 쓰고, stopAll에 안 멈춘다 —
+  // 연출 시작(정지)·종료(재개)는 App이 소유한다(2026-07-07 BGM 재도입).
+  startBgm(): void
+  stopBgm(): void
 }
 
 export const SOUND_EVENTS: SoundEvent[] = [
@@ -28,6 +32,7 @@ export const SOUND_EVENTS: SoundEvent[] = [
 // Web Audio 중 이 계층이 쓰는 표면만 — 테스트에서 가짜 객체를 주입하기 위한 최소 계약.
 export type BufferSourceLike = {
   buffer: unknown
+  loop: boolean
   connect(node: unknown): void
   start(): void
   stop(): void
@@ -60,9 +65,12 @@ export type WebAudioDeps = {
 }
 
 // GitHub Pages는 /<repo>/ 서브패스로 배포되므로 절대경로 대신 BASE_URL로 조립한다(확정 설계 결정 3).
-function soundUrl(event: SoundEvent): string {
-  return `${import.meta.env.BASE_URL}sounds/${event}.mp3`
+function soundUrl(name: SoundEvent | 'bgm'): string {
+  return `${import.meta.env.BASE_URL}sounds/${name}.mp3`
 }
+
+// 배경음악은 효과음보다 한참 낮게 깐다("소리 너무 크지 않게" — 2026-07-07 사용자 요구).
+const BGM_GAIN = 0.35
 
 // 소리 실패는 연출을 막지 않는다(spec 요구 6) — 로드·디코드·재생·정지 실패를 전부 삼킨다.
 function ignoreFailure(action: () => Promise<unknown> | unknown): void {
@@ -92,6 +100,12 @@ export function createWebAudioPlayer(
   // stopAll 세대 표식: 정지 후에 디코드가 끝난 지연 재생이 뒤늦게 시작되지 않게 한다.
   let stopEpoch = 0
   let muted = false
+  // BGM: 별도 게인(마스터 게인에 연결 — 음소거가 함께 적용됨)과 단일 루프 소스.
+  let bgmGain: GainLike | null = null
+  let bgmBuffer: Promise<unknown> | null = null
+  let bgmSource: BufferSourceLike | null = null
+  // stopBgm 세대 표식: 디코드 대기 중 정지된 시작 요청이 뒤늦게 울리지 않게 한다.
+  let bgmEpoch = 0
 
   return {
     // 클릭 제스처 체인 안에서 호출된다(자동재생 정책 — 확정 설계 결정 2).
@@ -109,6 +123,13 @@ export function createWebAudioPlayer(
           decoded.catch(() => {}) // 실패는 재생 시점에 무시된다 — unhandled rejection만 막는다
           buffers.set(event, decoded)
         }
+        bgmGain = context.createGain()
+        bgmGain.gain.value = BGM_GAIN
+        bgmGain.connect(gain)
+        bgmBuffer = deps
+          .fetchData(soundUrl('bgm'))
+          .then((data) => context!.decodeAudioData(data))
+        bgmBuffer.catch(() => {})
       })
     },
     play(event) {
@@ -145,6 +166,30 @@ export function createWebAudioPlayer(
       if (!context) return 0
       const seconds = context.outputLatency ?? context.baseLatency ?? 0
       return Number.isFinite(seconds) && seconds > 0 ? seconds * 1000 : 0
+    },
+    startBgm() {
+      if (!context || !bgmGain || !bgmBuffer || bgmSource) return
+      if (context.state === 'suspended') ignoreFailure(() => context!.resume())
+      const epoch = bgmEpoch
+      ignoreFailure(() =>
+        bgmBuffer!.then((buffer) => {
+          if (epoch !== bgmEpoch || bgmSource) return // 대기 중 정지·중복 시작 방지
+          const source = context!.createBufferSource()
+          source.buffer = buffer
+          source.loop = true
+          source.connect(bgmGain!)
+          bgmSource = source
+          source.start()
+        }),
+      )
+    },
+    stopBgm() {
+      bgmEpoch++
+      if (bgmSource) {
+        const source = bgmSource
+        bgmSource = null
+        ignoreFailure(() => source.stop())
+      }
     },
   }
 }
