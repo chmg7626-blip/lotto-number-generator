@@ -77,13 +77,17 @@ export function createWebAudioPlayer(
 ): SoundPlayer {
   let context: AudioContextLike | null = null
   let gain: GainLike | null = null
-  const buffers = new Map<SoundEvent, unknown>()
+  // 이벤트별 디코드 프라미스 — 완료된 버퍼가 아니라 프라미스를 두는 이유는, 디코드가 끝나기
+  // 전에 들어온 play 요청(로드 직후 건너뛰기 등)을 버리지 않고 완료 시점에 재생하기 위해서다.
+  // 팡파르는 호출부가 1회 플래그를 먼저 세워 재시도가 없다(spec 요구 5 — 조용히 버리면 회귀).
+  const buffers = new Map<SoundEvent, Promise<unknown>>()
   const activeSources = new Set<BufferSourceLike>()
+  // stopAll 세대 표식: 정지 후에 디코드가 끝난 지연 재생이 뒤늦게 시작되지 않게 한다.
+  let stopEpoch = 0
   let muted = false
 
   return {
     // 클릭 제스처 체인 안에서 호출된다(자동재생 정책 — 확정 설계 결정 2).
-    // 디코드는 비동기지만 믹싱 700ms 안에 끝나는 크기이고, 못 끝나면 그 소리만 조용히 건너뛴다.
     load() {
       if (context) return
       ignoreFailure(() => {
@@ -92,32 +96,34 @@ export function createWebAudioPlayer(
         gain.gain.value = muted ? 0 : 1
         gain.connect(context.destination)
         for (const event of SOUND_EVENTS) {
-          ignoreFailure(() =>
-            deps
-              .fetchData(soundUrl(event))
-              .then((data) => context!.decodeAudioData(data))
-              .then((buffer) => {
-                buffers.set(event, buffer)
-              }),
-          )
+          const decoded = deps
+            .fetchData(soundUrl(event))
+            .then((data) => context!.decodeAudioData(data))
+          decoded.catch(() => {}) // 실패는 재생 시점에 무시된다 — unhandled rejection만 막는다
+          buffers.set(event, decoded)
         }
       })
     },
     play(event) {
-      const buffer = buffers.get(event)
-      if (!context || !gain || !buffer) return
+      const decoded = buffers.get(event)
+      if (!context || !gain || !decoded) return
       // 제스처 밖(타이머 콜백)에서 컨텍스트가 잠들어 있으면 깨운다 — 페이지는 이미 클릭됐다.
       if (context.state === 'suspended') ignoreFailure(() => context!.resume())
-      ignoreFailure(() => {
-        const source = context!.createBufferSource()
-        source.buffer = buffer
-        source.connect(gain!)
-        activeSources.add(source)
-        source.onended = () => activeSources.delete(source)
-        source.start()
-      })
+      const epoch = stopEpoch
+      ignoreFailure(() =>
+        decoded.then((buffer) => {
+          if (epoch !== stopEpoch) return // 대기 중 stopAll — 시작하지 않는다
+          const source = context!.createBufferSource()
+          source.buffer = buffer
+          source.connect(gain!)
+          activeSources.add(source)
+          source.onended = () => activeSources.delete(source)
+          source.start()
+        }),
+      )
     },
     stopAll() {
+      stopEpoch++
       for (const source of activeSources) {
         ignoreFailure(() => source.stop())
       }

@@ -66,16 +66,54 @@ describe('createWebAudioPlayer', () => {
     expect(context.decodeAudioData).toHaveBeenCalledTimes(SOUND_EVENTS.length)
   })
 
-  it('play는 디코드된 버퍼로 소스를 만들어 즉시 시작하고, load 전에는 아무 일도 없다', async () => {
+  it('play는 디코드된 버퍼로 소스를 만들어 시작하고, load 전에는 아무 일도 없다', async () => {
     const { player, sources } = makePlayer()
     player.play('shoot') // load 전 — 예외 없이 무시
     expect(sources).toHaveLength(0)
     player.load()
     await flushAsync()
     player.play('shoot')
+    await flushAsync() // 디코드 프라미스 경유 — 마이크로태스크 뒤에 시작된다
     expect(sources).toHaveLength(1)
     expect(sources[0].start).toHaveBeenCalledTimes(1)
     expect(sources[0].buffer).not.toBeNull()
+  })
+
+  it('디코드가 끝나기 전의 play 요청은 버려지지 않고 완료 시 재생된다 (로드 직후 건너뛰기)', async () => {
+    const fake = makeFakeContext()
+    let resolveFetch!: (data: ArrayBuffer) => void
+    const pending = new Promise<ArrayBuffer>((resolve) => {
+      resolveFetch = resolve
+    })
+    const player = createWebAudioPlayer({
+      createContext: () => fake.context,
+      fetchData: () => pending,
+    })
+    player.load()
+    player.play('fanfare') // 아직 디코드 전 — 팡파르는 호출부 1회 플래그 때문에 재시도가 없다
+    expect(fake.sources).toHaveLength(0)
+    resolveFetch(new ArrayBuffer(8))
+    await flushAsync()
+    expect(fake.sources).toHaveLength(1)
+    expect(fake.sources[0].start).toHaveBeenCalledTimes(1)
+  })
+
+  it('디코드 대기 중 stopAll이 오면 뒤늦게 시작되지 않는다', async () => {
+    const fake = makeFakeContext()
+    let resolveFetch!: (data: ArrayBuffer) => void
+    const pending = new Promise<ArrayBuffer>((resolve) => {
+      resolveFetch = resolve
+    })
+    const player = createWebAudioPlayer({
+      createContext: () => fake.context,
+      fetchData: () => pending,
+    })
+    player.load()
+    player.play('shoot')
+    player.stopAll()
+    resolveFetch(new ArrayBuffer(8))
+    await flushAsync()
+    expect(fake.sources).toHaveLength(0)
   })
 
   it('컨텍스트가 suspended면 play가 resume을 요청한다', async () => {
@@ -92,7 +130,9 @@ describe('createWebAudioPlayer', () => {
     await flushAsync()
     player.play('shoot')
     player.play('fanfare')
+    await flushAsync() // 두 소스가 실제로 시작된 뒤 멈춘다
     player.stopAll()
+    expect(sources).toHaveLength(2)
     for (const source of sources) {
       expect(source.stop).toHaveBeenCalled()
     }
