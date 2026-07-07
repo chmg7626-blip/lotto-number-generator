@@ -66,15 +66,21 @@ export default function App({ soundPlayer }: AppProps = {}) {
     player.setMuted(!soundOn)
   }, [player, soundOn])
 
-  // BGM은 자동재생 정책 때문에 페이지 로드가 아니라 첫 상호작용(제스처)에서 시작한다.
-  // 루프로 계속 깔리고, 연출 동안만 멈춘다(2026-07-07 사용자 요구 — 뽑기 중 음악 없음).
+  // BGM은 자동재생 정책 때문에 페이지 로드가 아니라 첫 상호작용에서 시작한다.
+  // click 기준(capture): pointerdown은 모바일에서 자동재생 허용 제스처로 인정되지 않을 수
+  // 있고, capture라야 첫 클릭이 곧 '번호 뽑기'여도 시작(여기)→정지(handleDraw) 순서가 보장돼
+  // 연출 중에 BGM이 새어 나오지 않는다(2026-07-07 "뽑기 후에야 나옴" 피드백).
   useEffect(() => {
     function startAmbient() {
       player.load()
       player.startBgm()
     }
-    document.addEventListener('pointerdown', startAmbient, { once: true })
-    return () => document.removeEventListener('pointerdown', startAmbient)
+    document.addEventListener('click', startAmbient, {
+      once: true,
+      capture: true,
+    })
+    return () =>
+      document.removeEventListener('click', startAmbient, { capture: true })
   }, [player])
 
   function handleDraw(mode: GenerateMode, count: number, fixed: number[]) {
@@ -141,6 +147,8 @@ export default function App({ soundPlayer }: AppProps = {}) {
           onDraw={handleDraw}
           result={result}
           hasData={hasData}
+          soundOn={soundOn}
+          onToggleSound={toggleSound}
           notes={
             result
               ? buildFrequentNotes(
