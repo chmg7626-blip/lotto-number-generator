@@ -54,6 +54,8 @@ function makeMockPlayer(outputLatencyMs = 0) {
     stopAll: vi.fn(),
     setMuted: vi.fn(),
     outputLatencyMs: vi.fn(() => outputLatencyMs),
+    startBgm: vi.fn(),
+    stopBgm: vi.fn(),
   }
 }
 

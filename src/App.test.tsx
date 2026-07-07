@@ -31,6 +31,8 @@ function makeMockPlayer() {
     stopAll: vi.fn(),
     setMuted: vi.fn(),
     outputLatencyMs: vi.fn(() => 0),
+    startBgm: vi.fn(),
+    stopBgm: vi.fn(),
   }
 }
 
@@ -194,6 +196,46 @@ describe('전문가 훈수(패러디)', () => {
     const text = quip!.textContent ?? ''
     expect(EXPERT_QUIPS.some((q) => text.includes(q))).toBe(true)
     expect(text).toContain('패러디')
+  })
+})
+
+describe('App 배경음악(BGM) 흐름', () => {
+  function pointerDown() {
+    act(() => {
+      document.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }))
+    })
+  }
+
+  it('첫 상호작용(pointerdown)에서 로드와 BGM 루프를 시작한다 — 그 전에는 무음', () => {
+    const player = renderApp()
+    expect(player.startBgm).not.toHaveBeenCalled()
+    pointerDown()
+    expect(player.load).toHaveBeenCalled()
+    expect(player.startBgm).toHaveBeenCalledTimes(1)
+    pointerDown() // once — 두 번째 상호작용에서 다시 시작하지 않는다
+    expect(player.startBgm).toHaveBeenCalledTimes(1)
+  })
+
+  it('뽑기(연출 시작)에서 BGM을 멈추고, 확인으로 닫으면 다시 시작한다', () => {
+    const player = renderApp()
+    pointerDown()
+    player.startBgm.mockClear()
+
+    click('.drawbtn')
+    expect(player.stopBgm).toHaveBeenCalledTimes(1)
+    expect(player.startBgm).not.toHaveBeenCalled() // 연출 중에는 음악 없음
+
+    click('.draw-skip')
+    click('.draw-confirm')
+    expect(player.startBgm).toHaveBeenCalledTimes(1)
+  })
+
+  it('reduced-motion(연출 없음)에서는 뽑기가 BGM을 멈추지 않는다', () => {
+    stubReducedMotion(true)
+    const player = renderApp()
+    pointerDown()
+    click('.drawbtn')
+    expect(player.stopBgm).not.toHaveBeenCalled()
   })
 })
 

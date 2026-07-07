@@ -66,6 +66,17 @@ export default function App({ soundPlayer }: AppProps = {}) {
     player.setMuted(!soundOn)
   }, [player, soundOn])
 
+  // BGM은 자동재생 정책 때문에 페이지 로드가 아니라 첫 상호작용(제스처)에서 시작한다.
+  // 루프로 계속 깔리고, 연출 동안만 멈춘다(2026-07-07 사용자 요구 — 뽑기 중 음악 없음).
+  useEffect(() => {
+    function startAmbient() {
+      player.load()
+      player.startBgm()
+    }
+    document.addEventListener('pointerdown', startAmbient, { once: true })
+    return () => document.removeEventListener('pointerdown', startAmbient)
+  }, [player])
+
   function handleDraw(mode: GenerateMode, count: number, fixed: number[]) {
     const games = Array.from({ length: count }, () => {
       if (mode === 'frequent') return generateWeighted(frequencies)
@@ -80,7 +91,9 @@ export default function App({ soundPlayer }: AppProps = {}) {
     }
     // 클릭 제스처 체인 안에서 음원을 로드한다(자동재생 정책 — 확정 설계 결정 2).
     // 이벤트 효과음은 DrawOverlay가 phase 전이에서 요청한다.
+    // 연출 동안은 배경음악을 멈춘다(효과음에 집중 — 확인 후 재개).
     player.load()
+    player.stopBgm()
     setPendingDraw({
       result: drawResult,
       revealOrder: revealSequence(games[0].numbers),
@@ -90,6 +103,7 @@ export default function App({ soundPlayer }: AppProps = {}) {
   function confirmDraw() {
     if (!pendingDraw) return
     player.stopAll()
+    player.startBgm()
     setResult(pendingDraw.result)
     setPendingDraw(null)
   }

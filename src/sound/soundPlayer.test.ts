@@ -29,6 +29,7 @@ function makeFakeContext(state = 'running') {
     createBufferSource: vi.fn(() => {
       const source: BufferSourceLike = {
         buffer: null,
+        loop: false,
         connect: vi.fn(),
         start: vi.fn(),
         stop: vi.fn(),
@@ -56,14 +57,16 @@ function makePlayer(state = 'running') {
 }
 
 describe('createWebAudioPlayer', () => {
-  it('load는 이벤트별 음원을 한 번만 받아 디코드한다', async () => {
+  it('load는 이벤트별 음원과 BGM을 한 번만 받아 디코드한다', async () => {
     const { player, fetched, context } = makePlayer()
     player.load()
     player.load()
     await flushAsync()
-    expect(fetched).toHaveLength(SOUND_EVENTS.length)
+    expect(fetched).toHaveLength(SOUND_EVENTS.length + 1) // 효과음 4 + bgm
     expect(fetched.some((u) => u.endsWith('/shoot.mp3'))).toBe(true)
-    expect(context.decodeAudioData).toHaveBeenCalledTimes(SOUND_EVENTS.length)
+    expect(context.decodeAudioData).toHaveBeenCalledTimes(
+      SOUND_EVENTS.length + 1,
+    )
   })
 
   it('play는 디코드된 버퍼로 소스를 만들어 시작하고, load 전에는 아무 일도 없다', async () => {
@@ -173,6 +176,46 @@ describe('createWebAudioPlayer', () => {
     await flushAsync()
     expect(() => player.play('shoot')).not.toThrow()
     expect(() => player.stopAll()).not.toThrow()
+  })
+
+  it('startBgm은 낮은 게인의 루프 소스를 1개만 만들고, stopAll에는 멈추지 않는다', async () => {
+    const { player, sources, gains, fetched } = makePlayer()
+    player.load()
+    await flushAsync()
+    expect(fetched.some((u) => u.endsWith('/bgm.mp3'))).toBe(true)
+
+    player.startBgm()
+    player.startBgm() // 중복 시작 무시
+    await flushAsync()
+    expect(sources).toHaveLength(1)
+    expect(sources[0].loop).toBe(true)
+    expect(sources[0].start).toHaveBeenCalledTimes(1)
+    // 마스터(1) 외에 BGM 전용 게인이 낮은 값으로 하나 더 있다.
+    expect(gains).toHaveLength(2)
+    expect(gains[1].gain.value).toBeLessThan(1)
+
+    player.stopAll() // 효과음 정지가 BGM을 건드리지 않는다
+    expect(sources[0].stop).not.toHaveBeenCalled()
+    player.stopBgm()
+    expect(sources[0].stop).toHaveBeenCalledTimes(1)
+  })
+
+  it('디코드 대기 중 stopBgm이 오면 BGM이 뒤늦게 시작되지 않는다', async () => {
+    const fake = makeFakeContext()
+    let resolveFetch!: (data: ArrayBuffer) => void
+    const pending = new Promise<ArrayBuffer>((resolve) => {
+      resolveFetch = resolve
+    })
+    const player = createWebAudioPlayer({
+      createContext: () => fake.context,
+      fetchData: () => pending,
+    })
+    player.load()
+    player.startBgm()
+    player.stopBgm()
+    resolveFetch(new ArrayBuffer(8))
+    await flushAsync()
+    expect(fake.sources).toHaveLength(0)
   })
 
   it('outputLatencyMs는 컨텍스트의 출력 지연(초)을 ms로 돌려주고, 없으면 baseLatency→0 순으로 폴백한다', () => {
