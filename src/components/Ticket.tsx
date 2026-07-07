@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { Ball } from './Ball'
 import type { GeneratedNumbers } from '../domain/types'
 
@@ -9,6 +9,8 @@ type TicketProps = {
   modeLabel: string
   // 전문가 훈수(패러디) 멘트 — 뽑기 시점에 확정된 값을 받는다(spec: expert-parody).
   quip: string
+  // 단골 빈도 설명 — frequent 모드에서만 게임별 한 줄(spec: frequent-stat-note). 없으면 null.
+  notes: string[] | null
 }
 
 function gameText(game: GeneratedNumbers): string {
@@ -42,7 +44,7 @@ async function writeClipboard(text: string): Promise<boolean> {
 }
 
 // 뽑은 A~E 게임을 로또 용지로 렌더하고 게임별/전체 복사를 제공한다. 보너스 없이 본번호 6개만.
-export function Ticket({ games, modeLabel, quip }: TicketProps) {
+export function Ticket({ games, modeLabel, quip, notes }: TicketProps) {
   // 복사 피드백: 성공한 키('all' | 'g0'…) 또는 실패한 키('all:fail' 등). 잠시 뒤 해제한다.
   const [copied, setCopied] = useState<string | null>(null)
 
@@ -71,23 +73,30 @@ export function Ticket({ games, modeLabel, quip }: TicketProps) {
           const state =
             copied === key ? 'done' : copied === `${key}:fail` ? 'fail' : ''
           return (
-            <div className="game" key={i}>
-              <span className="glabel">{LABELS[i]}</span>
-              {game.numbers.map((n) => (
-                <Ball key={n} number={n} size="tk" />
-              ))}
-              <button
-                type="button"
-                className="gcopy"
-                onClick={() => handleCopy(gameText(game), key)}
-              >
-                {state === 'done'
-                  ? '복사됨 ✓'
-                  : state === 'fail'
-                    ? '복사 실패'
-                    : '📋 복사'}
-              </button>
-            </div>
+            <Fragment key={i}>
+              <div className={`game${notes ? ' with-note' : ''}`}>
+                <span className="glabel">{LABELS[i]}</span>
+                {game.numbers.map((n) => (
+                  <Ball key={n} number={n} size="tk" />
+                ))}
+                <button
+                  type="button"
+                  className="gcopy"
+                  onClick={() => handleCopy(gameText(game), key)}
+                >
+                  {state === 'done'
+                    ? '복사됨 ✓'
+                    : state === 'fail'
+                      ? '복사 실패'
+                      : '📋 복사'}
+                </button>
+              </div>
+              {notes && (
+                <p className={`gnote${i === games.length - 1 ? ' nb' : ''}`}>
+                  {notes[i]}
+                </p>
+              )}
+            </Fragment>
           )
         })}
 

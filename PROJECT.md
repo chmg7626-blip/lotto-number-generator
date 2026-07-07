@@ -14,14 +14,16 @@
 
 ## 현재 상태
 
-- 제품 단계: **실데이터 교체·배포 파이프라인 구현 완료, Codex 검토 대기**(2026-07-06,
-  feature/real-data-deploy에 설계 커밋 a4996b5 + 구현 커밋 f133527). 전 회차(1~1231) 실데이터
-  JSON·주간 자동 갱신·Pages 배포 워크플로우까지 로컬 검증 완료. 이전: 전문가 훈수 PR #4,
+- 제품 단계: **실데이터·배포 PR #5 ready for review(사용자 병합 대기) + 단골 빈도 설명 구현
+  완료**(2026-07-07). 실데이터 건은 Codex 검토([치명] deploy 권한·[권장] 약식 표기 고지) 수정
+  b62a49f 반영·CI check 통과. 단골 빈도 설명은 feature/frequent-stat-note(#5 위에 스택,
+  커밋 8fa64b1)에 spec+구현+테스트 완료 — push·PR은 #5 병합 후. 이전: 전문가 훈수 PR #4,
   효과음 PR #3(2026-07-05), 추첨 애니메이션 PR #2, 1차 MVP PR #1.
 - 콘텐츠 단계: 해당 없음
-- 활성 spec: docs/specs/real-data-deploy.md (Approved 2026-07-06, Standard)
+- 활성 spec: docs/specs/frequent-stat-note.md (Approved 2026-07-07, Fast) /
+  docs/specs/real-data-deploy.md (Approved 2026-07-06, Standard — PR #5)
 - 활성 design: docs/design/real-data-deploy.md (절충안) / plan: docs/plans/real-data-deploy.md
-- 현재 브랜치: feature/real-data-deploy
+- 현재 브랜치: feature/frequent-stat-note (feature/real-data-deploy 기반)
 
 ## 진행 중인 챌린지/연재 (없으면 "없음")
 
@@ -38,6 +40,10 @@
 
 ## 최근 결정
 
+- (2026-07-07) 단골 빈도 설명: 목업 3안 비교 후 **B안(게임 아래 설명 한 줄)·frequent 모드
+  한정·Fast 사람 확정**(독립 설계·Codex 검토 생략). 게임당 상위 2개 언급, 동률은 공동 순위,
+  수치는 draws 집계(자동 갱신 추종), 은/는 조사는 끝자리 규칙. 당첨금 만원 미만 절사는
+  "약식 표기" 명시로 해소(Codex 권장)
 - (2026-07-06) 실데이터·배포: 출처는 동행복권 공식(조사: docs/research/lotto-draw-data.md).
   **전체 회차 JSON 공개 재배포는 약관 리스크를 사용자가 인지하고 감수** — 완화로 출처·비공식·
   삭제 수용 문구 상시 노출. 위험등급 Standard(배포 인프라지만 정적 호스팅 — 사람 확정).
@@ -73,9 +79,11 @@
 
 ## 다음 할 일
 
-- **codex-review 독립 검토**(Standard 필수 — 다음 세션 시작점) → 지적 수정 → push·draft PR(사용자 승인 게이트)
-- 사용자: GitHub Settings→Pages→Source를 "GitHub Actions"로 설정(배포 전 1회) → 병합 후 Pages URL 실확인
+- 사용자: GitHub Settings→Pages→Source를 "GitHub Actions"로 설정(배포 전 1회) → **PR #5 최종
+  검토·병합** → Pages URL 실확인
+- PR #5 병합 후: feature/frequent-stat-note push·PR 생성(승인 게이트) → CI → 병합
 - 병합 후 update-data.yml을 workflow_dispatch로 수동 실행해 "변경 없음" 경로·diff allowlist 실동작 확인
+- (선택) CI "Node.js 20 deprecated" 경고 해소 — 워크플로우 node-version 22+로 상향
 - 진짜 "보너스 공" 추첨 연출을 원하면 생성 로직·spec 변경이 필요한 별개 결정 — 별도 논의
 - (선택) 미추적 파일 정리: dgp4d.jpg(용도 미정 마스코트 이미지)·.agents/·.codex/, 폐기된 feature/lotto-mvp-ui-a/-b·병합 완료된 feature/draw-animation·draw-sound·expert-parody 로컬 브랜치 정리 — 사용자 확인 필요
 

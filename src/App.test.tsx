@@ -144,6 +144,43 @@ describe('용지 구매 링크', () => {
   })
 })
 
+describe('단골 빈도 설명', () => {
+  function clickChip(label: string) {
+    const chip = Array.from(container.querySelectorAll('.chip')).find(
+      (b) => b.textContent === label,
+    )
+    expect(chip).not.toBeUndefined()
+    act(() => {
+      chip!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+  }
+
+  it('frequent 모드로 뽑으면 게임마다 설명 한 줄이 보인다', () => {
+    stubReducedMotion(true) // 연출 없이 바로 용지 확인
+    renderApp()
+    clickChip('역대 단골 번호')
+    click('.drawbtn')
+
+    const notes = container.querySelectorAll('.gnote')
+    expect(notes).toHaveLength(
+      container.querySelectorAll('.ticket .game').length,
+    )
+    const text = notes[0].textContent ?? ''
+    expect(text).toContain('역대')
+    expect(text).toContain('나왔어요')
+    expect(text).not.toMatch(/당첨|보장|확률을 높/)
+  })
+
+  it('기본(random) 모드로 뽑으면 설명 줄이 없다', () => {
+    stubReducedMotion(true)
+    renderApp()
+    click('.drawbtn')
+
+    expect(container.querySelector('.ticket')).not.toBeNull()
+    expect(container.querySelector('.gnote')).toBeNull()
+  })
+})
+
 describe('전문가 훈수(패러디)', () => {
   it('용지에 멘트 풀의 문구 1개와 패러디 표시가 보인다', () => {
     renderApp()
