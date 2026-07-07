@@ -56,19 +56,22 @@
 - spec 요구사항 9(출처·라이선스 기록 후 도입)의 기록 위치는 이 문서다 — 실제 도입 파일이
   확정되면 이 문서에 최종 사용 파일 목록을 갱신한다.
 
-## 최종 사용 파일 (2026-07-05 확정, 같은 날 BGM 제거)
+## 최종 사용 파일 (2026-07-05 확정 → 2026-07-07 컷인 교체·BGM 재도입)
 
-| 배치 파일(public/sounds/) | 원본                                                                       | 출처                                                           | 라이선스 |
-| ------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------- | -------- |
-| shoot.mp3                 | 389590\_\_jofae\_\_swing-woosh.wav                                         | https://freesound.org/people/Jofae/sounds/389590/              | CC0      |
-| cutin.mp3                 | 465264\_\_rvgerxini\_\_quick-pop.mp3                                       | https://freesound.org/people/Rvgerxini/sounds/465264/          | CC0      |
-| suspense.mp3              | 19433\_\_heigh-hoo\_\_drumroll.aiff (mp3 변환, 1.1초 트림)                 | https://freesound.org/people/Heigh-hoo/sounds/19433/           | CC0      |
-| fanfare.mp3               | 607407\_\_colorscrimsontears\_\_fanfare-3-rpg.wav (mp3 변환, 앞 무음 제거) | https://freesound.org/people/colorsCrimsonTears/sounds/607407/ | CC0      |
+| 배치 파일(public/sounds/) | 원본                                                                              | 출처                                                                    | 라이선스                                        |
+| ------------------------- | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------- |
+| shoot.mp3                 | 389590\_\_jofae\_\_swing-woosh.wav                                                | https://freesound.org/people/Jofae/sounds/389590/                       | CC0                                             |
+| cutin.mp3                 | 810764\_\_mokasza\_\_single-bubble-pop-02.mp3 (0.40~0.70초 트림 — 선행 무음 제거) | https://freesound.org/people/mokasza/sounds/810764/                     | **CC BY 4.0** — SourceNotice에 크레딧 상시 노출 |
+| suspense.mp3              | 19433\_\_heigh-hoo\_\_drumroll.aiff (mp3 변환, 1.1초 트림)                        | https://freesound.org/people/Heigh-hoo/sounds/19433/                    | CC0                                             |
+| fanfare.mp3               | 607407\_\_colorscrimsontears\_\_fanfare-3-rpg.wav (mp3 변환, 앞 무음 제거)        | https://freesound.org/people/colorsCrimsonTears/sounds/607407/          | CC0                                             |
+| bgm.mp3                   | bgm.wav (사용자 제공, mp3 128k 변환 — 29.9초 루프)                                | 무료 사이트(사용자 확인 2026-07-07) — **출처 URL 미확보, 확보 시 갱신** | 무료 사용(사용자 확인) — 표기 의무 여부 미확인  |
 
 - 다운로드 시점 개별 페이지 라이선스 재확인은 사용자에게 요청했고 이상 보고는 없었다
-  (Freesound 4건 — 페이지 표시 변동 시 이 문서를 갱신).
-- **BGM(Pixabay 트랙)은 2026-07-05 사용자 결정으로 제거**됐다(연출에 산만). 이에 따라 아래
-  Pixabay 위험 기록은 해소됐고, 남은 음원은 전부 CC0다.
+  (Freesound — 페이지 표시 변동 시 이 문서를 갱신). cutin(CC BY 4.0)은 2026-07-07 페이지에서
+  라이선스를 직접 확인했다.
+- **BGM 이력**: Pixabay 트랙은 2026-07-05 제거(아래 위험 기록 해소). 2026-07-07 사용자 제공
+  음원으로 재도입 — 출처는 "무료 사이트"로 사용자가 확인했으나 URL·정확한 라이선스 조건이
+  기록되지 않았다. 공개 저장소 재배포 관점의 잔여 위험이며, URL 확보 시 이 표를 갱신한다.
 
 ## 위험 기록 — BGM (Pixabay Content License) — **해소됨(2026-07-05 BGM 제거)**
 
