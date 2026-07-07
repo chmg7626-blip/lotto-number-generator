@@ -19,7 +19,7 @@ import { DrawOverlay } from './components/DrawOverlay'
 import { revealSequence } from './components/drawReveal'
 import { pickQuip } from './components/expertQuips'
 import { buildFrequentNotes } from './components/frequentNote'
-import { createHtmlAudioPlayer } from './sound/soundPlayer'
+import { createWebAudioPlayer } from './sound/soundPlayer'
 import type { SoundPlayer } from './sound/soundPlayer'
 import { loadSoundOn, saveSoundOn } from './storage/soundPreference'
 
@@ -58,7 +58,7 @@ export default function App({ soundPlayer }: AppProps = {}) {
   const [result, setResult] = useState<DrawResult | null>(null)
   const [pendingDraw, setPendingDraw] = useState<PendingDraw | null>(null)
   const contentRef = useRef<HTMLDivElement>(null)
-  const [player] = useState(() => soundPlayer ?? createHtmlAudioPlayer())
+  const [player] = useState(() => soundPlayer ?? createWebAudioPlayer())
   const [soundOn, setSoundOn] = useState(loadSoundOn)
 
   // 초기 복원값과 토글 변경을 재생 계층에 반영한다(음소거는 정지가 아니라 muted — 확정 설계 결정 4).
