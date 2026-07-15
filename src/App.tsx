@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import drawsData from './data/draws.json'
 import latestPrizeData from './data/latestPrize.json'
 import type { Draw, DrawsFile, GenerateMode } from './domain/types'
@@ -66,11 +66,12 @@ export default function App({ soundPlayer }: AppProps = {}) {
     player.setMuted(!soundOn)
   }, [player, soundOn])
 
-  // BGM은 자동재생 정책 때문에 페이지 로드가 아니라 첫 상호작용에서 시작한다.
-  // click 기준(capture): pointerdown은 모바일에서 자동재생 허용 제스처로 인정되지 않을 수
-  // 있고, capture라야 첫 클릭이 곧 '번호 뽑기'여도 시작(여기)→정지(handleDraw) 순서가 보장돼
-  // 연출 중에 BGM이 새어 나오지 않는다(2026-07-07 "뽑기 후에야 나옴" 피드백).
+  // 진입 즉시 BGM을 시도한다. 브라우저가 무제스처 재생을 막으면 첫 click capture에서
+  // 같은 source의 AudioContext를 resume한다. 첫 클릭이 뽑기여도 resume → stop 순서를 보장한다.
   useEffect(() => {
+    player.load()
+    player.startBgm()
+
     function startAmbient() {
       player.load()
       player.startBgm()
@@ -109,10 +110,13 @@ export default function App({ soundPlayer }: AppProps = {}) {
   function confirmDraw() {
     if (!pendingDraw) return
     player.stopAll()
-    player.startBgm()
     setResult(pendingDraw.result)
     setPendingDraw(null)
   }
+
+  const completeDrawAnimation = useCallback(() => {
+    player.startBgm()
+  }, [player])
 
   function toggleSound() {
     const next = !soundOn
@@ -136,7 +140,7 @@ export default function App({ soundPlayer }: AppProps = {}) {
 
   return (
     <>
-      <div className="app-content app-content--desk" ref={contentRef}>
+      <div className="app-content app-content--studio" ref={contentRef}>
         <div className="pagebg">
           <div className="pstars"></div>
         </div>
@@ -150,54 +154,86 @@ export default function App({ soundPlayer }: AppProps = {}) {
               로또 6/45<small>LUCKY DRAW</small>
             </div>
           </div>
-          <button
-            type="button"
-            className="home-sound-toggle"
-            onClick={toggleSound}
-            aria-pressed={soundOn}
-          >
-            {soundOn ? '🔊 소리 켬' : '🔇 소리 꺼짐'}
-          </button>
+          <div className="header-actions">
+            <span className="data-status">
+              <span aria-hidden="true"></span>최신 회차 데이터 반영
+            </span>
+            <button
+              type="button"
+              className="home-sound-toggle"
+              onClick={toggleSound}
+              aria-pressed={soundOn}
+            >
+              {soundOn ? '🔊 소리 켬' : '🔇 소리 꺼짐'}
+            </button>
+          </div>
         </header>
 
         <main className="site-main">
-          <section className="intro" aria-labelledby="page-title">
-            <div className="kicker">매주 토요일 저녁 8시 45분 추첨</div>
-            <h1 className="htitle" id="page-title">
-              로또 <span className="n">6/45</span>
-            </h1>
-            <p className="hsub">
-              과거 빈도를 구경하고, 원하는 방식으로 번호를 뽑아보세요
-            </p>
+          <section className="studio-hero" aria-labelledby="page-title">
+            <div className="studio-story">
+              <p className="studio-index">
+                <span>01</span> SATURDAY PICK STUDIO
+              </p>
+              <div className="intro">
+                <div className="kicker">
+                  이번 주 번호를 고르는 가장 가벼운 방법
+                </div>
+                <h1 className="htitle" id="page-title">
+                  로또 <span className="n">6/45</span>
+                </h1>
+                <p className="hsub">
+                  취향대로 고르고, 결과는 한눈에. 세 가지 방식으로 나만의 6개를
+                  만들어보세요.
+                </p>
+              </div>
+
+              <div className="studio-latest">
+                <p className="studio-latest-label">LATEST DRAW</p>
+                <WinningBar draw={latestDraw(draws)} />
+              </div>
+
+              <p className="studio-trust-note">
+                과거 회차 데이터는 참고용이며 번호 생성은 당첨을 예측하거나
+                보장하지 않습니다.
+              </p>
+            </div>
+
+            <div className="studio-generator">
+              <p className="studio-index studio-index--dark">
+                <span>02</span> MAKE YOUR NUMBERS
+              </p>
+              <GeneratorPanel
+                onDraw={handleDraw}
+                result={result}
+                hasData={hasData}
+                notes={
+                  result
+                    ? buildFrequentNotes(
+                        result.mode,
+                        result.games,
+                        frequencies,
+                        draws.length,
+                      )
+                    : null
+                }
+              />
+            </div>
           </section>
 
-          <WinningBar draw={latestDraw(draws)} />
-
-          <GeneratorPanel
-            onDraw={handleDraw}
-            result={result}
-            hasData={hasData}
-            notes={
-              result
-                ? buildFrequentNotes(
-                    result.mode,
-                    result.games,
-                    frequencies,
-                    draws.length,
-                  )
-                : null
-            }
-          />
-
-          <section className="wrap">
+          <section className="wrap wrap--prize">
+            <p className="section-index">03 · PRIZE BRIEF</p>
             <h2 className="sec-title">당첨금액</h2>
             <p className="sec-sub">
               제{prizeRound}회 기준 · 금액은 만원 미만 절사한 약식 표기
             </p>
-            <PrizeTable />
+            <div className="prize-content">
+              <PrizeTable />
+            </div>
           </section>
 
-          <section className="wrap" style={{ paddingBottom: 80 }}>
+          <section className="wrap wrap--stats">
+            <p className="section-index">04 · NUMBER ARCHIVE</p>
             <h2 className="sec-title">1~45번 출현 통계</h2>
             <p className="sec-sub">
               {hasData
@@ -216,6 +252,7 @@ export default function App({ soundPlayer }: AppProps = {}) {
           revealOrder={pendingDraw.revealOrder}
           sortedNumbers={pendingDraw.result.games[0].numbers}
           onConfirm={confirmDraw}
+          onComplete={completeDrawAnimation}
           soundPlayer={player}
           soundOn={soundOn}
           onToggleSound={toggleSound}

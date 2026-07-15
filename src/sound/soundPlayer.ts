@@ -70,7 +70,7 @@ function soundUrl(name: SoundEvent | 'bgm'): string {
 }
 
 // 배경음악은 효과음보다 한참 낮게 깐다("소리 너무 크지 않게" — 2026-07-07 사용자 요구).
-const BGM_GAIN = 0.35
+const BGM_GAIN = 0.2
 
 // 소리 실패는 연출을 막지 않는다(spec 요구 6) — 로드·디코드·재생·정지 실패를 전부 삼킨다.
 function ignoreFailure(action: () => Promise<unknown> | unknown): void {
@@ -168,8 +168,9 @@ export function createWebAudioPlayer(
       return Number.isFinite(seconds) && seconds > 0 ? seconds * 1000 : 0
     },
     startBgm() {
-      if (!context || !bgmGain || !bgmBuffer || bgmSource) return
+      if (!context || !bgmGain || !bgmBuffer) return
       if (context.state === 'suspended') ignoreFailure(() => context!.resume())
+      if (bgmSource) return
       const epoch = bgmEpoch
       ignoreFailure(() =>
         bgmBuffer!.then((buffer) => {

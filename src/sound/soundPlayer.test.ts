@@ -192,7 +192,7 @@ describe('createWebAudioPlayer', () => {
     expect(sources[0].start).toHaveBeenCalledTimes(1)
     // 마스터(1) 외에 BGM 전용 게인이 낮은 값으로 하나 더 있다.
     expect(gains).toHaveLength(2)
-    expect(gains[1].gain.value).toBeLessThan(1)
+    expect(gains[1].gain.value).toBe(0.2)
 
     player.stopAll() // 효과음 정지가 BGM을 건드리지 않는다
     expect(sources[0].stop).not.toHaveBeenCalled()

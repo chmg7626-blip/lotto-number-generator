@@ -1,5 +1,9 @@
 # 추첨 연출 BGM·효과음 설계 (확정)
 
+## 2026-07-15 통합 변경
+
+`App` mount에서 `load()`와 `startBgm()`을 호출하고, document 첫 click capture는 자동재생 차단 fallback으로 유지한다. `SoundPlayer.startBgm()`은 기존 loop source가 있어도 먼저 suspended `AudioContext`를 resume하도록 순서를 바꾼다. `DrawOverlay`는 결과 phase 진입을 `onComplete`로 한 번 알리고, `App`이 그 시점에 BGM을 재개한다. gain은 0.20이다.
+
 - 작성일: 2026-07-05
 - 기준 spec: docs/specs/draw-sound.md
 - 출처: docs/design/draw-sound-proposals.md 의 사용자 결정 (절충안)

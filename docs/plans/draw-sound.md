@@ -1,5 +1,13 @@
 # Plan: 추첨 연출 BGM·효과음
 
+## WP-007 — 2026-07-15 BGM 생명주기 보정
+
+- 상태: 구현 완료, 최종 검증 대기
+- 목적: 진입 즉시 재생 시도, 낮은 음량, 추첨 중 정지, 결과 컷 재개를 보장한다.
+- 변경 파일: `src/App.tsx`, `src/components/DrawOverlay.tsx`, `src/sound/soundPlayer.ts`와 관련 테스트.
+- 검증: mount/click fallback/stop/result resume/gain 단위·통합 테스트, 실제 브라우저 확인.
+- rollback: 해당 생명주기 변경 commit을 revert한다.
+
 확정 spec/design 이후 구현 작업을 추적하는 계획 문서다.
 **진행 상태의 단일 기준은 이 파일의 체크박스다** — 채팅이 아니라 여기서 상태를 읽는다.
 각 작업은 독립적으로 완료·검증할 수 있는 Work Package(WP)로 쪼갠다.

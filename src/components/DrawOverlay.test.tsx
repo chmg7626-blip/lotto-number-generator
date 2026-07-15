@@ -63,6 +63,7 @@ function renderOverlay(
   onConfirm: () => void = () => {},
   soundPlayer = makeMockPlayer(),
   onToggleSound: () => void = () => {},
+  onComplete: () => void = () => {},
 ) {
   act(() => {
     root.render(
@@ -70,6 +71,7 @@ function renderOverlay(
         revealOrder={REVEAL_ORDER}
         sortedNumbers={SORTED}
         onConfirm={onConfirm}
+        onComplete={onComplete}
         soundPlayer={soundPlayer}
         soundOn={true}
         onToggleSound={onToggleSound}
@@ -191,6 +193,16 @@ describe('DrawOverlay', () => {
 
     expect(resultNumbers()).toEqual(SORTED)
     expect(container.querySelector('.draw-confirm')).not.toBeNull()
+  })
+
+  it('모든 번호가 공개된 결과 컷에서 완료를 한 번 알린다', () => {
+    const onComplete = vi.fn()
+    renderOverlay(() => {}, makeMockPlayer(), () => {}, onComplete)
+    click('.draw-skip')
+
+    expect(onComplete).toHaveBeenCalledTimes(1)
+    advance(SHOWCASE_FINAL_MS)
+    expect(onComplete).toHaveBeenCalledTimes(1)
   })
 
   it('dialog 안의 Tab과 Shift+Tab은 sound toggle과 현재 확인 제어 사이에서 순환한다', () => {

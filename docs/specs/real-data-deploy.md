@@ -1,5 +1,13 @@
 # 실데이터 교체와 GitHub Pages 배포 (real-data-deploy)
 
+## 2026-07-15 승인 델타
+
+- 최신 당첨번호와 등수별 당첨금은 기존 주간 workflow에서 함께 갱신한다.
+- `GITHUB_TOKEN`으로 만든 bot push는 새 workflow run과 Pages build를 만들지 않으므로, `Update lotto data` workflow가 성공적으로 끝나면 CI가 `workflow_run`으로 이어져 검사와 Pages 배포를 수행해야 한다.
+- 최신 회차 `date`는 C안의 `LATEST DRAW` 빈 공간에 `<time datetime="YYYY-MM-DD">`로 표시한다.
+
+완료 조건: 두 JSON allowlist, 주간 schedule, 성공한 data workflow → CI/Pages 연결, 최신 회차 날짜 표시를 자동 테스트로 검증한다.
+
 - 작성일: 2026-07-06
 - 상태: Approved
 - 승인일: 2026-07-06

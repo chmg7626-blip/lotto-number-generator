@@ -1,5 +1,9 @@
 # 실데이터 교체와 GitHub Pages 배포 설계 (확정)
 
+## 2026-07-15 배포 연결 보정
+
+`update-data.yml`은 번호와 당첨금을 갱신해 main에 commit한다. GitHub의 `GITHUB_TOKEN` 재귀 실행 제한 때문에 이 push에 의존하지 않고, `ci.yml`이 `workflow_run(workflows: [Update lotto data], types: [completed])`를 구독한다. 성공 결론일 때만 기존 check와 Pages deploy를 수행한다. checkout은 data workflow 시작 SHA가 아니라 완료 시점의 최신 default branch를 사용한다.
+
 - 작성일: 2026-07-06
 - 기준 spec: docs/specs/real-data-deploy.md
 - 출처: docs/design/real-data-deploy-proposals.md 의 사용자 결정 (절충안)

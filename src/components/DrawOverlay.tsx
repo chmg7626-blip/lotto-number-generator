@@ -26,7 +26,8 @@ type DrawOverlayProps = {
   revealOrder: number[]
   sortedNumbers: number[]
   onConfirm: () => void
-  // 소리는 요청만 보낸다 — BGM 시작·정지 소유자는 App(클릭 제스처·확인 시 정리).
+  onComplete: () => void
+  // 소리는 요청만 보낸다 — BGM 시작·정지 소유자는 App이다.
   soundPlayer: SoundPlayer
   soundOn: boolean
   onToggleSound: () => void
@@ -36,6 +37,7 @@ export function DrawOverlay({
   revealOrder,
   sortedNumbers,
   onConfirm,
+  onComplete,
   soundPlayer,
   soundOn,
   onToggleSound,
@@ -48,6 +50,7 @@ export function DrawOverlay({
   const overlayRef = useRef<HTMLDivElement>(null)
   const skipButtonRef = useRef<HTMLButtonElement>(null)
   const confirmButtonRef = useRef<HTMLButtonElement>(null)
+  const completedRef = useRef(false)
 
   // 열릴 때 focus를 오버레이 안으로 옮기고, 닫힐 때 원래 자리(뽑기 버튼)로 되돌린다 —
   // 키보드가 뒤 화면에 남지 않게 한다(확정 설계 "접근성·입력 차단").
@@ -61,8 +64,12 @@ export function DrawOverlay({
 
   // 결과 컷으로 넘어가면 건너뛰기 버튼이 사라지므로 focus를 확인 버튼으로 옮긴다.
   useEffect(() => {
-    if (phase === 'result') confirmButtonRef.current?.focus()
-  }, [phase])
+    if (phase !== 'result') return
+    confirmButtonRef.current?.focus()
+    if (completedRef.current) return
+    completedRef.current = true
+    onComplete()
+  }, [phase, onComplete])
 
   // 팡파르는 마지막 공 대형 컷인에서 번호 공개와 동기로 1회 — 결과 컷은 이어지기만 한다.
   // 건너뛰기로 컷인을 안 거치고 result에 오면 그때 1회 재생한다(spec 요구 2·5).

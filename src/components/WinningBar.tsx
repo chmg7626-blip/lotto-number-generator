@@ -7,13 +7,24 @@ type WinningBarProps = {
   draw: Draw | null
 }
 
+function formatDrawDate(date: string): string {
+  const [year, month, day] = date.split('-').map(Number)
+  return `${year}. ${month}. ${day}. 추첨`
+}
+
 export function WinningBar({ draw }: WinningBarProps) {
   if (draw === null) return null
 
   return (
     <div className="winbar">
       <span className="wlabel">
-        <b>제{draw.round}회</b> 당첨번호
+        <b>제{draw.round}회</b>
+        <span>당첨번호</span>
+        {draw.date && (
+          <time className="wdate" dateTime={draw.date}>
+            {formatDrawDate(draw.date)}
+          </time>
+        )}
       </span>
       <span className="wballs">
         {draw.numbers.map((n) => (

@@ -1,5 +1,13 @@
 # Plan: 실데이터 교체와 GitHub Pages 배포
 
+## WP-007 — 자동 갱신 후 Pages 연결 보정
+
+- 상태: 구현 완료, CI·배포 검증 대기
+- 목적: bot 데이터 갱신 뒤 최신 main을 검사하고 Pages에 반영한다.
+- 변경 파일: `.github/workflows/ci.yml`, `scripts/dataAutomationWorkflow.test.ts`.
+- 검증: workflow 정적 계약 테스트, 로컬 전체 검사, GitHub Actions 성공, 배포 URL 최신 회차 확인.
+- rollback: CI의 `workflow_run` trigger와 조건을 revert한다.
+
 확정 spec/design 이후 구현 작업을 추적하는 계획 문서다.
 **진행 상태의 단일 기준은 이 파일의 체크박스다** — 채팅이 아니라 여기서 상태를 읽는다.
 각 작업은 독립적으로 완료·검증할 수 있는 Work Package(WP)로 쪼갠다.

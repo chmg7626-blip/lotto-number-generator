@@ -95,6 +95,12 @@ describe('기본 웹 UI 구조와 생성 제어', () => {
     expect(container.querySelector('main.site-main')).not.toBeNull()
     expect(container.querySelector('.generator-card')).not.toBeNull()
     expect(container.querySelector('.lotto-machine')).toBeNull()
+    expect(container.querySelector('.wdate')?.textContent).toBe(
+      '2026. 7. 11. 추첨',
+    )
+    expect(container.querySelector('time.wdate')?.getAttribute('datetime')).toBe(
+      '2026-07-11',
+    )
     expect(
       container.querySelector('.home-sound-toggle')?.getAttribute('aria-pressed'),
     ).toBe('true')
@@ -272,25 +278,26 @@ describe('전문가 훈수(패러디)', () => {
 })
 
 describe('App 배경음악(BGM) 흐름', () => {
-  // 페이지 아무 곳이나 클릭(자동재생 허용 제스처) — BGM 시작 신호.
+  // 페이지 아무 곳이나 클릭(자동재생 허용 제스처) — 즉시 재생이 막힌 브라우저의 fallback 신호.
   function firstClick() {
     act(() => {
       container.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     })
   }
 
-  it('첫 클릭에서 로드와 BGM 루프를 시작한다 — 그 전에는 무음, 두 번째부터는 재시작 없음', () => {
+  it('mount에서 BGM을 즉시 시도하고 첫 클릭에서 한 번 더 깨운다', () => {
     const player = renderApp()
-    expect(player.startBgm).not.toHaveBeenCalled()
+    expect(player.load).toHaveBeenCalledTimes(1)
+    expect(player.startBgm).toHaveBeenCalledTimes(1)
     firstClick()
-    expect(player.load).toHaveBeenCalled()
-    expect(player.startBgm).toHaveBeenCalledTimes(1)
-    firstClick() // once — 두 번째 상호작용에서 다시 시작하지 않는다
-    expect(player.startBgm).toHaveBeenCalledTimes(1)
+    expect(player.startBgm).toHaveBeenCalledTimes(2)
+    firstClick() // fallback once — 두 번째 상호작용에서 다시 요청하지 않는다
+    expect(player.startBgm).toHaveBeenCalledTimes(2)
   })
 
   it('첫 클릭이 곧 뽑기여도 시작→정지 순서가 보장돼 연출 중 BGM이 없다', () => {
     const player = renderApp()
+    player.startBgm.mockClear() // mount의 즉시 시도는 제외하고 click fallback 순서만 본다.
     click('.drawbtn') // 페이지 첫 상호작용이 뽑기 버튼
     expect(player.startBgm).toHaveBeenCalledTimes(1)
     expect(player.stopBgm).toHaveBeenCalledTimes(1)
@@ -300,7 +307,7 @@ describe('App 배경음악(BGM) 흐름', () => {
     )
   })
 
-  it('뽑기(연출 시작)에서 BGM을 멈추고, 확인으로 닫으면 다시 시작한다', () => {
+  it('뽑기에서 BGM을 멈추고, 모든 공이 공개된 결과 컷에서 다시 시작한다', () => {
     const player = renderApp()
     firstClick()
     player.startBgm.mockClear()
@@ -310,6 +317,7 @@ describe('App 배경음악(BGM) 흐름', () => {
     expect(player.startBgm).not.toHaveBeenCalled() // 연출 중에는 음악 없음
 
     click('.draw-skip')
+    expect(player.startBgm).toHaveBeenCalledTimes(1)
     click('.draw-confirm')
     expect(player.startBgm).toHaveBeenCalledTimes(1)
   })
@@ -340,13 +348,13 @@ describe('App 배경음악(BGM) 흐름', () => {
 })
 
 describe('App 사운드 흐름', () => {
-  it('뽑기 클릭 전에는 어떤 소리 요청도 없고, 클릭하면 음원 로드가 시작된다', () => {
+  it('mount에서 음원을 비동기 준비하지만 뽑기 전 효과음은 요청하지 않는다', () => {
     const player = renderApp()
-    expect(player.load).not.toHaveBeenCalled()
+    expect(player.load).toHaveBeenCalledTimes(1)
     expect(player.play).not.toHaveBeenCalled()
 
     click('.drawbtn')
-    expect(player.load).toHaveBeenCalled() // 제스처(BGM 시작)와 뽑기 경로 양쪽에서 요청될 수 있다
+    expect(player.load).toHaveBeenCalled() // mount·fallback·뽑기에서 요청돼도 실구현은 멱등이다.
     expect(player.play).not.toHaveBeenCalledWith('fanfare') // 연출 소리는 오버레이 phase 몫
   })
 

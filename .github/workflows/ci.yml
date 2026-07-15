@@ -10,9 +10,13 @@ on:
   pull_request:
   push:
     branches: [main]
+  workflow_run:
+    workflows: [Update lotto data]
+    types: [completed]
 
 jobs:
   check:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,7 +31,9 @@ jobs:
       - run: npm run build
 
   deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: >-
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     needs: check
     runs-on: ubuntu-latest
     permissions:
