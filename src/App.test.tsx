@@ -127,6 +127,12 @@ describe('기본 웹 UI 구조와 생성 제어', () => {
     expect(container.querySelectorAll('.numcell.on')).toHaveLength(5)
     expect(numberButtons[0].getAttribute('aria-pressed')).toBe('true')
     expect(numberButtons[5].disabled).toBe(true)
+    expect(container.querySelector('.numpad')?.getAttribute('role')).toBe(
+      'group',
+    )
+    expect(container.querySelector('.numpad')?.getAttribute('aria-label')).toBe(
+      '행운수 고정 번호 선택',
+    )
 
     clickElement(numberButtons[0])
     expect(numberButtons[5].disabled).toBe(false)

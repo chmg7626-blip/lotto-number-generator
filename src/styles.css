@@ -598,7 +598,11 @@ a:focus-visible {
 .generator-card {
   padding: 28px;
   text-align: left;
-  background: linear-gradient(160deg, rgba(52, 72, 138, 0.78), rgba(28, 39, 72, 0.9));
+  background: linear-gradient(
+    160deg,
+    rgba(52, 72, 138, 0.78),
+    rgba(28, 39, 72, 0.9)
+  );
   border: 1px solid var(--line);
   border-radius: 20px;
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.24);
@@ -1484,4 +1488,328 @@ a:focus-visible {
 .source-note a {
   color: var(--dim);
   text-decoration: underline;
+}
+
+/* ===== B안: 밝은 생성 데스크 =====
+   A안과 비교할 수 있도록 root modifier 아래에만 덮어쓴다. 공·추첨 오버레이의
+   기존 정체성은 남기고, 일반 화면은 번호 선택과 결과를 정리하는 도구로 읽히게 한다. */
+.app-content--desk {
+  --bg0: #eef1f6;
+  --bg1: #e2e8f2;
+  --bg2: #d9e2ef;
+  --card: #ffffff;
+  --card2: #f6f8fb;
+  --line: #d1d9e6;
+  --txt: #172744;
+  --dim: #5c6b83;
+  --gold: #d69b18;
+  --gold2: #efbd45;
+  min-height: 100vh;
+  color: var(--txt);
+  background: linear-gradient(180deg, #e7edf7 0, #f7f5ef 430px, #f7f5ef 100%);
+}
+.app-content--desk .pagebg {
+  background: none;
+}
+.app-content--desk .pagebg .pstars {
+  display: none;
+}
+.app-content--desk button:focus-visible,
+.app-content--desk a:focus-visible {
+  outline-color: #132b54;
+  outline-offset: 3px;
+}
+.app-content--desk .disc {
+  min-height: 38px;
+  padding: 8px 18px;
+  background: #132b54;
+  border-bottom: 0;
+  color: #dce5f3;
+  font-size: 13px;
+}
+.app-content--desk .disc b {
+  color: #ffd45e;
+}
+.app-content--desk .site-header {
+  max-width: 1024px;
+  padding: 18px 24px 16px;
+  border-bottom: 1px solid rgba(18, 43, 84, 0.12);
+}
+.app-content--desk .logo-img {
+  width: 44px;
+  height: 44px;
+  border-color: rgba(19, 43, 84, 0.32);
+  box-shadow: none;
+}
+.app-content--desk .logo-name {
+  color: #132b54;
+  font-size: 19px;
+}
+.app-content--desk .logo-name small {
+  color: #5c6b83;
+}
+.app-content--desk .home-sound-toggle {
+  min-height: 44px;
+  padding: 8px 14px;
+  color: #243856;
+  border-color: #c9d3e1;
+  background: rgba(255, 255, 255, 0.76);
+  box-shadow: none;
+}
+.app-content--desk .site-main {
+  max-width: 1024px;
+  margin: 0 auto;
+}
+.app-content--desk .intro {
+  max-width: none;
+  padding: 30px 24px 16px;
+  text-align: left;
+}
+.app-content--desk .kicker {
+  color: #9a6a06;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+}
+.app-content--desk .htitle {
+  color: #132b54;
+  font-size: clamp(38px, 6vw, 56px);
+  letter-spacing: 0;
+}
+.app-content--desk .htitle .n {
+  color: #b67c08;
+}
+.app-content--desk .hsub {
+  max-width: 580px;
+  margin-top: 6px;
+  color: #5c6b83;
+  font-size: 16px;
+}
+.app-content--desk .winbar {
+  --dim: #dce5f3;
+  max-width: none;
+  min-height: 68px;
+  margin: 0 24px;
+  padding: 11px 16px;
+  border: 0;
+  border-radius: 12px;
+  background: #17315d;
+  box-shadow: 0 10px 22px rgba(19, 43, 84, 0.14);
+}
+.app-content--desk .winbar .wlabel {
+  color: var(--dim);
+}
+.app-content--desk .winbar .wlabel b {
+  color: #ffd45e;
+}
+.app-content--desk .generator-section {
+  max-width: 760px;
+  padding: 22px 24px 48px;
+}
+.app-content--desk .generator-card {
+  padding: 28px;
+  color: #172744;
+  border: 1px solid #e0d29a;
+  border-top: 6px solid #e2ae30;
+  border-radius: 14px;
+  background: #fffdf7;
+  box-shadow: 0 16px 32px rgba(19, 43, 84, 0.14);
+}
+.app-content--desk .generator-card-head h2,
+.app-content--desk .result-section-head h2 {
+  color: #132b54;
+}
+.app-content--desk .eyebrow {
+  color: #9a6a06;
+}
+.app-content--desk .modechips {
+  padding: 4px;
+  border-color: #d4dce8;
+  border-radius: 10px;
+  background: #f0f3f8;
+}
+.app-content--desk .chip {
+  color: #4e5f78;
+  border-radius: 7px;
+  font-weight: 600;
+}
+.app-content--desk .chip.on {
+  color: #ffffff;
+  background: #17315d;
+  box-shadow: inset 0 0 0 1px #17315d;
+}
+.app-content--desk .modenote {
+  color: #5c6b83;
+}
+.app-content--desk .datanote {
+  color: #a64d28;
+}
+.app-content--desk .numpad {
+  border-color: #d4dce8;
+  border-radius: 12px;
+  background: #f3f6fa;
+}
+.app-content--desk .numpad-note,
+.app-content--desk .control-label {
+  color: #4e5f78;
+}
+.app-content--desk .numpad-note b {
+  color: #9a6a06;
+}
+.app-content--desk .numpad-clear {
+  color: #334a6b;
+  border-color: #c5d1e1;
+  background: #ffffff;
+}
+.app-content--desk .numcell.on {
+  box-shadow: 0 0 0 3px #d69b18;
+}
+.app-content--desk .drawrow {
+  padding-top: 20px;
+  border-top: 1px solid #e0e6ef;
+}
+.app-content--desk .countsel {
+  border-color: #d4dce8;
+  background: #f0f3f8;
+}
+.app-content--desk .cnt {
+  color: #4e5f78;
+  font-weight: 600;
+}
+.app-content--desk .cnt.on {
+  color: #ffffff;
+  background: #17315d;
+}
+.app-content--desk .drawbtn {
+  border: 1px solid #c28b16;
+  color: #1d2d47;
+  background: linear-gradient(180deg, #ffd45e, #efbc43);
+  box-shadow: 0 8px 18px rgba(194, 139, 22, 0.2);
+}
+.app-content--desk .result-section {
+  margin-top: 34px;
+}
+.app-content--desk .ticket {
+  margin-top: 14px;
+  border: 1px solid #e3d6ad;
+  box-shadow: 0 12px 24px rgba(19, 43, 84, 0.12);
+}
+.app-content--desk .copyall {
+  color: #243856;
+  border-color: #c5d1e1;
+  background: #ffffff;
+}
+.app-content--desk .buylink {
+  border-color: #c28b16;
+}
+.app-content--desk .wrap {
+  max-width: 1024px;
+  padding: 44px 24px;
+}
+.app-content--desk .sec-title {
+  color: #132b54;
+}
+.app-content--desk .sec-sub {
+  color: #5c6b83;
+}
+.app-content--desk .prize-top,
+.app-content--desk .prize-row,
+.app-content--desk .statpanel {
+  box-shadow: none;
+}
+.app-content--desk .prize-top {
+  background: #fffdf7;
+  border-color: #e0d29a;
+}
+.app-content--desk .prize-rank,
+.app-content--desk .prize-row .pr,
+.app-content--desk .statcnt {
+  color: #9a6a06;
+}
+.app-content--desk .prize-amt,
+.app-content--desk .prize-row .pa {
+  color: #132b54;
+}
+.app-content--desk .source-note {
+  color: #5c6b83;
+}
+.app-content--desk .source-note a {
+  color: #354c70;
+}
+
+@media (max-width: 640px) {
+  .app-content--desk .disc {
+    min-height: 0;
+    font-size: 12px;
+  }
+  .app-content--desk .site-header {
+    padding: 14px 16px 12px;
+  }
+  .app-content--desk .logo-img {
+    width: 40px;
+    height: 40px;
+  }
+  .app-content--desk .home-sound-toggle {
+    min-height: 44px;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  .app-content--desk .intro {
+    padding: 22px 16px 14px;
+  }
+  .app-content--desk .kicker {
+    margin-bottom: 3px;
+    font-size: 12px;
+  }
+  .app-content--desk .htitle {
+    font-size: clamp(34px, 11vw, 44px);
+  }
+  .app-content--desk .hsub {
+    margin-top: 3px;
+    font-size: 14px;
+  }
+  .app-content--desk .winbar {
+    min-height: 0;
+    margin: 0 16px;
+    padding: 10px;
+    border-radius: 10px;
+  }
+  .app-content--desk .generator-section {
+    padding-top: 18px;
+  }
+  .app-content--desk .generator-card {
+    padding: 18px 16px;
+    border-radius: 12px;
+  }
+  .app-content--desk .numpad {
+    width: calc(100% + 20px);
+    margin-right: -10px;
+    margin-left: -10px;
+    padding: 14px 0;
+    border-right: 0;
+    border-left: 0;
+    border-radius: 0;
+  }
+  .app-content--desk .numpad-head {
+    padding: 0 12px;
+  }
+  .app-content--desk .numpad-grid {
+    grid-template-columns: repeat(5, 44px);
+    width: 240px;
+    gap: 8px 5px;
+  }
+  .app-content--desk .numcell {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+  }
+  .app-content--desk .drawrow {
+    padding-top: 16px;
+  }
+  .app-content--desk .drawbtn {
+    min-height: 52px;
+  }
+  .app-content--desk .wrap {
+    padding: 38px 16px;
+  }
 }

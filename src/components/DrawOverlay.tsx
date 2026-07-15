@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import {
+  type KeyboardEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { Ball } from './Ball'
 import { DrawMachineCanvas } from './DrawMachineCanvas'
 import type { SoundPlayer } from '../sound/soundPlayer'
@@ -39,6 +45,7 @@ export function DrawOverlay({
   // settledCount: 컷인을 마치고 트레이에 안착한 공 수 — 트레이 표시 기준.
   const [shotCount, setShotCount] = useState(0)
   const [settledCount, setSettledCount] = useState(0)
+  const overlayRef = useRef<HTMLDivElement>(null)
   const skipButtonRef = useRef<HTMLButtonElement>(null)
   const confirmButtonRef = useRef<HTMLButtonElement>(null)
 
@@ -144,12 +151,43 @@ export function DrawOverlay({
     setPhase('result')
   }
 
+  // 배경은 inert지만, 브라우저가 dialog 밖으로 Tab을 보내지 않도록 마지막/첫 제어에서
+  // 순환시킨다. 현재 화면에는 sound toggle과 skip 또는 confirm만 있어 선택자를 좁힌다.
+  function trapTabFocus(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key !== 'Tab') return
+    const controls = Array.from(
+      overlayRef.current?.querySelectorAll<HTMLButtonElement>(
+        'button:not(:disabled)',
+      ) ?? [],
+    )
+    const first = controls[0]
+    const last = controls[controls.length - 1]
+    if (!first || !last) return
+
+    const active = document.activeElement
+    if (!overlayRef.current?.contains(active)) {
+      event.preventDefault()
+      const target = event.shiftKey ? last : first
+      target.focus()
+      return
+    }
+    if (event.shiftKey && active === first) {
+      event.preventDefault()
+      last.focus()
+    } else if (!event.shiftKey && active === last) {
+      event.preventDefault()
+      first.focus()
+    }
+  }
+
   return (
     <div
       className="draw-overlay"
       role="dialog"
       aria-modal="true"
       aria-label="추첨 연출"
+      ref={overlayRef}
+      onKeyDown={trapTabFocus}
     >
       <button
         type="button"

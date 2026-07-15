@@ -101,6 +101,19 @@ function click(selector: string) {
   })
 }
 
+function pressTab(shiftKey = false) {
+  act(() => {
+    document.activeElement?.dispatchEvent(
+      new KeyboardEvent('keydown', {
+        key: 'Tab',
+        shiftKey,
+        bubbles: true,
+        cancelable: true,
+      }),
+    )
+  })
+}
+
 function trayNumbers(): number[] {
   return Array.from(container.querySelectorAll('.draw-tray .ball')).map((el) =>
     Number(el.textContent),
@@ -178,6 +191,31 @@ describe('DrawOverlay', () => {
 
     expect(resultNumbers()).toEqual(SORTED)
     expect(container.querySelector('.draw-confirm')).not.toBeNull()
+  })
+
+  it('dialog 안의 Tab과 Shift+Tab은 sound toggle과 현재 확인 제어 사이에서 순환한다', () => {
+    renderOverlay()
+    const soundToggle =
+      container.querySelector<HTMLButtonElement>('.draw-sound-toggle')
+    const skipButton = container.querySelector<HTMLButtonElement>('.draw-skip')
+    expect(soundToggle).not.toBeNull()
+    expect(skipButton).not.toBeNull()
+    expect(document.activeElement).toBe(skipButton)
+
+    pressTab()
+    expect(document.activeElement).toBe(soundToggle)
+    pressTab(true)
+    expect(document.activeElement).toBe(skipButton)
+
+    click('.draw-skip')
+    const confirmButton =
+      container.querySelector<HTMLButtonElement>('.draw-confirm')
+    expect(confirmButton).not.toBeNull()
+    expect(document.activeElement).toBe(confirmButton)
+    pressTab()
+    expect(document.activeElement).toBe(soundToggle)
+    pressTab(true)
+    expect(document.activeElement).toBe(confirmButton)
   })
 
   it('언마운트하면 예약된 타이머가 정리된다 (유령 전이 없음)', () => {

@@ -136,7 +136,7 @@ export default function App({ soundPlayer }: AppProps = {}) {
 
   return (
     <>
-      <div className="app-content" ref={contentRef}>
+      <div className="app-content app-content--desk" ref={contentRef}>
         <div className="pagebg">
           <div className="pstars"></div>
         </div>

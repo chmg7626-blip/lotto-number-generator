@@ -18,7 +18,7 @@ export function NumberPad({ fixed, onToggle, onClear }: NumberPadProps) {
   for (let n = MIN_NUMBER; n <= MAX_NUMBER; n++) numbers.push(n)
 
   return (
-    <div className="numpad">
+    <div className="numpad" role="group" aria-label="행운수 고정 번호 선택">
       <div className="numpad-head">
         <span className="numpad-note">
           내가 고른 <b>{fixed.length}</b>개 + 랜덤 {MAIN_COUNT - fixed.length}개
