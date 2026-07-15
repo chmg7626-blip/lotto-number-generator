@@ -1,7 +1,8 @@
 # C안: Weekend Pick Studio
 
 - 작성일: 2026-07-15
-- 상태: Final — 사용자 확정 (2026-07-15)
+- 상태: Confirmed
+- 선택 상태: Final — 사용자 확정 (2026-07-15)
 - 기준 spec: `docs/specs/mobile-draw-stage-ui.md` (Approved, Standard)
 - 선택 기록: A안 `951d629`, B안 `a793c2f`와 비교 후 C안 확정
 

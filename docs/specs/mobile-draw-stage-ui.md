@@ -4,6 +4,7 @@
 - 상태: Approved
 - 승인일: 2026-07-15
 - 승인자: 사용자
+- 위험등급: Standard
 - 최종 위험등급: Standard — 화면 구조와 상호작용 표현을 바꾸지만, 번호 생성 규칙·저장 데이터·외부 API·배포 설정은 변경하지 않는다. 사용자가 이 등급과 범위를 확인했다.
 - 확정 설계: `docs/design/lotto-ui-c-weekend-studio.md`
 
