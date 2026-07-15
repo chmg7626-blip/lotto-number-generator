@@ -15,13 +15,46 @@ on:
     types: [completed]
 
 jobs:
-  check:
+  resolve:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+    outputs:
+      commit_sha: ${{ steps.target.outputs.commit_sha }}
+    steps:
+      - name: updater 결과 SHA 받기
+        if: github.event_name == 'workflow_run'
+        uses: actions/download-artifact@v4
+        with:
+          name: updated-head-sha
+          path: .workflow-data
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+      - name: checkout 대상 확정
+        id: target
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_SHA: ${{ github.sha }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_run" ]; then
+            SHA=$(tr -d '\r\n' < .workflow-data/head-sha.txt)
+          else
+            SHA="$EVENT_SHA"
+          fi
+          if [[ ! "$SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "invalid commit SHA: $SHA"
+            exit 1
+          fi
+          echo "commit_sha=$SHA" >> "$GITHUB_OUTPUT"
+
+  check:
+    needs: resolve
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ needs.resolve.outputs.commit_sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -36,7 +69,7 @@ jobs:
     if: >-
       (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
       (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
-    needs: check
+    needs: [resolve, check]
     runs-on: ubuntu-latest
     permissions:
       # job 단위 permissions는 명시하지 않은 권한을 전부 끄므로 checkout용 읽기를 함께 준다.
@@ -49,7 +82,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ needs.resolve.outputs.commit_sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: 20

@@ -17,11 +17,18 @@ describe('주간 데이터 자동화 workflow', () => {
     expect(ciWorkflow).toMatch(/workflow_run\.conclusion\s*==\s*'success'/)
   })
 
-  it('workflow_run 검사와 배포가 triggering run의 동일한 commit을 checkout한다', () => {
-    const pinnedRef =
-      "ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}"
+  it('updater가 실제 push 결과 SHA를 artifact로 전달한다', () => {
+    expect(updateWorkflow).toContain('head-sha.txt')
+    expect(updateWorkflow).toContain('actions/upload-artifact@v4')
+    expect(updateWorkflow).toContain('updated-head-sha')
+  })
 
-    expect(ciWorkflow.match(new RegExp(pinnedRef.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')))
-      .toHaveLength(2)
+  it('workflow_run 검사와 배포가 updater의 실제 결과 commit을 checkout한다', () => {
+    const pinnedRef = 'ref: ${{ needs.resolve.outputs.commit_sha }}'
+
+    expect(ciWorkflow).toContain('actions/download-artifact@v4')
+    expect(ciWorkflow).toContain('github.event.workflow_run.id')
+    expect(ciWorkflow).not.toContain('workflow_run.head_sha')
+    expect(ciWorkflow.split(pinnedRef)).toHaveLength(3)
   })
 })

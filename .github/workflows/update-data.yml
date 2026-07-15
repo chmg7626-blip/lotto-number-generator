@@ -25,19 +25,26 @@ jobs:
       - name: 변경 검사(diff allowlist) 후 커밋
         run: |
           CHANGED=$(git status --porcelain)
-          if [ -z "$CHANGED" ]; then
+          if [ -n "$CHANGED" ]; then
+            DISALLOWED=$(echo "$CHANGED" | awk '{print $NF}' \
+              | grep -vx -e 'src/data/draws.json' -e 'src/data/latestPrize.json' || true)
+            if [ -n "$DISALLOWED" ]; then
+              echo "허용 목록 밖 변경 — 커밋하지 않고 실패한다:"
+              echo "$DISALLOWED"
+              exit 1
+            fi
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add src/data/draws.json src/data/latestPrize.json
+            git commit -m "데이터 갱신: 로또 6/45 최신 회차 반영 (자동)"
+            git push
+          else
             echo "변경 없음 — 커밋하지 않는다"
-            exit 0
           fi
-          DISALLOWED=$(echo "$CHANGED" | awk '{print $NF}' \
-            | grep -vx -e 'src/data/draws.json' -e 'src/data/latestPrize.json' || true)
-          if [ -n "$DISALLOWED" ]; then
-            echo "허용 목록 밖 변경 — 커밋하지 않고 실패한다:"
-            echo "$DISALLOWED"
-            exit 1
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/data/draws.json src/data/latestPrize.json
-          git commit -m "데이터 갱신: 로또 6/45 최신 회차 반영 (자동)"
-          git push
+          git rev-parse HEAD > head-sha.txt
+      - name: 검사·배포 대상 SHA 전달
+        uses: actions/upload-artifact@v4
+        with:
+          name: updated-head-sha
+          path: head-sha.txt
+          retention-days: 1
