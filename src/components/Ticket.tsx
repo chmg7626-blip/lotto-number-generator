@@ -76,9 +76,11 @@ export function Ticket({ games, modeLabel, quip, notes }: TicketProps) {
             <Fragment key={i}>
               <div className={`game${notes ? ' with-note' : ''}`}>
                 <span className="glabel">{LABELS[i]}</span>
-                {game.numbers.map((n) => (
-                  <Ball key={n} number={n} size="tk" />
-                ))}
+                <div className="game-balls">
+                  {game.numbers.map((n) => (
+                    <Ball key={n} number={n} size="tk" />
+                  ))}
+                </div>
                 <button
                   type="button"
                   className="gcopy"

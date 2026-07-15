@@ -73,6 +73,72 @@ function ticketGameNumbers(gameIndex: number): number[] {
   )
 }
 
+function clickElement(element: Element) {
+  act(() => {
+    element.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+  })
+}
+
+function buttonWithText(selector: string, text: string): HTMLButtonElement {
+  const button = Array.from(container.querySelectorAll<HTMLButtonElement>(selector)).find(
+    (element) => element.textContent === text,
+  )
+  expect(button).not.toBeUndefined()
+  return button!
+}
+
+describe('기본 웹 UI 구조와 생성 제어', () => {
+  it('일반 웹 header/main 구조에서 생성 제어를 제공하고 정적 추첨기는 렌더하지 않는다', () => {
+    renderApp()
+
+    expect(container.querySelector('header.site-header')).not.toBeNull()
+    expect(container.querySelector('main.site-main')).not.toBeNull()
+    expect(container.querySelector('.generator-card')).not.toBeNull()
+    expect(container.querySelector('.lotto-machine')).toBeNull()
+    expect(
+      container.querySelector('.home-sound-toggle')?.getAttribute('aria-pressed'),
+    ).toBe('true')
+  })
+
+  it('행운수 고정은 5개까지만 선택되고 선택 해제와 전체 해제가 가능하다', () => {
+    renderApp()
+    expect(buttonWithText('.chip', '순수 랜덤').getAttribute('aria-pressed')).toBe(
+      'true',
+    )
+    clickElement(buttonWithText('.chip', '행운수 고정'))
+    expect(buttonWithText('.chip', '행운수 고정').getAttribute('aria-pressed')).toBe(
+      'true',
+    )
+    expect(buttonWithText('.chip', '순수 랜덤').getAttribute('aria-pressed')).toBe(
+      'false',
+    )
+
+    expect(container.querySelector('.countsel')?.getAttribute('role')).toBe('group')
+    expect(buttonWithText('.cnt', '×1').getAttribute('aria-pressed')).toBe('true')
+    clickElement(buttonWithText('.cnt', '×5'))
+    expect(buttonWithText('.cnt', '×5').getAttribute('aria-pressed')).toBe('true')
+
+    const numberButtons = Array.from(
+      container.querySelectorAll<HTMLButtonElement>('.numcell'),
+    )
+    expect(numberButtons).toHaveLength(45)
+    for (const button of numberButtons.slice(0, 5)) clickElement(button)
+
+    expect(container.querySelectorAll('.numcell.on')).toHaveLength(5)
+    expect(numberButtons[0].getAttribute('aria-pressed')).toBe('true')
+    expect(numberButtons[5].disabled).toBe(true)
+
+    clickElement(numberButtons[0])
+    expect(numberButtons[5].disabled).toBe(false)
+
+    clickElement(container.querySelector('.numpad-clear')!)
+    expect(container.querySelectorAll('.numcell.on')).toHaveLength(0)
+    expect(
+      (container.querySelector('.numpad-clear') as HTMLButtonElement).disabled,
+    ).toBe(true)
+  })
+})
+
 describe('App 추첨 연출 흐름', () => {
   it('뽑기 → 오버레이(용지 미반영·배경 차단) → 건너뛰기 → 확인 → 용지에 같은 번호', () => {
     renderApp()

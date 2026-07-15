@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import type { GenerateMode, GeneratedNumbers } from '../domain/types'
 import { NumberPad, MAX_FIXED } from './NumberPad'
-import { LottoMachine } from './LottoMachine'
 import { Ticket } from './Ticket'
 
 // 모드칩 라벨. 내부 GenerateMode 'frequent'="역대 단골 번호", 'fixed'="행운수 고정".
@@ -33,9 +32,6 @@ type GeneratorPanelProps = {
   hasData: boolean
   // 단골 빈도 설명(spec: frequent-stat-note) — App이 result·빈도에서 계산해 내려준다.
   notes: string[] | null
-  // 홈 상시 음소거 토글(BGM 재도입으로 홈에서도 소리가 남 — spec draw-sound 요구 3).
-  soundOn: boolean
-  onToggleSound: () => void
 }
 
 export function GeneratorPanel({
@@ -43,8 +39,6 @@ export function GeneratorPanel({
   result,
   hasData,
   notes,
-  soundOn,
-  onToggleSound,
 }: GeneratorPanelProps) {
   const [mode, setMode] = useState<GenerateMode>('random')
   const [count, setCount] = useState(1)
@@ -59,91 +53,90 @@ export function GeneratorPanel({
   }
 
   return (
-    <section className="hero">
-      <div className="logo">
-        <div className="logo-img"></div>
-        <div className="logo-name">
-          로또 6/45<small>LUCKY DRAW</small>
+    <section className="generator-section" aria-labelledby="generator-heading">
+      <div className="generator-card">
+        <div className="generator-card-head">
+          <p className="eyebrow">번호 생성</p>
+          <h2 id="generator-heading">어떤 방식으로 뽑을까요?</h2>
         </div>
-      </div>
 
-      <button
-        type="button"
-        className="home-sound-toggle"
-        onClick={onToggleSound}
-        aria-pressed={soundOn}
-      >
-        {soundOn ? '🔊 소리 켬' : '🔇 소리 꺼짐'}
-      </button>
-
-      <div className="kicker">매주 토요일 저녁 8시 45분 추첨</div>
-      <h1 className="htitle">
-        로또 <span className="n">6/45</span>
-      </h1>
-      <p className="hsub">
-        과거 빈도를 구경하고, 추첨기로 5게임을 한 번에 뽑아보세요
-      </p>
-
-      <div className="modechips">
-        {MODES.map((m) => (
-          <button
-            key={m.value}
-            type="button"
-            className={`chip${mode === m.value ? ' on' : ''}`}
-            onClick={() => setMode(m.value)}
-          >
-            {m.label}
-          </button>
-        ))}
-      </div>
-      <p className="modenote">
-        ‘역대 단골 번호 · 행운수 고정’은 확률에 영향 없는 재미 요소예요 (예측
-        아님).
-      </p>
-
-      {mode === 'fixed' && (
-        <NumberPad
-          fixed={fixed}
-          onToggle={toggleFixed}
-          onClear={() => setFixed([])}
-        />
-      )}
-
-      {mode === 'frequent' && !hasData && (
-        <p className="datanote">데이터 없음 — 순수 랜덤으로 동작합니다.</p>
-      )}
-
-      <div className="drawrow">
-        <button
-          type="button"
-          className="drawbtn"
-          onClick={() => onDraw(mode, count, fixed)}
-        >
-          번호 뽑기
-        </button>
-        <div className="countsel" title="연속 뽑기 횟수 (기본 ×1, 최대 ×5)">
-          {COUNTS.map((c) => (
+        <div className="modechips" role="group" aria-label="번호 생성 방식">
+          {MODES.map((m) => (
             <button
-              key={c}
+              key={m.value}
               type="button"
-              className={`cnt${count === c ? ' on' : ''}`}
-              onClick={() => setCount(c)}
+              className={`chip${mode === m.value ? ' on' : ''}`}
+              onClick={() => setMode(m.value)}
+              aria-pressed={mode === m.value}
             >
-              ×{c}
+              {m.label}
             </button>
           ))}
         </div>
+        <p className="modenote">
+          ‘역대 단골 번호 · 행운수 고정’은 확률에 영향 없는 재미 요소예요 (예측
+          아님).
+        </p>
+
+        {mode === 'fixed' && (
+          <NumberPad
+            fixed={fixed}
+            onToggle={toggleFixed}
+            onClear={() => setFixed([])}
+          />
+        )}
+
+        {mode === 'frequent' && !hasData && (
+          <p className="datanote">데이터 없음 — 순수 랜덤으로 동작합니다.</p>
+        )}
+
+        <div className="drawrow">
+          <div className="draw-count">
+            <span className="control-label" id="game-count-label">
+              게임 수
+            </span>
+            <div
+              className="countsel"
+              title="연속 뽑기 횟수 (기본 ×1, 최대 ×5)"
+              role="group"
+              aria-labelledby="game-count-label"
+            >
+              {COUNTS.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  className={`cnt${count === c ? ' on' : ''}`}
+                  onClick={() => setCount(c)}
+                  aria-pressed={count === c}
+                >
+                  ×{c}
+                </button>
+              ))}
+            </div>
+          </div>
+          <button
+            type="button"
+            className="drawbtn"
+            onClick={() => onDraw(mode, count, fixed)}
+          >
+            번호 뽑기
+          </button>
+        </div>
       </div>
 
-      <LottoMachine />
-
       {result && (
-        <Ticket
-          games={result.games}
-          modeLabel={modeLabel(result.mode)}
-          quip={result.quip}
-          notes={notes}
-        />
+        <section className="result-section" aria-labelledby="result-heading">
+          <div className="result-section-head">
+            <p className="eyebrow">내 결과</p>
+            <h2 id="result-heading">이번에 뽑은 번호</h2>
+          </div>
+          <Ticket
+            games={result.games}
+            modeLabel={modeLabel(result.mode)}
+            quip={result.quip}
+            notes={notes}
+          />
+        </section>
       )}
     </section>
   )

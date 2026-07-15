@@ -33,6 +33,12 @@ body {
   line-height: 1.55;
 }
 
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
 /* 페이지 전체 무대 분위기 (고정 배경): 컬러 글로우 + 빛 입자 */
 .pagebg {
   position: fixed;
@@ -65,7 +71,7 @@ body {
 .pagebg .pstars {
   position: absolute;
   inset: 0;
-  opacity: 0.55;
+  opacity: 0.2;
   background-image:
     radial-gradient(
       1.5px 1.5px at 20% 30%,
@@ -93,7 +99,7 @@ body {
       transparent
     );
   background-size: 300px 300px;
-  animation: twinkle 5s ease-in-out infinite;
+  animation: none;
 }
 @keyframes twinkle {
   0%,
@@ -149,6 +155,8 @@ body {
 .wballs {
   display: inline-flex;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 7px;
 }
 .plus {
@@ -522,6 +530,172 @@ body {
   opacity: 0.28;
 }
 
+/* ===== 기본 웹 구조 + 생성 카드 ===== */
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 18px 24px;
+}
+.logo {
+  position: static;
+  z-index: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-img {
+  width: 48px;
+  height: 48px;
+}
+.logo-name {
+  font-size: 20px;
+}
+.home-sound-toggle {
+  position: static;
+  z-index: auto;
+  margin-left: auto;
+  padding: 8px 13px;
+}
+.site-main {
+  min-width: 0;
+}
+.intro {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 42px 24px 22px;
+  text-align: center;
+}
+.kicker {
+  margin-bottom: 7px;
+  text-shadow: none;
+}
+.htitle {
+  font-size: clamp(48px, 8vw, 68px);
+  text-shadow: none;
+}
+.hsub {
+  max-width: 480px;
+  margin: 12px auto 0;
+  font-size: 17px;
+}
+.winbar {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 12px 24px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(12, 18, 38, 0.45);
+}
+.generator-section {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 28px 24px 46px;
+}
+.generator-card {
+  padding: 28px;
+  text-align: left;
+  background: linear-gradient(160deg, rgba(52, 72, 138, 0.78), rgba(28, 39, 72, 0.9));
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.24);
+}
+.generator-card-head h2,
+.result-section-head h2 {
+  font-family: 'Jua', sans-serif;
+  font-size: 28px;
+  line-height: 1.25;
+}
+.eyebrow {
+  margin-bottom: 3px;
+  color: var(--gold);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.modechips {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+  gap: 5px;
+  margin: 20px 0 10px;
+  padding: 5px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(12, 18, 38, 0.48);
+}
+.chip {
+  min-height: 44px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 15px;
+  line-height: 1.25;
+}
+.chip.on {
+  box-shadow: inset 0 0 0 1px rgba(58, 44, 0, 0.2);
+}
+.modenote {
+  margin: 0 0 20px;
+  text-align: left;
+}
+.datanote {
+  margin: 0 0 18px;
+}
+.numpad {
+  width: 100%;
+  max-width: none;
+  margin: 0 0 20px;
+  padding: 16px;
+  background: rgba(12, 18, 38, 0.35);
+}
+.numpad-grid {
+  grid-template-columns: repeat(9, 44px);
+  justify-content: center;
+  gap: 10px;
+}
+.drawrow {
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+}
+.draw-count {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+.control-label {
+  color: var(--dim);
+  font-size: 13px;
+  font-weight: 700;
+}
+.countsel {
+  padding: 4px;
+  border-radius: 12px;
+}
+.cnt {
+  min-width: 38px;
+  padding: 8px 11px;
+  border-radius: 8px;
+}
+.drawbtn {
+  min-height: 48px;
+  padding: 12px 30px;
+  font-size: 22px;
+  letter-spacing: 1px;
+  border-radius: 12px;
+}
+.result-section {
+  margin-top: 42px;
+  text-align: left;
+}
+.result-section-head {
+  margin-bottom: 14px;
+}
+
 /* ===== 로또 추첨기 (장식용 비주얼) ===== */
 .lotto-machine {
   position: relative;
@@ -824,6 +998,11 @@ body {
   width: 20px;
   flex: none;
 }
+.game-balls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
 
 /* 단골 빈도 설명(spec: frequent-stat-note) — frequent 모드에서 게임 줄 아래 한 줄.
    게임 줄의 점선 구분은 설명 줄이 대신 지고, 마지막 줄(.nb)은 훈수의 위 점선과 겹치지 않게 뺀다. */
@@ -1043,6 +1222,211 @@ body {
 @media (max-width: 480px) {
   .prize-list {
     grid-template-columns: 1fr;
+  }
+}
+
+/* 작은 화면은 카드의 폭보다 조작 가능성과 번호 식별을 우선한다. */
+@media (max-width: 640px) {
+  .site-header {
+    gap: 12px;
+    padding: 14px 16px;
+  }
+  .logo {
+    gap: 8px;
+  }
+  .logo-img {
+    width: 40px;
+    height: 40px;
+  }
+  .logo-name {
+    font-size: 18px;
+  }
+  .home-sound-toggle {
+    padding: 7px 10px;
+    font-size: 12px;
+  }
+  .intro {
+    padding: 30px 16px 18px;
+  }
+  .kicker {
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+  .htitle {
+    font-size: clamp(42px, 15vw, 56px);
+  }
+  .hsub {
+    font-size: 15px;
+  }
+  .winbar {
+    gap: 8px;
+    margin: 0 16px;
+    padding: 10px;
+    border-radius: 14px;
+  }
+  .winbar .wlabel {
+    width: 100%;
+    text-align: center;
+  }
+  .wballs {
+    gap: 4px;
+  }
+  .winbar .ball.sm {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+  .winbar .ball.sm::before {
+    top: 4px;
+    left: 5px;
+    width: 11px;
+    height: 8px;
+  }
+  .winbar .ball.sm::after {
+    top: 11px;
+    right: 6px;
+    width: 4px;
+    height: 4px;
+  }
+  .plus {
+    font-size: 18px;
+  }
+  .generator-section,
+  .wrap {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+  .generator-section {
+    padding-top: 22px;
+    padding-bottom: 34px;
+  }
+  .generator-card {
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+  .generator-card-head h2,
+  .result-section-head h2 {
+    font-size: 24px;
+  }
+  .chip {
+    padding: 8px 5px;
+    font-size: 13px;
+  }
+  .numpad {
+    padding: 14px 10px;
+  }
+  .numpad-grid {
+    grid-template-columns: repeat(5, 38px);
+    gap: 8px 6px;
+  }
+  .numpad .ball.sm {
+    width: 38px;
+    height: 38px;
+    font-size: 15px;
+  }
+  .numpad .ball.sm::before {
+    top: 5px;
+    left: 6px;
+    width: 12px;
+    height: 9px;
+  }
+  .numpad .ball.sm::after {
+    top: 13px;
+    right: 7px;
+    width: 4px;
+    height: 4px;
+  }
+  .numpad-head {
+    align-items: flex-start;
+  }
+  .numpad-fun {
+    display: block;
+    margin-top: 2px;
+  }
+  .drawrow {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .draw-count {
+    align-items: stretch;
+  }
+  .countsel {
+    display: flex;
+    width: 100%;
+  }
+  .cnt {
+    flex: 1;
+  }
+  .drawbtn {
+    width: 100%;
+  }
+  .result-section {
+    margin-top: 32px;
+  }
+  .ticket {
+    margin-top: 18px;
+    padding: 18px 14px 20px;
+  }
+  .ticket-head {
+    flex-wrap: wrap;
+    gap: 3px 10px;
+  }
+  .game {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 7px;
+  }
+  .game-balls {
+    flex: 1 1 calc(100% - 28px);
+    gap: 4px;
+  }
+  .game-balls .ball.tk {
+    width: 34px;
+    height: 34px;
+    font-size: 15px;
+  }
+  .game-balls .ball.tk::before {
+    top: 4px;
+    left: 6px;
+    width: 12px;
+    height: 9px;
+  }
+  .game-balls .ball.tk::after {
+    top: 12px;
+    right: 7px;
+    width: 4px;
+    height: 4px;
+  }
+  .gcopy {
+    margin-left: 28px;
+  }
+  .gnote {
+    padding-left: 28px;
+  }
+  .copyall,
+  .buylink {
+    width: 100%;
+    margin: 12px 0 0;
+    text-align: center;
+  }
+  .prize-amt {
+    font-size: clamp(38px, 13vw, 52px);
+  }
+  .statpanel {
+    padding: 20px 12px;
+  }
+  .statgrid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 14px 6px;
+  }
+  .statpanel .ball.sm {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+  .statbar {
+    width: 34px;
   }
 }
 

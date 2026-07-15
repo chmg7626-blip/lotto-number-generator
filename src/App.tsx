@@ -142,42 +142,71 @@ export default function App({ soundPlayer }: AppProps = {}) {
         </div>
 
         <DisclaimerBanner />
-        <WinningBar draw={latestDraw(draws)} />
-        <GeneratorPanel
-          onDraw={handleDraw}
-          result={result}
-          hasData={hasData}
-          soundOn={soundOn}
-          onToggleSound={toggleSound}
-          notes={
-            result
-              ? buildFrequentNotes(
-                  result.mode,
-                  result.games,
-                  frequencies,
-                  draws.length,
-                )
-              : null
-          }
-        />
 
-        <section className="wrap">
-          <h2 className="sec-title">당첨금액</h2>
-          <p className="sec-sub">
-            제{prizeRound}회 기준 · 금액은 만원 미만 절사한 약식 표기
-          </p>
-          <PrizeTable />
-        </section>
+        <header className="site-header">
+          <div className="logo">
+            <div className="logo-img"></div>
+            <div className="logo-name">
+              로또 6/45<small>LUCKY DRAW</small>
+            </div>
+          </div>
+          <button
+            type="button"
+            className="home-sound-toggle"
+            onClick={toggleSound}
+            aria-pressed={soundOn}
+          >
+            {soundOn ? '🔊 소리 켬' : '🔇 소리 꺼짐'}
+          </button>
+        </header>
 
-        <section className="wrap" style={{ paddingBottom: 80 }}>
-          <h2 className="sec-title">1~45번 출현 통계</h2>
-          <p className="sec-sub">
-            {hasData
-              ? `역대 ${draws.length}회차 기준 · 예측이 아닌 재미용 통계`
-              : '데이터 없음 · 통계 없음'}
-          </p>
-          <FrequencyGrid frequencies={frequencies} />
-        </section>
+        <main className="site-main">
+          <section className="intro" aria-labelledby="page-title">
+            <div className="kicker">매주 토요일 저녁 8시 45분 추첨</div>
+            <h1 className="htitle" id="page-title">
+              로또 <span className="n">6/45</span>
+            </h1>
+            <p className="hsub">
+              과거 빈도를 구경하고, 원하는 방식으로 번호를 뽑아보세요
+            </p>
+          </section>
+
+          <WinningBar draw={latestDraw(draws)} />
+
+          <GeneratorPanel
+            onDraw={handleDraw}
+            result={result}
+            hasData={hasData}
+            notes={
+              result
+                ? buildFrequentNotes(
+                    result.mode,
+                    result.games,
+                    frequencies,
+                    draws.length,
+                  )
+                : null
+            }
+          />
+
+          <section className="wrap">
+            <h2 className="sec-title">당첨금액</h2>
+            <p className="sec-sub">
+              제{prizeRound}회 기준 · 금액은 만원 미만 절사한 약식 표기
+            </p>
+            <PrizeTable />
+          </section>
+
+          <section className="wrap" style={{ paddingBottom: 80 }}>
+            <h2 className="sec-title">1~45번 출현 통계</h2>
+            <p className="sec-sub">
+              {hasData
+                ? `역대 ${draws.length}회차 기준 · 예측이 아닌 재미용 통계`
+                : '데이터 없음 · 통계 없음'}
+            </p>
+            <FrequencyGrid frequencies={frequencies} />
+          </section>
+        </main>
 
         <SourceNotice />
       </div>
