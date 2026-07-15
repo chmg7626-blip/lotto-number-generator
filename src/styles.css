@@ -1394,6 +1394,7 @@ a:focus-visible {
 }
 
 .draw-skip {
+  min-height: 44px;
   font-family: inherit;
   font-size: 13px;
   color: var(--dim);
@@ -1409,6 +1410,7 @@ a:focus-visible {
   position: absolute;
   top: 18px;
   right: 18px;
+  min-height: 44px;
   font-family: inherit;
   font-size: 13px;
   color: var(--dim);
@@ -2422,7 +2424,10 @@ a:focus-visible {
     font-size: 13px;
   }
   .studio-trust-note {
-    display: none;
+    margin-top: 18px;
+    padding-left: 12px;
+    font-size: 10.5px;
+    line-height: 1.55;
   }
   .studio-generator {
     padding: 25px 16px 24px;
