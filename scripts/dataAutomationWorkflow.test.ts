@@ -16,4 +16,12 @@ describe('주간 데이터 자동화 workflow', () => {
     expect(ciWorkflow).toContain('Update lotto data')
     expect(ciWorkflow).toMatch(/workflow_run\.conclusion\s*==\s*'success'/)
   })
+
+  it('workflow_run 검사와 배포가 triggering run의 동일한 commit을 checkout한다', () => {
+    const pinnedRef =
+      "ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}"
+
+    expect(ciWorkflow.match(new RegExp(pinnedRef.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')))
+      .toHaveLength(2)
+  })
 })

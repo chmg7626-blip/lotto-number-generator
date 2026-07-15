@@ -3,6 +3,7 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import App from './App'
 import { EXPERT_QUIPS } from './components/expertQuips'
+import drawsData from './data/draws.json'
 ;(
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
 ).IS_REACT_ACT_ENVIRONMENT = true
@@ -95,11 +96,15 @@ describe('기본 웹 UI 구조와 생성 제어', () => {
     expect(container.querySelector('main.site-main')).not.toBeNull()
     expect(container.querySelector('.generator-card')).not.toBeNull()
     expect(container.querySelector('.lotto-machine')).toBeNull()
+    const latest = drawsData.draws.reduce((current, draw) =>
+      draw.round > current.round ? draw : current,
+    )
+    const [year, month, day] = latest.date.split('-').map(Number)
     expect(container.querySelector('.wdate')?.textContent).toBe(
-      '2026. 7. 11. 추첨',
+      `${year}. ${month}. ${day}. 추첨`,
     )
     expect(container.querySelector('time.wdate')?.getAttribute('datetime')).toBe(
-      '2026-07-11',
+      latest.date,
     )
     expect(
       container.querySelector('.home-sound-toggle')?.getAttribute('aria-pressed'),
