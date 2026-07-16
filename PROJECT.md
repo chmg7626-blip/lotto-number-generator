@@ -19,12 +19,13 @@
   #8(출력 지연 보상)·#9(BGM 재도입·컷인 교체)·#10(BGM 첫 클릭 시작·홈 음소거 토글) 전부
   main 병합·배포 검증. update-data.yml "변경 없음" 경로 실동작 확인.
   이전: 전문가 훈수 PR #4, 효과음 PR #3(2026-07-05), 추첨 애니메이션 PR #2, 1차 MVP PR #1.
-- **알려진 문제(사용자 제보 2026-07-07 마감 시)**: ① 소리 오류가 아직 좀 있음(구체 증상
-  미청취 — 다음 세션에 증상부터 확인), ② 모바일 기본 웹 UI는 로컬 구현·화면 검증까지 완료했고,
-  실제 키보드 수동 점검·같은 SHA의 CI·독립 리뷰·공개 반영은 아직 남아 있다.
+- **알려진 문제**: ① 소리 오류가 아직 좀 있음(구체 증상 미청취 — 다음 세션에 증상부터 확인),
+  ② 공개 C안 모바일 화면의 좌우 여백·번호판 간격·게임 수 줄바꿈·1등 금액 줄바꿈은
+  `fix/mobile-responsive-polish`에서 로컬 보정·자동 검사를 마쳤다. 실제 모바일 render·키보드 수동 점검·
+  같은 diff의 CI·독립 리뷰는 남아 있다.
 - 콘텐츠 단계: 해당 없음
 - 활성 spec: `docs/specs/mobile-draw-stage-ui.md` (Approved, 2026-07-15)
-- 현재 브랜치: `codex/mobile-web-ui`
+- 현재 브랜치: `fix/mobile-responsive-polish` (base `origin/main@df9282d`)
 
 ## 진행 중인 챌린지/연재 (없으면 "없음")
 
@@ -96,9 +97,11 @@
 
 - **① 소리 오류 잡기(다음 세션 시작점)**: 사용자에게 구체 증상부터 청취(어떤 소리가, 언제,
   어떻게 이상한지) → debug 절차. 후보 맥락: Web Audio 전환·지연 보상·BGM 수명주기 모두 이날 변경
-- **② 모바일 기본 웹 UI 검증 마무리**: `docs/specs/mobile-draw-stage-ui.md`와
-  `docs/plans/mobile-draw-stage-ui.md` 기준. 실제 키보드(Tab/Enter/Space) 수동 점검, 같은 head
-  SHA의 CI, Standard 독립 리뷰와 사람의 공개 반영 승인이 남아 있다.
+- **② C안 모바일 반응형 보정(WP-004) 배포 게이트**: `docs/specs/mobile-draw-stage-ui.md`와
+  `docs/plans/lotto-ui-c-weekend-studio.md` 기준. 320·360·390·412·640px 실제 render와 320·390px의
+  고정 5개→×5→결과 흐름은 확인했다. 실제 키보드(Tab/Enter/Space) 수동 점검, 같은 head SHA의 CI,
+  Standard 독립 리뷰와 사람의 공개 반영 승인이 남아 있다. 현재 CI에는 reviewer gate용 독립 evidence
+  산출이 없어, 그 범위를 추가 승인하지 않으면 독립 리뷰 단계는 진행할 수 없다.
 - 다음 토요일 추첨(1232회) 후 update-data.yml 자동 실행이 새 회차를 실제로 커밋하는지 확인
 - BGM 출처 URL 확보 시 docs/research/draw-sound-assets.md 음원 대장 갱신(잔여 라이선스 리스크)
 - (선택) 프로젝트 루트 원본 음원 2개(bgm.wav, 810764**mokasza**\*.mp3) 삭제 — 변환본 커밋됨, 사용자 확인
