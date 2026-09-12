@@ -1,29 +1,29 @@
 {
-  "round": 1240,
+  "round": 1241,
   "tiers": [
     {
       "rank": 1,
-      "winners": 16,
-      "prizePerGame": 1791817758
+      "winners": 18,
+      "prizePerGame": 1628391980
     },
     {
       "rank": 2,
-      "winners": 78,
-      "prizePerGame": 61258727
+      "winners": 90,
+      "prizePerGame": 54279733
     },
     {
       "rank": 3,
-      "winners": 3087,
-      "prizePerGame": 1547840
+      "winners": 3254,
+      "prizePerGame": 1501284
     },
     {
       "rank": 4,
-      "winners": 155202,
+      "winners": 165086,
       "prizePerGame": 50000
     },
     {
       "rank": 5,
-      "winners": 2619423,
+      "winners": 2724667,
       "prizePerGame": 5000
     }
   ]
